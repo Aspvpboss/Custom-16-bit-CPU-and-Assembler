@@ -9,7 +9,7 @@
 EMU_Result iterate(Emulator *emu){
 
     static SDL_Event e;
-    SDK_Input *input = emu->sdk_io.input;
+    SDLite_Input *input = emu->SDLite_io.input;
 
     while(SDL_PollEvent(&e)){
         if(e.type == SDL_EVENT_QUIT){
@@ -17,13 +17,13 @@ EMU_Result iterate(Emulator *emu){
         }            
     }
 
-    if(SDK_Keyboard_Pressed(input, SDL_SCANCODE_Q) &&
-       SDK_Keyboard_Pressed(input, SDL_SCANCODE_LSHIFT)){
+    if(SDLite_Input_KeyPressed(input, SDL_SCANCODE_Q) &&
+       SDLite_Input_KeyPressed(input, SDL_SCANCODE_LSHIFT)){
 
         return EMU_SUCCESS;
     }
    
-    if(SDK_Keyboard_JustPressed(input, SDL_SCANCODE_F)){
+    if(SDLite_Input_KeyJustPressed(input, SDL_SCANCODE_F)){
         return EMU_FAILURE;
     }
 

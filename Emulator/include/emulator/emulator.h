@@ -2,7 +2,7 @@
 #define EMULATOR_H
 
 #include "my_stdtypes.h"
-#include "SDK.h"
+#include "SDLite.h"
 
 #include "emulator/flags.h"
 #include "emulator/alu.h"
@@ -11,18 +11,18 @@
 
 typedef struct{
 
-    SDK_Time *time;
-    SDK_Input *input;
-    SDK_Display *display;
+    SDLite_Time *time;
+    SDLite_Input *input;
+    SDLite_Display *display;
 
-} SDK_IO;
+} SDLite_IO;
 
 
 typedef struct{
 
     u16 program_counter;
     u8 ram[0x7fff];
-    SDK_IO sdk_io;
+    SDLite_IO SDLite_io;
     EMU_Alu alu;
     EMU_Fpu fpu;
     CMP_Flags flags;

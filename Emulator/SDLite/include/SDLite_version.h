@@ -5,8 +5,8 @@
  * See the LICENSE file in the project root for license information.
 */
 
-#ifndef SDK_VERSION_H
-#define SDK_VERSION_H
+#ifndef SDLite_VERSION_H
+#define SDLite_VERSION_H
 
 #ifdef __cplusplus
 extern "C"{
@@ -14,16 +14,18 @@ extern "C"{
 
 #include "common_libs.h"
 
-#define SDK_MAJOR_VERSION 1
-#define SDK_MINOR_VERSION 1
-#define SDK_MICRO_VERSION 1
+#define SDLITE_MAJOR_VERSION 1
+#define SDLITE_MINOR_VERSION 2
+#define SDLITE_MICRO_VERSION 0
 
 /* 
     takes in int* and writes the version numbers to those pointers
 
+    Can be called from any thread
+
     returns early if any pointer is NULL
 */
-SDK1_API void SDK_Version_GetNumbers(int *major, int *minor, int *micro);
+SDLite_DLL void SDLite_Version_GetNumbers(int *major, int *minor, int *micro);
 
 #ifdef __cplusplus
 }

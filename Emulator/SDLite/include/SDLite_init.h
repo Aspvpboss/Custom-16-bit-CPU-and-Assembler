@@ -5,8 +5,8 @@
  * See the LICENSE file in the project root for license information.
 */
 
-#ifndef SDK_INIT_H
-#define SDK_INIT_H
+#ifndef SDLite_INIT_H
+#define SDLite_INIT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,6 +15,11 @@ extern "C" {
 
 
 #include "common_libs.h"
+
+/*
+    These functions can be called from any thread, but you should only call them once anyways
+*/
+
 
 /*
     initializes all SDL systems, and MemTrack for SDK
@@ -35,15 +40,15 @@ extern "C" {
     returns 0 for success, returns 1 for failure
     call SDL_GetError() for more info    
 */
-SDK1_API int SDK_Init(
-    void (*func)(void*), void *func_data, bool memory_failure_abort, bool print_memtrack_info, bool auto_null_pointers);
+SDLite_DLL int SDLite_Init(
+    void (*func)(void*), void *func_data, bool memory_failure_abort, bool auto_null_pointers);
 
 /*
     deinitializes all SDL systems, and MemTrack for SDK
     
     If you are using SDK1_debug, it will print tracking info for any memory you haven't freed
 */
-SDK1_API void SDK_Quit();
+SDLite_DLL void SDLite_Quit();
 
 #ifdef __cplusplus
 }

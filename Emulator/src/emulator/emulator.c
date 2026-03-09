@@ -17,7 +17,7 @@ int emulator_main(void *data){
 
 
     EMU_Result result = EMU_CONTINUE;
-    SDK_IO *sdk_io = &emu->sdk_io;
+    SDLite_IO *sdlite = &emu->SDLite_io;
 
     bool limit_fps = false;
 
@@ -32,21 +32,20 @@ int emulator_main(void *data){
             return 1;
         }
 
-        if(SDK_Keyboard_JustPressed(emu->sdk_io.input, SDL_SCANCODE_T)){
-            printf("                                        \r %.2f - dt: %.10f\r", sdk_io->time->fps, sdk_io->time->dt);
+        if(SDLite_Input_KeyJustPressed(emu->SDLite_io.input, SDL_SCANCODE_T)){
+            printf("                                        \r %.2f - dt: %.10f\r", 
+                SDLite_Time_GetFPS(sdlite->time), SDLite_Time_GetDT(sdlite->time));
         }
 
-        if(SDK_Keyboard_JustPressed(sdk_io->input, SDL_SCANCODE_SPACE)){
+        if(SDLite_Input_KeyJustPressed(sdlite->input, SDL_SCANCODE_SPACE)){
             limit_fps = !limit_fps;
+            double new_fps = limit_fps ? -1 : 1000;
+            SDLite_Time_Set_FPSLimit(sdlite->time, new_fps);
         }
 
-        SDK_Update_Previous_Inputs(emu->sdk_io.input);
-        SDK_CalculateDT(emu->sdk_io.time);
-        if(limit_fps){
-            SDK_LimitFPS(sdk_io->time);
-        }
-        SDK_CalculateFPS(emu->sdk_io.time);
 
+        SDLite_Input_UpdateAllPrev(emu->SDLite_io.input);
+        SDLite_TimeFunctions(sdlite->time);
     }
 
     destroy(emu);

@@ -5,8 +5,8 @@
  * See the LICENSE file in the project root for license information.
 */
 
-#ifndef SDK_COMMON_LIBS_H
-#define SDK_COMMON_LIBS_H
+#ifndef SDLite_COMMON_LIBS_H
+#define SDLite_COMMON_LIBS_H
 
 #ifdef __cplusplus
 extern "C"{
@@ -14,14 +14,14 @@ extern "C"{
 
 #ifdef _WIN32
     #ifdef DLL_EXPORTS
-        #define SDK1_API __declspec(dllexport)
+        #define SDLite_DLL __declspec(dllexport)
     #elif defined(STATIC_LINK)
-        #define SDK1_API
+        #define SDLite_DLL
     #else
-        #define SDK1_API __declspec(dllimport)
+        #define SDLite_DLL __declspec(dllimport)
     #endif
 #else
-    #define SDK1_API
+    #define SDLite_DLL
 #endif
 
 
