@@ -5,7 +5,8 @@
 int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     EMU_Instructions opcode = EMU_JMP;
-    // EMU_Addressing_Modes addressing_mode = (instruction & 0x000000e0) >> 5;
+    // EMU_Instructions opcode = instruction->opcode;
+    // EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
     switch(opcode){
 
