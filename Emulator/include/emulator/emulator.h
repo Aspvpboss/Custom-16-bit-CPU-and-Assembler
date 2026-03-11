@@ -31,7 +31,7 @@ typedef struct{
 
 
 
-int emulator_main(void *data);
+int SDLCALL emulator_main(void *ptr);
 
 
 #endif

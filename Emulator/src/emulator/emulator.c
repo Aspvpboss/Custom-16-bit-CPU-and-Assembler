@@ -5,13 +5,13 @@
 #include "emulator/emulator.h"
 
 
-int emulator_main(void *data){
-
-    _Atomic int *emulator_state = data;
+int SDLCALL emulator_main(void *ptr){
+  
+    SDL_AtomicU32 *emulator_state = (SDL_AtomicU32*)ptr;
 
     Emulator *emu = init();
     if(!emu){
-        (*emulator_state) = -1;
+        SDL_SetAtomicU32(emulator_state, 1);
         return 1;
     }
 
@@ -28,7 +28,7 @@ int emulator_main(void *data){
         
         if(result == EMU_FAILURE){
             destroy(emu);
-            (*emulator_state) = -1;
+            SDL_SetAtomicU32(emulator_state, 1);
             return 1;
         }
 
@@ -50,7 +50,7 @@ int emulator_main(void *data){
 
     destroy(emu);
 
-    (*emulator_state) = 1;
-
+    SDL_SetAtomicU32(emulator_state, 1);
+    
     return 0;
 }
