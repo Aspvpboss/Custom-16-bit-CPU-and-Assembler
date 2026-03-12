@@ -34,6 +34,248 @@ int exe_add(Emulator *emu, EMU_Decoded_Instruction *instructions){
     return 1;
 }
 
+int exe_sub(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.sub(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.sub(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_mul(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.mul(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.mul(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_div(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.div(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.div(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_mod(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.div(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.div(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_cmp(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.cmp(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.cmp(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_and(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.and(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]]);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.and(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]]);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_nor(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.nor(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]]);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.nor(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]]);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_xor(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.xor(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]]);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.xor(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]]);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_ars(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.ars(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.ars(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_lrs(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.lrs(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.lrs(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+int exe_lls(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){        
+
+        emu->alu.lls(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.lls(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
 
 
 
