@@ -2,6 +2,41 @@
 #include "debug.h"
 
 
+typedef enum{
+
+    OP_ZERO,
+    OP_ONE,
+    OP_TWO
+
+} EMU_Operands;
+
+
+
+int exe_add(Emulator *emu, EMU_Decoded_Instruction *instructions){
+
+    u16 *registers = emu->alu.registers;
+    u16 *opcodes = instructions->operands;
+
+    EMU_Addressing_Modes addr_mode = instructions->addressing_mode;
+
+    if(addr_mode == ADDR_REG){
+
+        emu->alu.add(registers[opcodes[OP_ZERO]], registers[opcodes[OP_TWO]], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->alu.add(registers[opcodes[OP_ZERO]], opcodes[OP_TWO], &registers[opcodes[OP_ONE]], &emu->flags);
+        return 0;
+
+    }
+
+    return 1;
+}
+
+
+
+
 int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     EMU_Instructions opcode = EMU_JMP;
