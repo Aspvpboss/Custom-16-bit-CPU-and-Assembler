@@ -324,39 +324,51 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         case EMU_ADD:
+            if(exe_add(emu, instruction)) return 1;
             break;
 
         case EMU_SUB:
+            if(exe_sub(emu, instruction)) return 1;
             break;
 
         case EMU_MUL:
+            if(exe_mul(emu, instruction)) return 1;
             break;
 
         case EMU_DIV:
+            if(exe_div(emu, instruction)) return 1;
             break;
 
         case EMU_MOD:
+            if(exe_mod(emu, instruction)) return 1;
             break;
 
         case EMU_CMP:
+            if(exe_cmp(emu, instruction)) return 1;
             break;
 
         case EMU_AND:
+            if(exe_and(emu, instruction)) return 1;
             break;
 
         case EMU_NOR:
+            if(exe_nor(emu, instruction)) return 1;
             break;
 
         case EMU_XOR:
+            if(exe_xor(emu, instruction)) return 1;
             break;
 
         case EMU_ARS:
+            if(exe_ars(emu, instruction)) return 1;
             break;
 
         case EMU_LRS:
+            if(exe_lrs(emu, instruction)) return 1;
             break;
 
         case EMU_LLS:
+            if(exe_lls(emu, instruction)) return 1;
             break;
 
         case EMU_FADD:
