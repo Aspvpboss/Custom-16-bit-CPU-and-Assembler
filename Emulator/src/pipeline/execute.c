@@ -288,9 +288,137 @@ exe_fadd(Emulator *emu, EMU_Decoded_Instruction *instruction){
         emu->fpu.add(registers[operands[OP_ZERO]], registers[operands[OP_TWO]], &registers[operands[OP_ONE]], &emu->flags);
         return 0;
 
-    } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
         emu->fpu.add(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+    }
+
+    return 1;
+}
+
+exe_fsub(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    f16 *registers = emu->fpu.registers;
+    u16 *operands = instruction->operands;
+
+    EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
+
+    if(addr_mode == ADDR_REG){
+
+        emu->fpu.sub(registers[operands[OP_ZERO]], registers[operands[OP_TWO]], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->fpu.sub(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+    }
+
+    return 1;
+}
+
+exe_fmul(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    f16 *registers = emu->fpu.registers;
+    u16 *operands = instruction->operands;
+
+    EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
+
+    if(addr_mode == ADDR_REG){
+
+        emu->fpu.mul(registers[operands[OP_ZERO]], registers[operands[OP_TWO]], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->fpu.mul(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+    }
+
+    return 1;
+}
+
+exe_fdiv(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    f16 *registers = emu->fpu.registers;
+    u16 *operands = instruction->operands;
+
+    EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
+
+    if(addr_mode == ADDR_REG){
+
+        emu->fpu.div(registers[operands[OP_ZERO]], registers[operands[OP_TWO]], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->fpu.div(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+    }
+
+    return 1;
+}
+
+exe_fsqrt(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    f16 *registers = emu->fpu.registers;
+    u16 *operands = instruction->operands;
+
+    EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
+
+    if(addr_mode == ADDR_REG){
+
+        emu->fpu.sqrt(registers[operands[OP_ZERO]], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->fpu.sqrt(registers[operands[OP_ZERO]], &registers[operands[OP_ONE]], &emu->flags);
+        return 0;
+    }
+
+    return 1;
+}
+
+exe_fcmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    f16 *registers = emu->fpu.registers;
+    u16 *operands = instruction->operands;
+
+    EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
+
+    if(addr_mode == ADDR_REG){
+
+        emu->fpu.cmp(registers[operands[OP_ZERO]], registers[operands[OP_TWO]], &emu->flags);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->fpu.cmp(registers[operands[OP_ZERO]], (*(f16*)&operands[OP_TWO]), &emu->flags);
+        return 0;
+    }
+
+    return 1;
+}
+
+exe_fint(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    u16 *alu_registers = emu->alu.registers;
+    f16 *float_registers = emu->fpu.registers;
+    u16 *operands = instruction->operands;
+
+    EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
+
+    if(addr_mode == ADDR_REG){
+
+        emu->fpu.fint(float_registers[operands[OP_ZERO]], &alu_registers[operands[OP_ONE]]);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->fpu.fint((*(f16*)&operands[OP_TWO]), operands[OP_TWO]);
+        
         return 0;
     }
 
