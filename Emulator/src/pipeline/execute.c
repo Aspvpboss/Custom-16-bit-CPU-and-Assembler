@@ -276,7 +276,7 @@ int exe_lls(Emulator *emu, EMU_Decoded_Instruction *instruction){
     return 1;
 }
 
-exe_fadd(Emulator *emu, EMU_Decoded_Instruction *instruction){
+int exe_fadd(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
@@ -290,14 +290,14 @@ exe_fadd(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
-        emu->fpu.add(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[operands[OP_ONE]], &emu->flags);
+        emu->fpu.add(registers[operands[OP_ZERO]], (*(f16*)&operands[OP_TWO]), &registers[operands[OP_ONE]], &emu->flags);
         return 0;
     }
 
     return 1;
 }
 
-exe_fsub(Emulator *emu, EMU_Decoded_Instruction *instruction){
+int exe_fsub(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
@@ -311,14 +311,14 @@ exe_fsub(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
-        emu->fpu.sub(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[operands[OP_ONE]], &emu->flags);
+        emu->fpu.sub(registers[operands[OP_ZERO]], (*(f16*)&operands[OP_TWO]), &registers[operands[OP_ONE]], &emu->flags);
         return 0;
     }
 
     return 1;
 }
 
-exe_fmul(Emulator *emu, EMU_Decoded_Instruction *instruction){
+int exe_fmul(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
@@ -332,14 +332,14 @@ exe_fmul(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
-        emu->fpu.mul(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[operands[OP_ONE]], &emu->flags);
+        emu->fpu.mul(registers[operands[OP_ZERO]], (*(f16*)&operands[OP_TWO]), &registers[operands[OP_ONE]], &emu->flags);
         return 0;
     }
 
     return 1;
 }
 
-exe_fdiv(Emulator *emu, EMU_Decoded_Instruction *instruction){
+int exe_fdiv(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
@@ -353,14 +353,14 @@ exe_fdiv(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
-        emu->fpu.div(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[operands[OP_ONE]], &emu->flags);
+        emu->fpu.div(registers[operands[OP_ZERO]], (*(f16*)&operands[OP_TWO]), &registers[operands[OP_ONE]], &emu->flags);
         return 0;
     }
 
     return 1;
 }
 
-exe_fsqrt(Emulator *emu, EMU_Decoded_Instruction *instruction){
+int exe_fsqrt(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
@@ -374,14 +374,14 @@ exe_fsqrt(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
-        emu->fpu.sqrt(registers[operands[OP_ZERO]], &registers[operands[OP_ONE]], &emu->flags);
+        emu->fpu.sqrt((*(f16*)&operands[OP_TWO]), &registers[operands[OP_ONE]], &emu->flags);
         return 0;
     }
 
     return 1;
 }
 
-exe_fcmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
+int exe_fcmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
@@ -402,7 +402,7 @@ exe_fcmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
     return 1;
 }
 
-exe_fint(Emulator *emu, EMU_Decoded_Instruction *instruction){
+int exe_fint(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *alu_registers = emu->alu.registers;
     f16 *float_registers = emu->fpu.registers;
@@ -417,7 +417,7 @@ exe_fint(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
-        emu->fpu.fint((*(f16*)&operands[OP_TWO]), operands[OP_TWO]);
+        emu->fpu.fint((*(f16*)&operands[OP_TWO]), &alu_registers[operands[OP_ONE]]);
         
         return 0;
     }
@@ -425,6 +425,28 @@ exe_fint(Emulator *emu, EMU_Decoded_Instruction *instruction){
     return 1;
 }
 
+int exe_iflo(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    u16 *alu_registers = emu->alu.registers;
+    f16 *float_registers = emu->fpu.registers;
+    u16 *operands = instruction->operands;
+
+    EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
+
+    if(addr_mode == ADDR_REG){
+
+        emu->fpu.iflo(alu_registers[operands[OP_ZERO]], &float_registers[operands[OP_ONE]]);
+        return 0;
+
+    } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
+
+        emu->fpu.iflo((*(f16*)&operands[OP_TWO]), &float_registers[operands[OP_ONE]]);
+        
+        return 0;
+    }
+
+    return 1;
+}
 
 
 int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
