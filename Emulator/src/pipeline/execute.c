@@ -542,27 +542,35 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         case EMU_FADD:
+            if(exe_fadd(emu, instruction)) return 1;
             break;
 
         case EMU_FSUB:
+            if(exe_fsub(emu, instruction)) return 1;
             break;
 
         case EMU_FMUL:
+            if(exe_fmul(emu, instruction)) return 1;
             break;
 
         case EMU_FDIV:
+            if(exe_fdiv(emu, instruction)) return 1;
             break;
 
         case EMU_FSQRT:
+            if(exe_fsqrt(emu, instruction)) return 1;
             break;
 
         case EMU_FCMP:
+            if(exe_fcmp(emu, instruction)) return 1;
             break;
 
         case EMU_FINT:
+            if(exe_fint(emu, instruction)) return 1;
             break;
 
         case EMU_IFLO:
+            if(exe_iflo(emu, instruction)) return 1;
             break;
 
         default:
