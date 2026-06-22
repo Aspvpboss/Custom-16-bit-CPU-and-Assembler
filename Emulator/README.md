@@ -5,42 +5,51 @@
 
 0x0000 - 0x00FF: hardcoded bootloader (256B)
 
-0x0100 - 0x7EFF: RAM (~32 KiB)
+0x0100 - 0x6EFF: RAM (~27.5 KiB)
+
+0x6F00 - 0x7EFF: VRAM (4 KiB, 64x64 @ 1 byte/pixel)
 
 0x7F00 - 0x7FFF: MMIO (256B)
 
 0x8000 - 0xFFFF: Selected ROM bank (32 KiB for each bank)
-    can support techinically up to 2 ^ 16 amount of banks
+    can support techinically up to 2 ^ 16 amount of banks,
     each bank being a binary file that is loaded
 
-most functions will XIP (execute in place), but there should be a function in loaded from rom into ram that will switch banks, so that the program isn't running from the rom bank while it is switch banks
+most functions will XIP (execute in place), but there should be a function in loaded by the bootloader from rom into ram that will switch banks, so that the program isn't running from the rom bank while it is switching banks
 
 # Addressing modes
+
+##### (LOAD and STR does index addressing when using Reg imm8/imm16)
+##### (JMP, JIF, CAL, and CIF does relative jumping when using Reg imm8/imm16; then, they do absolute jumpnig when using imm8/imm16)
 
 |Mode| Name | Extra bytes | Meaning |
 |:---:|:---:|:---:|:---:|
 | 000 | Reg | 2 | Rn0 + Rn1 -> Rn2 | 
-| 001 | Reg indirect | 1 | [Rn] |
-| 010 | Reg index imm8 | 3 | [Rn + imm8] |
-| 011 | Reg index imm16 | 4 | [Rn + imm16] -> Rn |
-| 100 | Reg imm8 | 2 | Rn + imm8 -> Rn |
-| 101 | Reg imm16 | 3 | Rn + imm16 -> Rn |
-| 110 |  Immediate8 | 1 | #imm8 |
-| 111 |  Immediate16 | 2 | #imm16 |
+| 001 | Reg indirect | 2 | [Rn0] -> Rn1 or Rn0 -> [Rn1] |
+| 010 | Reg imm8 | 3 | Rn + imm8 -> Rn or [Rn + imm8] -> Rn|
+| 011 | Reg imm16 | 4 | Rn + imm16 -> Rn  or [Rn + imm16] -> Rn|
+| 100 |  Immediate8 | 1 | #imm8 |
+| 101 |  Immediate16 | 2 | #imm16 |
+| N/A|
+| N/A|
 
 
 # Operands for Addressing modes
 
+##### (regA and regB are 4-bit read addresses )
+##### (regC is a 5-bit write address)
+
 | Mode | Op0 | Op1 | Op2 |
 |:---:|:---:|:---:|:---:|
-| Reg | regA | regB | regC |
-| Reg Indirect | pointer reg | n/a | n/a |
-| Reg index imm8 | regA | regB | imm8 |
-| Reg index imm16 | regA | regB | imm16 |
-| Reg imm8 | regA | regB | imm8 |
-| Reg imm16 | regA | regB | imm16 |
+| Reg | regA | regC | regB |
+| Reg Indirect | pointer reg | regC | n/a |
+| Reg imm8 | regA | regC | imm8 |
+| Reg imm16 | regA | regC | imm16 |
 | Immediate8 | imm8 | n/a | n/a |
 | Immediate16 | imm16 | n/a | n/a |
+| N/A|
+| N/A|
+
 
 # Registers
 | ALU registers | FPU registers |
@@ -54,13 +63,14 @@ Instructions normally encode the ALU register operand using a 4-bit field. For m
 
 ### 32 total instructions
 
-#### 6 memory instructions
+
+#### 5 memory instructions
 - LOAD - load from memory into register
 - STR - store register into address in memory
 - PUSH - push register into memory
 - POP - pop from memory into register
-- LDI - load integer immediate into int register
 - MOV - reg to reg, reg to float, float to reg, float to float
+- ##### You can use LOAD as a load immediate; however, you do need the immediate to be in the currently loaded bank or in ram
 
 
 #### 6 control flow instructions
