@@ -19,48 +19,20 @@ most functions will XIP (execute in place), but there should be a function in lo
 
 # Addressing modes
 
-##### (LOAD and STR does index addressing when using Reg imm8/imm16)
-##### (JMP, JIF, CAL, and CIF does relative jumping when using Reg imm8/imm16; then, they do absolute jumpnig when using imm8/imm16)
-
-|Mode| Name | Extra bytes | Meaning |
-|:---:|:---:|:---:|:---:|
-| 000 | Reg | 2 | Rn0 + Rn1 -> Rn2 | 
-| 001 | Reg indirect | 2 | [Rn0] -> Rn1 or Rn0 -> [Rn1] |
-| 010 | Reg imm8 | 3 | Rn + imm8 -> Rn or [Rn + imm8] -> Rn|
-| 011 | Reg imm16 | 4 | Rn + imm16 -> Rn  or [Rn + imm16] -> Rn|
-| 100 |  Immediate8 | 2 | #imm8 or #imm8 -> Rn or Rn -> imm8 |
-| 101 |  Immediate16 | 3 | #imm16 |
-| N/A|
-| N/A|
-
-
-# MOV opcode modes
-
-##### This is used in the regB operand for the MOV instruction to select what it does
-
-| Opcode | Mode |
-| :---: | :---: |
-| 0000 | Reg to reg |
-| 0001 | Reg to float |
-| 0010 | Float to reg |
-| 0011 | Float to float |
-
-
-# Operands for Addressing modes
 
 ##### (regA and regB are 4-bit register addresses )
 ##### (regC is a 5-bit register address)
 
-| Mode | Op0 | Op1 | Op2 |
-|:---:|:---:|:---:|:---:|
-| Reg | regA | regC | regB |
-| Reg Indirect | pointer reg | regC | n/a |
-| Reg imm8 | regA | regC | imm8 |
-| Reg imm16 | regA | regC | imm16 |
-| Immediate8 | imm8 | regC | n/a |
-| Immediate16 | imm16 | reg C | n/a |
-| N/A|
-| N/A|
+| Opcode | Mode | Op0 | Op1 | Op2 |
+|:---:|:---:|:---:|:---:|:---:|
+| 000 | Reg Direct | regA | regC | regB |
+| 001 | Reg Indirect | regA | regC | n/a |
+| 010 | Reg imm8 | regA | regC | imm8 |
+| 011 | Reg imm16 | regA | regC | imm16 |
+| 100 | Immediate8-dest | imm8 | regC | n/a |
+| 101 | Immediate16-dest | imm16 | reg C | n/a |
+| 110 | Immediate8 | imm8| n/a | n/a |
+| 111 | Immediate16 | imm16 | n/a | n/a |
 
 
 # Registers
@@ -82,8 +54,8 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 | Reg Indirect | [regA] -> RegC|
 | Reg imm8 | [regA + imm8] -> RegC|
 | Reg imm16 | [regA + imm16] -> RegC|
-| Imm8 | [imm8] -> RegC|
-| Imm16 | [imm16] -> RegC|
+| Imm8-dest | [imm8] -> RegC|
+| Imm16-dest | [imm16] -> RegC|
 ##### You can use LOAD as a load immediate; however, you do need the immediate to be in the currently loaded bank or in ram
 
 | STR | stores register into address in memory |
@@ -91,23 +63,33 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 | Reg Indirect | RegC -> [regA] |
 | Reg imm8 | RegC -> [regA + imm8] |
 | Reg imm16 | RegC -> [regA + imm16] |
-| Imm8 | [imm8] -> RegC |
-| Imm16 | [imm16] -> RegC |
+| Imm8-dest | RegC -> [imm8] |
+| Imm16-dest | RegC -> [imm16] |
+##### Trying to store a register value to the ROM section will cause the emulator to throw an error and close
+
 
 | PUSH | pushs a register into memory|
 |:---:|:---|
-| | |
+| Imm8 | RegC -> [SP]|
 
 | POP | pops a register from memory|
 |:---:|:---|
-| | |
+| Imm8 | [SP] -> RegC|
+##### PUSH and POP both use the imm8 as the register address to save memory
 
-| MOV | inter-register move operations: reg to reg, reg to float, float to reg, float to float |
+| MOV | inter-register movement operations |
 |:---:|:---|
-| | |
+| Reg Direct | RegA -> RegC |
 
 
+| Opcode | Mode |
+| :---: | :---: |
+| 0000 | Reg to reg |
+| 0001 | Reg to float |
+| 0010 | Float to reg |
+| 0011 | Float to float |
 
+##### This is used in the regB operand for the MOV instruction to select what it does. The full 16-bits will be moved (no 8-bit).
 
 
 #### 6 control flow instructions
