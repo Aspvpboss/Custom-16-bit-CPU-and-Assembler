@@ -92,29 +92,82 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 ##### This is used in the regB operand for the MOV instruction to select what it does. The full 16-bits will be moved (no 8-bit).
 
 
-#### 6 control flow instructions
-- SYSCALL - system call special functions (not in memory)
-- JMP - absolute or relative, depends on addressing mode
-- JIF - same as jmp
-- CAL - functional absolute or relative
-- CIF - same as cal
-- RET - returns from function call
+### 6 control flow instructions
 
-#### 12 alu instructions
-- ADD - adds two integers
-- SUB - subtracts two integers
-- MUL - multiplys two integers
-- DIV - divides two integers
-- MOD - modulos two integers
-- CMP - compares two integers
-- AND - ands two integers
-- NOR - nors two integers
-- XOR - xors two integers
-- ARS - arthimatic right shifts a integer
-- LRS - logical right shifts a integer
-- LLS - logical left shifts a integer
+| SYSCALL | call special functions not in memory |
+|:---:|:---|
+|  |  |
 
-#### 8 float instructions
+| JMP | jumps to an address |
+|:---:|:---|
+|  |  |
+
+| JIF | Conditional JMP |
+|:---:|:---|
+|  |  |
+
+| CAL | jumps to a function, pushes current address into stack |
+|:---:|:---|
+|  |  |
+
+| CIF | Conditional CAL |
+|:---:|:---|
+|  |  |
+
+| RET | returns from a function call |
+|:---:|:---|
+|  |  |
+
+### 12 alu instructions
+| ADD | adds two registers and saves to a register |
+|:---:|:---|
+|  |  |
+
+| SUB | subtracts two registers and saves to a register |
+|:---:|:---|
+|  |  |
+
+| MUL | multiplies two registers and saves to a register |
+|:---:|:---|
+|  |  |
+
+| MUL | divides two registers and saves to a register |
+|:---:|:---|
+|  |  |
+
+| MOD | modulos two registers and saves to a register |
+|:---:|:---|
+|  |  |
+
+| CMP | comapres two integers and saves the flags |
+|:---:|:---|
+|  |  |
+
+| AND | ands two registers and saves to a register |
+|:---:|:---|
+|  |  |
+
+| NOR | nors two registers and saves to a register |
+|:---:|:---|
+|  |  |
+
+| XOR | xors two registers and saves to a register |
+|:---:|:---|
+|  |  |
+
+| ARS | arthimatic right shifts a register and saves to a register |
+|:---:|:---|
+|  |  |
+
+| LRS | logical right shifts a register and saves to a register |
+|:---:|:---|
+|  |  |
+
+| LLS | logical left shifts a register and saves to a register |
+|:---:|:---|
+|  |  |
+
+### 8 float instructions
 - FADD - adds two floats
 - FSUB - subtracts two floats
 - FMUL - multiplys two floats
