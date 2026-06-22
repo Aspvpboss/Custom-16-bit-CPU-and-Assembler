@@ -48,8 +48,8 @@ most functions will XIP (execute in place), but there should be a function in lo
 
 # Operands for Addressing modes
 
-##### (regA and regB are 4-bit read addresses )
-##### (regC is a 5-bit write address)
+##### (regA and regB are 4-bit register addresses )
+##### (regC is a 5-bit register address)
 
 | Mode | Op0 | Op1 | Op2 |
 |:---:|:---:|:---:|:---:|
@@ -57,8 +57,8 @@ most functions will XIP (execute in place), but there should be a function in lo
 | Reg Indirect | pointer reg | regC | n/a |
 | Reg imm8 | regA | regC | imm8 |
 | Reg imm16 | regA | regC | imm16 |
-| Immediate8 | imm8 | n/a | n/a |
-| Immediate16 | imm16 | n/a | n/a |
+| Immediate8 | imm8 | regC | n/a |
+| Immediate16 | imm16 | reg C | n/a |
 | N/A|
 | N/A|
 
@@ -68,21 +68,46 @@ most functions will XIP (execute in place), but there should be a function in lo
 |:---:|:---:|
 | 8 16-bit registers, stack pointer, frame pointer, and rom bank register | 8 16-bit IEEE floating point registers |
 
-Instructions normally encode the ALU register operand using a 4-bit field. For memory operations, an additional high bit extends this field to 5 bits, where the extra bit specifies the transfer width (0 = 16-bit word, 1 = 8-bit byte)
+FPU and ALU operations only use 4-bit addresses for registers; however, for memory operations, an additional high bit extends this field to 5 bits, where the extra bit specifies the transfer width (0 = 8-bit word, 1 = 16-bit byte)
     
 
 # Instruction Set
 
-### 32 total instructions
+## 32 total instructions
 
 
-#### 5 memory instructions
-- LOAD - load from memory into register
-- STR - store register into address in memory
-- PUSH - push register into memory
-- POP - pop from memory into register
-- MOV - reg to reg, reg to float, float to reg, float to float
-- ##### You can use LOAD as a load immediate; however, you do need the immediate to be in the currently loaded bank or in ram
+### 5 memory instructions
+| LOAD | loads from memory into a register |
+|:---:|:---|
+| Reg Indirect | [regA] -> RegC|
+| Reg imm8 | [regA + imm8] -> RegC|
+| Reg imm16 | [regA + imm16] -> RegC|
+| Imm8 | [imm8] -> RegC|
+| Imm16 | [imm16] -> RegC|
+##### You can use LOAD as a load immediate; however, you do need the immediate to be in the currently loaded bank or in ram
+
+| STR | stores register into address in memory |
+|:---:|:---|
+| Reg Indirect | RegC -> [regA] |
+| Reg imm8 | RegC -> [regA + imm8] |
+| Reg imm16 | RegC -> [regA + imm16] |
+| Imm8 | [imm8] -> RegC |
+| Imm16 | [imm16] -> RegC |
+
+| PUSH | pushs a register into memory|
+|:---:|:---|
+| | |
+
+| POP | pops a register from memory|
+|:---:|:---|
+| | |
+
+| MOV | inter-register move operations: reg to reg, reg to float, float to reg, float to float |
+|:---:|:---|
+| | |
+
+
+
 
 
 #### 6 control flow instructions
