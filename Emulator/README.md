@@ -28,10 +28,22 @@ most functions will XIP (execute in place), but there should be a function in lo
 | 001 | Reg indirect | 2 | [Rn0] -> Rn1 or Rn0 -> [Rn1] |
 | 010 | Reg imm8 | 3 | Rn + imm8 -> Rn or [Rn + imm8] -> Rn|
 | 011 | Reg imm16 | 4 | Rn + imm16 -> Rn  or [Rn + imm16] -> Rn|
-| 100 |  Immediate8 | 1 | #imm8 |
-| 101 |  Immediate16 | 2 | #imm16 |
+| 100 |  Immediate8 | 2 | #imm8 or #imm8 -> Rn or Rn -> imm8 |
+| 101 |  Immediate16 | 3 | #imm16 |
 | N/A|
 | N/A|
+
+
+# MOV opcode modes
+
+##### This is used in the regB operand for the MOV instruction to select what it does
+
+| Opcode | Mode |
+| :---: | :---: |
+| 0000 | Reg to reg |
+| 0001 | Reg to float |
+| 0010 | Float to reg |
+| 0011 | Float to float |
 
 
 # Operands for Addressing modes
