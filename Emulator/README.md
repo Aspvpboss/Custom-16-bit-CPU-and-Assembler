@@ -107,68 +107,120 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 
 | JIF | Conditional JMP |
 |:---:|:---|
-|  |  |
+| Reg Indirect |  cond jump using regA value |
+| Imm8-dest |  relative cond jump using imm8 |
+| Imm16-dest | relative cond jump using imm16 |
+##### JIF uses regC as condition selector
 
 | CAL | jumps to a function, pushes current address into stack |
 |:---:|:---|
-|  |  |
+| Reg Indirect |  calls using regA value |
+| Imm8-dest |  relative call using imm8 |
+| Imm16-dest | relative call using imm16 |
+| Imm8 | absolute call using imm8 |
+| Imm16 | absolute call using imm16 |
 
 | CIF | Conditional CAL |
 |:---:|:---|
-|  |  |
+| Reg Indirect |  cond jump using regA value |
+| Imm8-dest |  relative cond jump using imm8 |
+| Imm16-dest | relative cond jump using imm16 |
+##### CIF uses regC as condition selector
 
 | RET | returns from a function call |
 |:---:|:---|
-|  |  |
+| imm8 | n/a |
+
+##### Condition selector used for JIF and CIF
+
+| Opcode| Condition flag |
+|:---:|:---|
+| 0000 | Equal |
+| 0001 | Not equal |
+| 0010 | If 0 |
+| 0011 | Unsigned less than |
+| 0100 | Unsigned less than or equal to |
+| 0101 | Unsigned greater than |
+| 0110 | Unsigned greater than or equal to |
+| 0111 | Signed less than |
+| 1000 | Signed less than or equal to |
+| 1001 | Signed greater than |
+| 1010 | Signed greater than or equal to |
+| 1011 | Carry |
+| 1100 | Overflow |
 
 ### 12 alu instructions
 | ADD | adds two registers and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA + regB -> RegC |
+| Reg imm8 | regA + imm8 -> RegC |
+| Reg imm16 | regA + imm16 -> RegC |
 
 | SUB | subtracts two registers and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA - regB -> RegC |
+| Reg imm8 | regA - imm8 -> RegC |
+| Reg imm16 | regA - imm16 -> RegC |
 
 | MUL | multiplies two registers and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA * regB -> RegC |
+| Reg imm8 | regA * imm8 -> RegC |
+| Reg imm16 | regA * imm16 -> RegC |
 
-| MUL | divides two registers and saves to a register |
+| DIV | divides two registers and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA / regB -> RegC |
+| Reg imm8 | regA / imm8 -> RegC |
+| Reg imm16 | regA / imm16 -> RegC |
 
 | MOD | modulos two registers and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA % regB -> RegC |
+| Reg imm8 | regA % imm8 -> RegC |
+| Reg imm16 | regA % imm16 -> RegC |
 
 | CMP | compares two registers and updates the flags |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA ? regB -> flags |
+| Reg imm8 | regA ? imm8 -> flags |
+| Reg imm16 | regA ? imm16 -> flags|
 
 | AND | ands two registers and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA & regB -> RegC |
+| Reg imm8 | regA & imm8 -> RegC |
+| Reg imm16 | regA & imm16 -> RegC |
 
 | NOR | nors two registers and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA ~\| regB -> RegC |
+| Reg imm8 | regA ~\| imm8 -> RegC |
+| Reg imm16 | regA ~\| imm16 -> RegC |
 
 | XOR | xors two registers and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA ^ regB -> RegC |
+| Reg imm8 | regA ^ imm8 -> RegC |
+| Reg imm16 | regA ^ imm16 -> RegC |
 
 | ARS | arthimatic right shifts a register and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA >>> regB -> RegC |
+| Reg imm8 | regA >>> imm8 -> RegC |
+| Reg imm16 | regA >>> imm16 -> RegC |
 
 | LRS | logical right shifts a register and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA >> regB -> RegC |
+| Reg imm8 | regA >> imm8 -> RegC |
+| Reg imm16 | regA >> imm16 -> RegC |
 
 | LLS | logical left shifts a register and saves to a register |
 |:---:|:---|
-|  |  |
+| Reg Direct | regA << regB -> RegC |
+| Reg imm8 | regA << imm8 -> RegC |
+| Reg imm16 | regA << imm16 -> RegC |
 
 ### 8 float instructions
 | FADD | adds two float registers and saves to a float register |
