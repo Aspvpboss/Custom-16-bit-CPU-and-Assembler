@@ -1,6 +1,5 @@
-#include "SDLite.h"
 #include "emulator/emulator.h"
-
+#include <SDLite/SDLite.h>
 
 
 int main(){

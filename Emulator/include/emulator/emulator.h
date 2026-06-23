@@ -2,7 +2,7 @@
 #define EMULATOR_H
 
 #include "my_stdtypes.h"
-#include "SDLite.h"
+#include <SDLite/SDLite.h>
 
 #include "emulator/flags.h"
 #include "emulator/alu.h"

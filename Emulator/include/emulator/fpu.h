@@ -3,7 +3,7 @@
 
 #include "my_stdtypes.h"
 #include "emulator/flags.h"
-#include "MemTrack.h"
+#include <SDLite/MemTrack.h>
 
 enum FPU_Registers{
 
