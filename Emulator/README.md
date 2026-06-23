@@ -23,16 +23,16 @@ most functions will XIP (execute in place), but there should be a function in lo
 ##### (regA and regB are 4-bit register addresses )
 ##### (regC is a 5-bit register address)
 
-| Opcode | Mode | Op0 | Op1 | Op2 |
-|:---:|:---:|:---:|:---:|:---:|
-| 000 | Reg Direct | regA | regC | regB |
-| 001 | Reg Indirect | regA | regC | n/a |
-| 010 | Reg imm8 | regA | regC | imm8 |
-| 011 | Reg imm16 | regA | regC | imm16 |
-| 100 | Immediate8-dest | imm8 | regC | n/a |
-| 101 | Immediate16-dest | imm16 | reg C | n/a |
-| 110 | Immediate8 | imm8| n/a | n/a |
-| 111 | Immediate16 | imm16 | n/a | n/a |
+| Opcode | Mode | Op0 | Op1 | Op2 | Extra Bytes |
+|:---:|:---:|:---:|:---:|:---:| ---:| 
+| 000 | Reg Direct | regA | regC | regB | 2 |
+| 001 | Reg Indirect | regA | regC | n/a | 2 |
+| 010 | Reg imm8 | regA | regC | imm8 | 3 |
+| 011 | Reg imm16 | regA | regC | imm16 | 4 |
+| 100 | Immediate8-dest | imm8 | regC | n/a | 2 |
+| 101 | Immediate16-dest | imm16 | reg C | n/a | 3 |
+| 110 | Immediate8 | imm8| n/a | n/a | 1 |
+| 111 | Immediate16 | imm16 | n/a | n/a | 2 |
 
 
 # Registers
@@ -94,11 +94,16 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 
 | SYSCALL | call special functions not in memory |
 |:---:|:---|
-|  |  |
+| Imm8 | a system call |
+| Imm16 | a system call |
 
 | JMP | jumps to an address |
 |:---:|:---|
-|  |  |
+| Reg Indirect |  jump using regA value |
+| Imm8-dest |  relative jump using imm8 |
+| Imm16-dest | relative jump using imm16 |
+| Imm8 | absolute jump using imm8 |
+| Imm16 | absolute jump using imm16 |
 
 | JIF | Conditional JMP |
 |:---:|:---|
