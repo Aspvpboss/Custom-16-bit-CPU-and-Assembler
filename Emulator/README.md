@@ -43,9 +43,7 @@ most functions will XIP (execute in place), but there should be a function in lo
 FPU and ALU operations only use 4-bit addresses for registers; however, for memory operations, an additional high bit extends this field to 5 bits, where the extra bit specifies the transfer width (0 = 8-bit word, 1 = 16-bit byte)
     
 
-# Instruction Set
-
-## 32 total instructions
+# Instruction Set - (32 instructions)
 
 
 ### 5 memory instructions
@@ -139,7 +137,7 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 |:---:|:---|
 |  |  |
 
-| CMP | comapres two integers and saves the flags |
+| CMP | compares two registers and updates the flags |
 |:---:|:---|
 |  |  |
 
@@ -168,14 +166,37 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 |  |  |
 
 ### 8 float instructions
-- FADD - adds two floats
-- FSUB - subtracts two floats
-- FMUL - multiplys two floats
-- FDIV - divides two floats
-- FSQRT - takes square root of float
-- FCMP - compares two floats
-- FINT - converts float to integer
-- IFLO - converts integer to float
+| FADD | adds two float registers and saves to a float register |
+|:---:|:---|
+|  |  |
+
+| FSUB | subtracts two float registers and saves to a float register |
+|:---:|:---|
+|  |  |
+
+| FMUL | multiplies two float registers and saves to a float register |
+|:---:|:---|
+|  |  |
+
+| FDIV| divides two float registers and saves to a float register |
+|:---:|:---|
+|  |  |
+
+| FSQRT | square roots a float register and saves to a float register |
+|:---:|:---|
+|  |  |
+
+| FCMP | compares two float registers and updates the flags |
+|:---:|:---|
+|  |  |
+
+| FINT | converts a float to an integer |
+|:---:|:---|
+|  |  |
+
+| IFLO | converts integer to float |
+|:---:|:---|
+|  |  |
 
 
 
