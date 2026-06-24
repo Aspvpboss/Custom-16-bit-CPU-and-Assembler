@@ -226,35 +226,31 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 | FADD | adds two float registers and saves to a float register |
 |:---:|:---|
 | Reg Direct | regA + regB -> RegC |
-| Reg imm8 | regA + imm8 -> RegC |
 | Reg imm16 | regA + imm16 -> RegC |
 
 | FSUB | subtracts two float registers and saves to a float register |
 |:---:|:---|
 | Reg Direct | regA - regB -> RegC |
-| Reg imm8 | regA - imm8 -> RegC |
 | Reg imm16 | regA - imm16 -> RegC |
 
 | FMUL | multiplies two float registers and saves to a float register |
 |:---:|:---|
 | Reg Direct | regA * regB -> RegC |
-| Reg imm8 | regA * imm8 -> RegC |
 | Reg imm16 | regA * imm16 -> RegC |
 
 | FDIV| divides two float registers and saves to a float register |
 |:---:|:---|
 | Reg Direct | regA / regB -> RegC |
-| Reg imm8 | regA / imm8 -> RegC |
 | Reg imm16 | regA / imm16 -> RegC |
 
 | FSQRT | square roots a float register and saves to a float register |
 |:---:|:---|
 | Reg Direct | sqrt(regA) -> RegC |
+| Imm16-dest | sqrt(Imm16) -> RegC |
 
 | FCMP | compares two float registers and updates the flags |
 |:---:|:---|
 | Reg Direct | regA ? regB -> flags |
-| Reg imm8 | regA ? imm8 -> flags |
 | Reg imm16 | regA ? imm16 -> flags|
 
 | FINT | converts a float to an integer |
