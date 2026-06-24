@@ -2,6 +2,6 @@
 *.cache
 out.txt
 *.json
-.vscode
-
+*.vscode
+*.exe
 

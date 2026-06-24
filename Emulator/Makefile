@@ -5,7 +5,7 @@ SRC = $(wildcard src/*.c src/emulator/*.c src/pipeline/*.c)
 OUT = build/CEMU.exe
 
 INCLUDE = -Iinclude  
-LIB = -LSDLite/lib 
+LIB = 
 LINK = -lSDL3 -lSDL3_image -lSDL3_mixer -lSDL3_ttf
 
 

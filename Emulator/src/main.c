@@ -1,6 +1,6 @@
 #include "emulator/emulator.h"
 #include <SDLite/SDLite.h>
-
+#include <SDLite/SDL3/SDL_thread.h>
 
 int main(){
 
@@ -9,7 +9,7 @@ int main(){
 
     if(SDLite_Init(NULL, NULL, false, false))
         return 1;
-    
+   
     SDL_Thread *emulator_thread = SDL_CreateThread(emulator_main, "emulator", &emulator_state);
     if(!emulator_thread){
         SDLite_Quit();

@@ -3,6 +3,8 @@
 
 #include "my_stdtypes.h"
 #include <SDLite/SDLite.h>
+#include <SDLite/SDL3/SDL_thread.h>
+#include <SDLite/SDL3/SDL_atomic.h>
 
 #include "emulator/flags.h"
 #include "emulator/alu.h"
@@ -31,7 +33,7 @@ typedef struct{
 
 
 
-int SDLCALL emulator_main(void *ptr);
+int emulator_main(void *ptr);
 
 
 #endif
