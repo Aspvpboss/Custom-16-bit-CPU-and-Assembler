@@ -471,9 +471,6 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
         case EMU_POP:
             break;
 
-        case EMU_LDI:
-            break;
-
         case EMU_MOV:
             break;
 

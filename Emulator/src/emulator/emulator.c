@@ -5,7 +5,7 @@
 #include "emulator/emulator.h"
 
 
-int SDLCALL emulator_main(void *ptr){
+int emulator_main(void *ptr){
   
     SDL_AtomicU32 *emulator_state = (SDL_AtomicU32*)ptr;
 
@@ -21,7 +21,6 @@ int SDLCALL emulator_main(void *ptr){
 
     bool limit_fps = false;
 
-
     while(result == EMU_CONTINUE){
 
         result = iterate(emu);
@@ -34,7 +33,7 @@ int SDLCALL emulator_main(void *ptr){
 
         if(SDLite_Input_KeyJustPressed(emu->SDLite_io.input, SDL_SCANCODE_T)){
             printf("                                        \r %.2f - dt: %.10f\r", 
-                SDLite_Time_GetFPS(sdlite->time), SDLite_Time_GetDT(sdlite->time));
+            SDLite_Time_GetFPS(sdlite->time), SDLite_Time_GetDT(sdlite->time));
         }
 
         if(SDLite_Input_KeyJustPressed(sdlite->input, SDL_SCANCODE_SPACE)){

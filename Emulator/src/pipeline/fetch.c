@@ -22,22 +22,22 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         case ADDR_REG_INDIRECT:
-            extra_bytes = 1;
+            extra_bytes = 2;
             break;
-
-        case ADDR_REG_INDEX_EIGHT:
+            
+        case ADDR_REG_IMMEDIATE_EIGHT:
             extra_bytes = 3;
             break;
 
-        case ADDR_REG_INDEX_SIXTEEN:
+        case ADDR_REG_IMMEDIATE_SIXTEEN:
             extra_bytes = 4;
             break;
 
-        case ADDR_REG_IMMEDIATE_EIGHT:
+        case ADDR_IMMEDIATE_EIGHT_DEST:
             extra_bytes = 2;
             break;
 
-        case ADDR_REG_IMMEDIATE_SIXTEEN:
+        case ADDR_IMMEDIATE_SIXTEEN_DEST:
             extra_bytes = 3;
             break;
 
