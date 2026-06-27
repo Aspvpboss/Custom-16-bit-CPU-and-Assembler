@@ -416,7 +416,7 @@ int exe_fint(Emulator *emu, EMU_Decoded_Instruction *instruction){
         return 0;
 
     }
-    
+
     return 1;
 }
 
@@ -445,7 +445,6 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     EMU_Instructions opcode = EMU_JMP;
     // EMU_instruction opcode = instruction->opcode;
-    // EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
     switch(opcode){
 
