@@ -3,6 +3,16 @@
 
 #include "my_stdtypes.h"
 
+
+typedef enum{
+
+    OP_ZERO,
+    OP_ONE,
+    OP_TWO
+
+} EMU_Operands;
+
+
 typedef enum{
 
     ADDR_REG,
