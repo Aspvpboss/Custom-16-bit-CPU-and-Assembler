@@ -32,15 +32,17 @@ Emulator* init(){
 
     EMU_init_alu(&emu->alu);
     EMU_init_fpu(&emu->fpu);
-    memset(emu->ram, 0, sizeof(emu->ram));
+
+    memset(emu->ram.bootloader, 0, sizeof(emu->ram.bootloader));
+    memset(emu->ram.ram, 0, sizeof(emu->ram.ram));
+    memset(emu->ram.vram_one, 0, sizeof(emu->ram.vram_one));
+    memset(emu->ram.vram_two, 0, sizeof(emu->ram.vram_two));
+    memset(emu->ram.mmio, 0, sizeof(emu->ram.mmio));
+    memset(emu->ram.rom_bank, 0, sizeof(emu->ram.rom_bank));
+    emu->ram.vram_selector = false;
+
     emu->program_counter = 0;
 
-    emu->ram[0] = 0b00000000;
-    emu->ram[1] = 0b00110001;
-    emu->ram[2] = 0b00001010;
-    emu->ram[3] = 0xff;
-    emu->ram[4] = 0xff;
-    emu->ram[5] = 0xff;
 
     return emu;
 }

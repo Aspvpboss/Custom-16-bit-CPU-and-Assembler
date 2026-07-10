@@ -19,11 +19,24 @@ typedef struct{
 
 } SDLite_IO;
 
+typedef struct{
+
+    u8 bootloader[0x100];
+    u8 ram[0x6E00];
+
+    bool vram_selector; // false vram_one, true vram_two
+    u8 vram_one[0x1000];
+    u8 vram_two[0x1000];
+    u8 mmio[0x100];
+    u8 rom_bank[0x8000];
+
+} EMU_Ram;
+
 
 typedef struct{
 
     u16 program_counter;
-    u8 ram[0x7fff];
+    EMU_Ram ram;
     SDLite_IO SDLite_io;
     EMU_Alu alu;
     EMU_Fpu fpu;
