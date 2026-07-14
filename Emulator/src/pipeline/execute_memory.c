@@ -103,7 +103,12 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 
 int memory_test(EMU_Ram *ram){
 
+    u16 destination_value = 0;
 
+    write_memory(ram, 0x0101, 0xffff, true);
+    read_memory(ram, 0x0101, &destination_value, true);
+
+    printf("%d\n", destination_value);
 
     return 0;
 }

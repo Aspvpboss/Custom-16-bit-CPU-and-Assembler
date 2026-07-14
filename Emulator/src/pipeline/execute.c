@@ -2,13 +2,15 @@
 #include "debug.h"
 #include "pipeline/execute.h"
 #include "pipeline/execute_math.h"
-
+#include "pipeline/execute_memory.h"
 
 
 int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     EMU_Instructions opcode = EMU_JMP;
     // EMU_instruction opcode = instruction->opcode;
+
+    memory_test(&emu->ram);
 
     switch(opcode){
 
@@ -129,5 +131,5 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
     }
 
-    return 0;
+    return 1;
 }
