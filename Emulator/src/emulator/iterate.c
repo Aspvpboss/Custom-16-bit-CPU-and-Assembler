@@ -17,9 +17,7 @@ EMU_Result iterate(Emulator *emu){
         }            
     }
 
-    if(SDLite_Input_KeyPressed(input, SDL_SCANCODE_Q) &&
-       SDLite_Input_KeyPressed(input, SDL_SCANCODE_LSHIFT)){
-
+    if(SDLite_Input_KeyPressed(input, SDL_SCANCODE_Q) && SDLite_Input_KeyPressed(input, SDL_SCANCODE_LSHIFT)){
         return EMU_SUCCESS;
     }
    

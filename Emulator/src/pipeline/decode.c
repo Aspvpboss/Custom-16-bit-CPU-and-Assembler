@@ -52,8 +52,6 @@ int decode(Emulator *emu, EMU_Decoded_Instruction *instruction){
     }
 
     
-    printf("operand 0: %d, operand 1: %d, operand 2: %d\n", instruction->operands[0], instruction->operands[1], instruction->operands[2]);
 
-
-    return 1;
+    return 0;
 }

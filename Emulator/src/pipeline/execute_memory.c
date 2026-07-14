@@ -25,7 +25,7 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
     u8 *active_vram = ram->vram_selector ? ram->vram_two : ram->vram_one;
 
 
-    if(address > 0x6EFF && address < 0x7F00){
+    if(address > 0x6EFF && address < 0x7F00){ // VRAM
 
         if(sixteen_bit_write == true && address + 1 > 0x7EFF) return 1;
 
@@ -34,7 +34,7 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
         active_vram[offset] = (value & 0x00ff);
         active_vram[offset + 1] = sixteen_bit_write ? (value & 0xff00) >> 8 : active_vram[offset + 1];
 
-    } else if(address > 0x7EFF && address < 0x8000){
+    } else if(address > 0x7EFF && address < 0x8000){ // MMIO
      
         if(sixteen_bit_write == true && address + 1 > 0x7FFF) return 1;
 
@@ -43,7 +43,7 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
         ram->mmio[offset] = value & 0x00ff;
         ram->mmio[offset + 1] = sixteen_bit_write ? (value & 0xff00) >> 8 : ram->mmio[offset + 1];
 
-    } else{
+    } else{ // RAM
 
         if(sixteen_bit_write == true && address + 1 > 0x6EFF) return 1;
 
@@ -66,16 +66,45 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
     u8 *active_vram = ram->vram_selector ? ram->vram_two : ram->vram_one;
 
 
-    if(sixteen_bit_read == true){
+    if(address > 0x6EFF && address < 0x7F00){ // VRAM
 
+        if(sixteen_bit_read == true && address + 1 > 0x7EFF) return 1;
 
+        u16 offset = address - 0x6F00; 
 
-    } else if(sixteen_bit_read == false){
+        *value = active_vram[offset];
+        *value |= sixteen_bit_read ? (active_vram[offset + 1] << 8) : 0;
 
+    } else if(address > 0x7EFF && address < 0x8000){ // MMIO
+     
+        if(sixteen_bit_read == true && address + 1 > 0x7FFF) return 1;
 
+        u16 offset = address - 0x7F00;
 
+        *value = ram->mmio[offset];
+        *value |= sixteen_bit_read ? (ram->mmio[offset + 1] << 8) : 0;
+
+    } else{ // RAM
+
+        if(sixteen_bit_read == true && address + 1 > 0x6EFF) return 1;
+
+        u16 offset = address - 0x0100;
+
+        *value = ram->ram[offset];
+        *value |= sixteen_bit_read ? (ram->ram[offset + 1] << 8) : 0;
+        
     }
 
 
     return 0;
 }
+
+
+
+int memory_test(EMU_Ram *ram){
+
+
+
+    return 0;
+}
+

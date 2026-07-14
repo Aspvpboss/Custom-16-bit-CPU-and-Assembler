@@ -6,5 +6,7 @@
 #include "pipeline/instruction.h"
 
 
+int memory_test(EMU_Ram *ram);
+
 
 #endif
