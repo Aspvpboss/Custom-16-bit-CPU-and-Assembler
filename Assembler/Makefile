@@ -1,59 +1,26 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -std=c11
+OUT = assembler.exe
 
-GCC = gcc
+BUILD_DIR = build
+SRC = ${wildcard src/*.c}
 
-SRC = ${wildcard src/*.c src/utilities/*.c src/core/*.c src/functions/*.c}
-INCLUDE = -Iinclude -Iinclude/functions -Iinclude/structures -Iinclude/core -Iinclude/utilities -IC:/msys64/mingw64/include
+INCLUDE = -Isrc
+OBJ = ${SRC:.c=.o}
 
-LINK = -lMemTrack
-LIBS = -LC:/msys64/mingw64/lib
-
-OUT = rca.exe
-
-DEBUG = -ex "break main" -ex "run"
-
-COMMAND_ARGS = b.asm a.asm -o out.txt -B -debug_dump
-#COMMAND_ARGS = a.asm b.asm 
-
-ERROR = -Wall -Werror -Wpedantic 
-
-OPTIMIZATIONS = -Os -ffunction-sections -fdata-sections -Wl,--gc-sections -s
+.PHONY: debug_build run clean
+default: debug_build run
 
 
 
-default: json_build build run
+debug_build: ${OBJ}
+	${CC} ${CFLAGS} ${INCLUDE} -DTRACK_ALLOCATIONS -g -o ${BUILD_DIR}/${OUT} ${OBJ}
 
-debug: json_build build debug_run
-
-test: json_build test_build test_run
-
-opt: json_build optimize_build run
-
-
-json_build:
-	@compiledb -n -- make build
-	@compiledb -n -- make test_build
-
-
-optimize_build:
-	@${GCC} ${OPTIMIZATIONS} ${ERROR} -o ${OUT} ${SRC} ${INCLUDE} ${LIBS} ${LINK}
-
-build:
-	@${GCC} -g -DTRACK_ALLOCATIONS ${ERROR} -o ${OUT} ${SRC} ${INCLUDE} ${LIBS} ${LINK}
-
+opt_build: ${OBJ}
+	${CC} ${CFLAGS} ${INCLUDE} -DSTDLIB_ALLOCATIONS -O2 -o ${BUILD_DIR}/${OUT} ${OBJ}
 
 run:
-	${OUT} ${COMMAND_ARGS}
+	./${BUILD_DIR}/${OUT}
 
-test_build: 		
-	@${GCC} -g test_validation/test.c -o ./test.exe -IC:/msys64/mingw64/include
-
-
-test_run:
-
-	@./test.exe
-	
-
-debug_run:
-	@gdb ${OUT}
-
-
+clean:
+	rm -f ${BUILD_DIR}/* ${OBJ}
