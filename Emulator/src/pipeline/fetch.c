@@ -1,6 +1,6 @@
 #include "pipeline/fetch.h"
 #include "pipeline/execute_memory.h"
-#include "debug.h"
+#include "emulator/debug.h"
 
 
 int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){

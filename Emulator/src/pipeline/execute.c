@@ -1,5 +1,5 @@
 
-#include "debug.h"
+#include "emulator/debug.h"
 #include "pipeline/execute.h"
 #include "pipeline/execute_math.h"
 #include "pipeline/execute_memory.h"

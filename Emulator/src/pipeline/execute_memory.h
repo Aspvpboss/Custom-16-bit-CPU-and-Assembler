@@ -6,8 +6,6 @@
 #include "pipeline/instruction.h"
 
 
-int memory_test(EMU_Ram *ram);
-
 int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read);
 int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write);
 
