@@ -34,25 +34,6 @@ LOAD r0 0x7E00 // direct
 
 
 
-
-#### Intial program flow
-```
-// the start of the program
-
-Second_Stage_Loader_Size: .word {sizeof(Second_Stage_Loader, Program_File)};
-
-Second_Stage_Loader:
-    // cooler program loading
-
-
-Program_File: .word {ptr_one, ptr_two, ptr_three}; // contains all start labels of all programs in rom
-
-ptr_one:
-
-
-```
-
-
 #### Random testing
 ```
 
@@ -65,6 +46,11 @@ ptr_one:
 
 W_Array: .word {1, 3, 5, 7};
 Array: .byte {1, 3, 5, 7};
+
+Small_Array: .allocate .byte[1024];
+Big_Array: .allocate .word[1024];
+player_one: .allocate Player;
+
 
 String: .string "Burger\n";
 
@@ -87,20 +73,15 @@ struct Player{
 
 
 player_one:
-    .allocate sizeof(Player);
+    .allocate Player;
 
 LOAD r2 [player_one, Player.x];
 
 
 
-static_start:
-
-Big_Array: .allocate .word[1024];
-Empty_Array: .allocate 0;
-player_one: .allocate Player;
 
 
-static_end:
+
 
 
 
