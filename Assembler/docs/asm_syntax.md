@@ -7,6 +7,22 @@
 
 
 
+#### Structs
+```
+
+struct Vec2{
+    x : word,
+    y : word
+};
+
+struct Player{
+    health : float,
+    alive : byte,
+    pos : Vec2
+};
+
+```
+
 #### Addressing modes
 ```
 LOAD r2 [base, index] // index
@@ -19,6 +35,25 @@ LOAD r0 0x7E00 // direct
 
 
 
+#### Intial program flow
+```
+// the start of the program
+
+Second_Stage_Loader_Size: .word {sizeof(Second_Stage_Loader, Program_File)};
+
+Second_Stage_Loader:
+    // cooler program loading
+
+
+Program_File: .word {ptr_one, ptr_two, ptr_three}; // contains all start labels of all programs in rom
+
+ptr_one:
+
+
+```
+
+
+#### Random testing
 ```
 
 // comments
@@ -28,8 +63,8 @@ LOAD r0 0x7E00 // direct
 
 
 
-Array: .word {1, 3, 5, 7};
-W_Array: .byte {1, 3, 5, 7};
+W_Array: .word {1, 3, 5, 7};
+Array: .byte {1, 3, 5, 7};
 
 String: .string "Burger\n";
 
@@ -57,19 +92,16 @@ player_one:
 LOAD r2 [player_one, Player.x];
 
 
-```
 
-#### Intial program flow
-```
+static_start:
 
-
-Second_Stage_Loader_Size: .word {sizeof(Second_Stage_Loader - Program_File)};
-
-Second_Stage_Loader:
-    // cooler program loading
+Big_Array: .allocate .word[1024];
+Empty_Array: .allocate 0;
+player_one: .allocate Player;
 
 
-Program_File: .word {ptr_one, ptr_two, ptr_three}; // contains all start labels of all programs in rom
+static_end:
+
+
 
 ```
-
