@@ -1,17 +1,20 @@
 #include "pipeline/fetch.h"
+#include "pipeline/execute_memory.h"
 #include "debug.h"
 
 
 int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
-    u8 *ram = emu->ram;
+    EMU_Ram *ram = &emu->ram;
 
     if(emu->program_counter == __UINT16_MAX__ / 2){
         emu->program_counter = 0;
     } 
     
     u8 extra_bytes = 0;
-    instruction->raw_instruction |= ram[emu->program_counter];
+
+    if(read_memory(ram, emu->program_counter, (u16*)&instruction->raw_instruction, false)) return 1;
+
     instruction->addressing_mode = (EMU_Addressing_Modes)(instruction->raw_instruction >> 5);
 
     // flag addressing modes
@@ -56,7 +59,7 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     for(u8 i = 1; i <= extra_bytes; i++){
         emu->program_counter++;
-        instruction->raw_instruction |= ((u64)ram[emu->program_counter] << (8 * i));
+        if(read_memory(ram, emu->program_counter, (u16*)&instruction->raw_instruction, false)) return 1;
         if(emu->program_counter == __UINT16_MAX__ / 2){
             emu->program_counter = 0;
         } 
