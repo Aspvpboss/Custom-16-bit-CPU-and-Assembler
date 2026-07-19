@@ -72,17 +72,10 @@ struct Player{
 };
 
 
-player_one:
-    .allocate Player;
 
-LOAD r2 [player_one, Player.x];
-
-
-
-
-
-
-
-
+LOAD r2 [player_one, Player.pos.x];
 
 ```
+
+
+
