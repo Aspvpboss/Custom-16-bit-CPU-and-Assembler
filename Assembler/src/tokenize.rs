@@ -1,3 +1,6 @@
+use crate::files::RawFileLines;
+
+
 
 enum State{
     Whitespace,
@@ -19,12 +22,12 @@ pub enum Identifiers {
     WideReg(String),
     FloatReg(String),
     Struct,
-    StructType(String),
+    VariableType(String),
     Include,
     Label(Labels),
 }
 
-pub enum Token {
+pub enum RawToken {
     Ident(Identifiers),
     Number(String),
     StringLit(String),
@@ -42,11 +45,16 @@ pub enum Token {
     Dot
 }
 
+pub struct Token{
+    token: RawToken,
+    line_num: u32,
+}
+
 
 /*
     will tokenize and lex a processed file
 */
-pub fn lexical_analysis(string: &String) -> Vec<Token> {
+pub fn lexical_analysis(raw_file: RawFileLines) -> Vec<Token> {
 
     let mut tokens: Vec<Token> = Vec::new();
 
