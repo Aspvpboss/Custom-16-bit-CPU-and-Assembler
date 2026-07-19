@@ -5,10 +5,32 @@ enum State{
     Quote
 }
 
+
+
+pub enum Labels {
+    Function(String),
+    StringLit(String),
+    Array(String),
+}
+
+
+pub enum Identifiers {
+    Reg(String),
+    WideReg(String),
+    FloatReg(String),
+    Struct,
+    StructType(String),
+    Include,
+    Label(Labels),
+}
+
 pub enum Token {
-    Ident(String),
+    Ident(Identifiers),
     Number(String),
     StringLit(String),
+    FileStart,
+    FileEnd,
+    EOF,
     LCurly,
     RCurly,
     LBracket,
@@ -20,7 +42,11 @@ pub enum Token {
     Dot
 }
 
-pub fn tokenize_string(string: &String) -> Vec<Token> {
+
+/*
+    will tokenize and lex a processed file
+*/
+pub fn lexical_analysis(string: &String) -> Vec<Token> {
 
     let mut tokens: Vec<Token> = Vec::new();
 
@@ -29,40 +55,4 @@ pub fn tokenize_string(string: &String) -> Vec<Token> {
 
 
 
-
-
-// pub fn tokenize_string(string: &String) -> Vec<String> {
-
-//     let mut token_start_index = 0;
-//     let mut prev_is_whitespace = true;
-
-//     let mut command_line_tokens: Vec<String> = Vec::new();
-
-//     for (byte_index, ch ) in string.char_indices() {
-
-//         let is_whitespace = ch.is_whitespace();
-
-//         if is_whitespace && prev_is_whitespace {
-//             prev_is_whitespace = is_whitespace;
-//             continue;
-//         }
-
-//         if !is_whitespace && prev_is_whitespace {
-//             token_start_index = byte_index;
-//         }
-
-//         if is_whitespace && !prev_is_whitespace {
-//             let slice = string[token_start_index..byte_index].to_string();
-//             command_line_tokens.push(slice);            
-//         }
-        
-//         prev_is_whitespace = is_whitespace; 
-//     }
-
-//     if !prev_is_whitespace {
-//         command_line_tokens.push(string[token_start_index..].to_string());
-//     }
-    
-//     command_line_tokens
-// }
 

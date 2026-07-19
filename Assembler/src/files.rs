@@ -12,7 +12,12 @@ pub struct RawFileLines{
 
 pub fn read_and_process_file(file_name: &str) -> Result<Vec<RawFileLines>, io::Error>{
 
-    let mut raw_lines: Vec<RawFileLines> = Vec::new();
+    let mut raw_lines = vec![
+        RawFileLines{
+            string: format!(".file_start \"{file_name}\""),
+            line_number: 0
+        },
+    ];
 
     let file = File::open(file_name)?;
     let reader = BufReader::new(file);
@@ -24,6 +29,11 @@ pub fn read_and_process_file(file_name: &str) -> Result<Vec<RawFileLines>, io::E
             line_number: (line_num as u32) + 1,
         });
     }
+
+    raw_lines.push(RawFileLines {
+         string: format!(".file_end \"{file_name}\""), 
+         line_number: 0, 
+    });
 
     Ok(raw_lines)
 }
