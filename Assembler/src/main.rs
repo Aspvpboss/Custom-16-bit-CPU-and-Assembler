@@ -10,9 +10,5 @@ fn main() {
 
     let tokens = tokenize::tokenize_string(&buf);
 
-
-    for (i, token) in tokens.iter().enumerate() {
-        println!("i: {} token: {}", i, token);
-    }
 }
 
