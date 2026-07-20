@@ -1,15 +1,19 @@
 use std::io;
+mod lexical_analysis;
 mod tokenize;
 mod files;
 
 
 fn main() {
 
-    let raw_lines = files::read_and_process_file("test.txt").expect("failed to read file");
+    let raw_file = files::read_and_process_file("test.txt").expect("failed to read file");
 
-    for raw_line in raw_lines {
-        println!("{}: {}", raw_line.line_number, raw_line.string);
+    let mut tokens = tokenize::tokenize(raw_file);
+
+    for s in &tokens{
+        print!("{s} ");
     }
+    print!("\n");
 
     // let mut buf = String::new();
     // io::stdin().read_line(&mut buf).expect("error typeshift");

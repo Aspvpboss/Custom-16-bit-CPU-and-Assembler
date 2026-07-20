@@ -32,6 +32,19 @@ LOAD r0 0x7E00 // direct
 
 ```
 
+#### Macros
+```
+
+.macro MacroName (para1, para2) {
+
+    ADD para1 para2 #10;
+    STR para2 para1;
+
+}
+
+
+```
+
 
 
 #### Random testing
