@@ -4,8 +4,18 @@ use crate::files::RawFileLines;
 
 enum State{
     Whitespace,
-    Token,
-    Quote
+    Character,
+    Quote,
+    LCurly,
+    RCurly,
+    LBracket,
+    RBracket,
+    LParen,
+    RParen,
+    Colon,
+    Semicolon,
+    Dot,
+    Slash
 }
 
 
@@ -17,18 +27,27 @@ pub enum Labels {
 }
 
 
+
+
 pub enum Identifiers {
     Reg(String),
     WideReg(String),
     FloatReg(String),
-    Struct,
-    VariableType(String),
-    Include,
     Label(Labels),
 }
 
+pub enum Directives {
+    Include,
+    Allocate,
+    Struct,
+    VariableType(String),
+    Glob,
+}
+
+
 pub enum RawToken {
     Ident(Identifiers),
+    Direct(Directives),
     Number(String),
     StringLit(String),
     FileStart,
