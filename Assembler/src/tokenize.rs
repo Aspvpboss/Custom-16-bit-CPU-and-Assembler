@@ -1,5 +1,3 @@
-use std::thread::current;
-
 use crate::files::RawFileLines;
 
 enum State{
@@ -17,6 +15,18 @@ enum State{
     Dot,
     Slash
 }
+
+enum Mode{
+    Token,
+    InString,
+    DotMiddle,
+}
+
+pub struct RawTokens{
+    pub raw_token: String,
+    pub line_num: u32,
+}
+
 
 
 fn get_state(ch: char) -> State {
@@ -45,6 +55,22 @@ fn get_state(ch: char) -> State {
 }
 
 
+fn get_mode(mut current_mode: Mode, current_state: &State, prev_state: &State) -> Mode{
+
+    if !matches!(current_mode, Mode::InString) && matches!(current_state, State::Quote){
+        current_mode = Mode::InString;
+    }
+
+    if matches!(current_mode, Mode::InString) && matches!(prev_state, State::Quote) && !matches!(current_state, State::Quote){
+        current_mode = Mode::Token;
+    }
+
+
+
+    current_mode
+}
+
+
 fn match_single_chars(state: &State) -> bool {
     match state { 
         State::Quote => true,
@@ -63,53 +89,61 @@ fn match_single_chars(state: &State) -> bool {
 }
 
 
+fn append_token(raw_line: &RawFileLines, tokens: &mut Vec<RawTokens>, token_byte_index: &mut usize, byte_index: usize){
+    
+    let slice = raw_line.string[*token_byte_index..byte_index].to_string();
+    tokens.push(RawTokens {raw_token: slice, line_num: raw_line.line_number});
+    *token_byte_index = byte_index;
+
+}
 
 
-pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<String>{
-    let mut tokens: Vec<String> = Vec::new();
+
+
+pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
+    let mut tokens: Vec<RawTokens> = Vec::new();
 
     for raw_line in raw_file {
 
         let mut token_byte_index = 0;
         let mut prev_state = State::Whitespace;
 
-        let mut in_string = false;
+        let mut mode = Mode::Token;
 
         for (byte_index, ch) in raw_line.string.char_indices() {
             let current_state = get_state(ch);
+            mode = get_mode(mode, &current_state, &prev_state);
 
-            if !matches!(current_state, State::Whitespace) && matches!(prev_state, State::Whitespace) {
-                token_byte_index = byte_index;
+            match mode {
+                Mode::Token => {
+                    if !matches!(current_state, State::Whitespace) && matches!(prev_state, State::Whitespace) {
+                        token_byte_index = byte_index;
+                    }
+
+                    if match_single_chars(&prev_state) {
+                        append_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
+                    } 
+                    
+                    if (match_single_chars(&current_state) || matches!(current_state, State::Whitespace)) && matches!(prev_state, State::Character){
+                        append_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
+                    }
+                }
+
+                Mode::InString => {
+                    if matches!(prev_state, State::Quote){
+                        append_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
+                    }
+                }
+
+                _ => {}
             }
-
-            if matches!(current_state, State::Quote) {
-                in_string = !in_string;
-            }
-
-            if in_string == false && matches!(prev_state, State::Quote){
-
-            }
-
-            if match_single_chars(&prev_state) {
-                let slice = raw_line.string[token_byte_index..byte_index].to_string();
-                tokens.push(slice);
-                token_byte_index = byte_index;
-            } 
-            
-            if (match_single_chars(&current_state) || matches!(current_state, State::Whitespace)) && matches!(prev_state, State::Character){
-                let slice = raw_line.string[token_byte_index..byte_index].to_string();
-                tokens.push(slice);
-                token_byte_index = byte_index;
-            }
-
-
 
             prev_state = current_state;
         }
 
         if match_single_chars(&prev_state) {
             let slice = raw_line.string[token_byte_index..].to_string();
-            tokens.push(slice);
+            tokens.push(RawTokens {raw_token: slice, line_num: raw_line.line_number});
         }
         
     }
@@ -118,3 +152,5 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<String>{
 
     tokens
 }
+
+

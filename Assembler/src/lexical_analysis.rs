@@ -52,7 +52,7 @@ pub enum Directives {
 }
 
 
-pub enum RawToken {
+pub enum LexedToken {
     Ident(Identifiers),
     Direct(Directives),
     Number(String),
@@ -73,7 +73,7 @@ pub enum RawToken {
 }
 
 pub struct Token{
-    token: RawToken,
+    token: LexedToken,
     line_num: u32,
 }
 

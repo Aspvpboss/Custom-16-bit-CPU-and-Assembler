@@ -11,7 +11,7 @@ fn main() {
     let mut tokens = tokenize::tokenize(raw_file);
 
     for s in &tokens{
-        print!("{s} ");
+        print!("{} ", s.raw_token);
     }
     print!("\n");
 
