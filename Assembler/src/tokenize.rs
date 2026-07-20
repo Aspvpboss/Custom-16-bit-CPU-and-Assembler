@@ -1,5 +1,3 @@
-use std::thread::current;
-
 use crate::files::RawFileLines;
 
 enum State{
@@ -100,92 +98,59 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
         let mut token_byte_index = 0;
         let mut prev_state = State::Whitespace;
 
-        let mut mode = Mode::Token;
-
         let mut chars = raw_line.string.char_indices().peekable();
         while let Some((byte_index, ch)) = chars.next() {
             let current_state = get_state(ch);
 
-            if matches!(current_state, State::Quote) {
-                push_token(&raw_line, "\"", &mut tokens);
+            if !matches!(current_state, State::Whitespace) && matches!(prev_state, State::Whitespace) {
+                token_byte_index = byte_index;
+            }
+            
+            // Handle ':' and '::'
+            if matches!(current_state, State::Colon) {
+                
+                if matches!(prev_state, State::Character) {
+                    flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
+                }
 
-                mode = match mode {
-                    Mode::Token => Mode::InString,
-                    Mode::InString => Mode::Token,
-                };
+                if let Some((_, next_ch)) = chars.peek() {
+                    if matches!(get_state(*next_ch), State::Colon) {
+                        push_token(&raw_line, "::", &mut tokens);
 
-                token_byte_index = byte_index + 1;
-            } else {
+                        // Consume the second ':'
+                        chars.next();
 
-                match mode {
-                    Mode::Token => {
-                        if !matches!(current_state, State::Whitespace) && matches!(prev_state, State::Whitespace) {
-                            token_byte_index = byte_index;
-                        }
-                        
-                        // Handle ':' and '::'
-                        if matches!(current_state, State::Colon) {
-                            
-                            if matches!(prev_state, State::Character) {
-                                flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
-                            }
-
-                            if let Some((_, next_ch)) = chars.peek() {
-                                if matches!(get_state(*next_ch), State::Colon) {
-                                    push_token(&raw_line, "::", &mut tokens);
-
-                                    // Consume the second ':'
-                                    chars.next();
-
-                                    prev_state = State::Colon;
-                                    token_byte_index = byte_index + 2;
-                                    continue;
-                                }
-                            }
-
-                            // Single ':'
-                            push_token(&raw_line, ":", &mut tokens);
-
-                            prev_state = State::Colon;
-                            token_byte_index = byte_index + 1;
-                            continue;
-                        }
-
-                        // handles single tokens ('{', '}', '[', ']')
-                        if match_single_chars(&prev_state) {
-                            flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
-                        } 
-                        // handles full tokens and consective single tokens 
-                        if (match_single_chars(&current_state) || matches!(current_state, State::Whitespace)) && matches!(prev_state, State::Character){
-                            flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
-                        }
-
-                    }
-
-                    Mode::InString => {
-
-                        if let Some((_, next_ch)) = chars.peek(){
-                            if matches!(get_state(*next_ch), State::Quote) {
-                                chars.next();
-                                prev_state = State::Quote;
-                            }
-                        }
-
+                        prev_state = State::Colon;
+                        token_byte_index = byte_index + 2;
+                        continue;
                     }
                 }
+
+                // Single ':'
+                push_token(&raw_line, ":", &mut tokens);
+
+                prev_state = State::Colon;
+                token_byte_index = byte_index + 1;
+                continue;
             }
 
-            prev_state = current_state;
+            // handles single tokens ('{', '}', '[', ']')
+            if match_single_chars(&prev_state) {
+                flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
+            } 
+            // handles full tokens and consective single tokens 
+            if (match_single_chars(&current_state) || matches!(current_state, State::Whitespace)) && matches!(prev_state, State::Character){
+                flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
+            }
+                
+                prev_state = current_state;
+            }
+
+            if !matches!(prev_state, State::Whitespace) {
+                let slice = raw_line.string[token_byte_index..].to_string();
+                tokens.push(RawTokens {raw_token: slice, line_num: raw_line.line_number});
+            }
         }
-
-        if !matches!(prev_state, State::Whitespace) {
-            let slice = raw_line.string[token_byte_index..].to_string();
-            tokens.push(RawTokens {raw_token: slice, line_num: raw_line.line_number});
-        }
-        
-    }
-
-
 
     tokens
 }

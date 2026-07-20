@@ -11,8 +11,8 @@
 ```
 
 struct Vec2{
-    x : word,
-    y : word
+    x : .word,
+    y : .word
 };
 
 struct Player{

@@ -11,9 +11,8 @@ fn main() {
     let mut tokens = tokenize::tokenize(raw_file);
 
     for s in &tokens{
-        print!("{} ", s.raw_token);
+        println!("{} ", s.raw_token);
     }
-    print!("\n");
 
     // let mut buf = String::new();
     // io::stdin().read_line(&mut buf).expect("error typeshift");

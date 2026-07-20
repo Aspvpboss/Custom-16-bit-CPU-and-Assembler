@@ -1,1 +1,12 @@
-.thisistest this is more Vec2{} label:   some::boi
+struct Vec2{
+    x : .word,
+    y : .word
+};
+
+struct Player{
+    health : .float,
+    alive : .byte,
+    pos : Vec2
+};
+
+Player::health
