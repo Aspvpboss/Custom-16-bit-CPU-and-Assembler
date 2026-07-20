@@ -11,7 +11,7 @@ fn main() {
     let mut tokens = tokenize::tokenize(raw_file);
 
     for s in &tokens{
-        println!("{} ", s.raw_token);
+        println!("{} - {} ", s.line_num, s.raw_token);
     }
 
     // let mut buf = String::new();

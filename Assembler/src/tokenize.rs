@@ -16,10 +16,6 @@ enum State{
     Slash
 }
 
-enum Mode{
-    Token,
-    InString,
-}
 
 pub struct RawTokens{
     pub raw_token: String,
