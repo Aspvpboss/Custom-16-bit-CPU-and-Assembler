@@ -1,3 +1,5 @@
+use std::thread::current;
+
 use crate::files::RawFileLines;
 
 enum State{
@@ -70,7 +72,7 @@ fn get_mode(mut current_mode: Mode, current_state: &State, prev_state: &State) -
     current_mode
 }
 
-
+// doesn't match State::Dot
 fn match_single_chars(state: &State) -> bool {
     match state { 
         State::Quote => true,
@@ -82,20 +84,23 @@ fn match_single_chars(state: &State) -> bool {
         State::RParen => true,
         State::Colon => true,
         State::Semicolon => true,
-        State::Dot => true,
         State::Slash => true,
         _ => false
     }
 }
 
 
-fn append_token(raw_line: &RawFileLines, tokens: &mut Vec<RawTokens>, token_byte_index: &mut usize, byte_index: usize){
-    
-    let slice = raw_line.string[*token_byte_index..byte_index].to_string();
-    tokens.push(RawTokens {raw_token: slice, line_num: raw_line.line_number});
-    *token_byte_index = byte_index;
 
+
+fn append_token(raw_line: &RawFileLines, tokens: &mut Vec<RawTokens>, token_byte_index: &mut usize, byte_index: usize){
+    if *token_byte_index != byte_index{
+        let slice = raw_line.string[*token_byte_index..byte_index].to_string();
+        tokens.push(RawTokens {raw_token: slice, line_num: raw_line.line_number});
+        *token_byte_index = byte_index;
+    } 
 }
+
+
 
 
 
@@ -110,7 +115,8 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
 
         let mut mode = Mode::Token;
 
-        for (byte_index, ch) in raw_line.string.char_indices() {
+        let mut chars = raw_line.string.char_indices().peekable();
+        while let Some((byte_index, ch)) = chars.next() {
             let current_state = get_state(ch);
             mode = get_mode(mode, &current_state, &prev_state);
 
@@ -119,14 +125,44 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
                     if !matches!(current_state, State::Whitespace) && matches!(prev_state, State::Whitespace) {
                         token_byte_index = byte_index;
                     }
+                    
+                    // handles '::' tokens
+                    if matches!(current_state, State::Colon) {
+                        if let Some((_, next_ch)) = chars.peek() {
+                            let next_state = get_state(*next_ch);
 
+                            if matches!(next_state, State::Colon) {
+                                // Finish the previous token if there is one.
+                                if matches!(prev_state, State::Character) {
+                                    append_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
+                                }
+
+                                // Start the '::' token at the first colon.
+                                token_byte_index = byte_index;
+
+                                prev_state = current_state;
+                                continue;
+                            }
+                        }
+                    }
+
+                    // Second ':' of '::'
+                    if matches!(current_state, State::Colon) && matches!(prev_state, State::Colon) {
+                        append_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index + 1);
+                        token_byte_index = byte_index + 1;
+                        prev_state = current_state;
+                        continue;
+                    }
+
+                    // handles single tokens ('{', '}', '[', ']')
                     if match_single_chars(&prev_state) {
                         append_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
                     } 
-                    
+                    // handles full tokens and consective single tokens 
                     if (match_single_chars(&current_state) || matches!(current_state, State::Whitespace)) && matches!(prev_state, State::Character){
                         append_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index);
                     }
+
                 }
 
                 Mode::InString => {
@@ -141,7 +177,7 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
             prev_state = current_state;
         }
 
-        if match_single_chars(&prev_state) {
+        if !matches!(prev_state, State::Whitespace) {
             let slice = raw_line.string[token_byte_index..].to_string();
             tokens.push(RawTokens {raw_token: slice, line_num: raw_line.line_number});
         }
