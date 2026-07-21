@@ -147,7 +147,7 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
 
             if !matches!(prev_state, State::Whitespace) && !(matches!(current_state, State::Slash) && matches!(prev_state, State::Slash)){
                 let slice = raw_line.string[token_byte_index..].to_string();
-                if(!slice.is_empty()){
+                if !slice.is_empty() {
                     tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: current_column});
                 } 
             }

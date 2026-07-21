@@ -2,7 +2,7 @@ struct Vec2{
     x : .word,
     y : .word
 }
-
+" String test"
 struct Player{
     health : .float,
     alive : .byte,
