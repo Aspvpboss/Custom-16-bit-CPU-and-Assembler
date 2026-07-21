@@ -1,3 +1,5 @@
+use std::thread::current;
+
 use crate::files::RawFileLines;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -102,8 +104,7 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
         let mut prev_state = State::Whitespace;
         let mut current_column: u32 = 0;
 
-        let mut chars = raw_line.string.char_indices().peekable();
-        while let Some((byte_index, ch)) = chars.next() {
+        for (byte_index, ch) in raw_line.string.char_indices() {
             current_state = get_state(ch);
             current_column += 1;
 
@@ -124,19 +125,12 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
                     flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column);
                 }
 
-                if let Some((_, next_ch)) = chars.peek() {
-                    if matches!(get_state(*next_ch), State::Colon) {
-                        
-                        current_column += 1;
-                        push_token(&raw_line, "::", &mut tokens, current_column);
-
-                        // Consume the second ':'
-                        chars.next();
-
-                        prev_state = State::Colon;
-                        token_byte_index = byte_index + 2;
-                        continue;
-                    }
+                if matches!(prev_state, State::Colon) {
+                    tokens.pop();
+                    token_byte_index = byte_index + 1;
+                    push_token(&raw_line, "::", &mut tokens, current_column);
+                    prev_state = State::Whitespace;
+                    continue;
                 }
 
                 // Single ':'
@@ -161,7 +155,9 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
 
             if !matches!(prev_state, State::Whitespace) && !(matches!(current_state, State::Slash) && matches!(prev_state, State::Slash)){
                 let slice = raw_line.string[token_byte_index..].to_string();
-                tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: current_column});
+                if(!slice.is_empty()){
+                    tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: current_column});
+                } 
             }
         }
 

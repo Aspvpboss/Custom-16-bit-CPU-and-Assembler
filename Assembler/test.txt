@@ -1,17 +1,19 @@
 struct Vec2{
     x : .word,
     y : .word
-};
+}
 
 struct Player{
     health : .float,
     alive : .byte,
     pos : Vec2
-};
+}
 
 Player::health
 // comment
-
+:::
+::::
+:::::
 // cool comment stuff hahahahahahhahahahahah
 
 
