@@ -33,7 +33,7 @@ fn get_state(ch: char) -> State {
     if ch.is_whitespace(){
         return State::Whitespace;
     }
-    if ch.is_alphanumeric() || ch == '_'{
+    if ch.is_alphanumeric() || ch == '_' || ch == '-'{
         return State::Character;
     }
 

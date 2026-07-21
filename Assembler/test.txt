@@ -10,3 +10,6 @@ struct Player{
 };
 
 Player::health
+
+
+file.asm -o burger.bin
