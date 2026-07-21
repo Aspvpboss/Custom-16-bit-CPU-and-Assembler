@@ -1,11 +1,12 @@
 mod lexical_analysis;
 mod tokenize;
 mod files;
-mod CLI_Input;
+mod cli_handler;
+mod error;
 
 fn main() {
 
-    CLI_Input::get_assembly_commands();    
+    cli_handler::get_assembly_commands();    
 
     let raw_file = files::read_and_process_file("test.txt").expect("failed to read file");
 
@@ -15,10 +16,6 @@ fn main() {
         // println!("{} ", s.raw_token);
     }
 
-    // let mut buf = String::new();
-    // io::stdin().read_line(&mut buf).expect("error typeshift");
-
-    // let tokens = tokenize::tokenize_string(&buf);
 
 }
 
