@@ -4,6 +4,7 @@ pub struct Flags;
 
 impl Flags {
     const NONE: u8 = 0;
+    const ERROR: u8 = 1 << 7;
     const OPTIMIZATION: u8 = 1 << 0;
     const TOKEN_DEBUG: u8 = 1 << 1;
     const PRE_AST_DEBUG: u8 = 1 << 2;
@@ -12,6 +13,7 @@ impl Flags {
 
 pub enum Output_File {
     NONE,
+    ERROR,
     TXT(String),
     BIN(String),
 }
@@ -34,7 +36,7 @@ fn is_flag(prev: &String, current: &String) -> u8 {
             "Tokens" => {return Flags::TOKEN_DEBUG},
             "Pre-AST" => {return Flags::PRE_AST_DEBUG},
             "Post-AST" => {return Flags::POST_AST_DEBUG},
-            _ => {return Flags::NONE},
+            _ => {return Flags::ERROR},
         }
     }
 
@@ -45,10 +47,27 @@ fn is_flag(prev: &String, current: &String) -> u8 {
     Flags::NONE
 }
 
+fn is_valid_output(prev: &String, current: &String) -> Output_File {
+    if prev.as_str() != "-o" || current.is_empty() {
+        return Output_File::NONE;
+    }
+
+    if let Some((_, ext)) = current.rsplit_once('.') {
+        match ext {
+            "txt" => {return Output_File::TXT(current.clone())},
+            "bin" => {return Output_File::BIN(current.clone())},
+            _ => {return Output_File::ERROR},
+        }
+    }
+
+    Output_File::NONE
+}
+
+
 
 pub fn get_assembly_commands() -> Result<Assembly_Commands, Vec<String>>{
 
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = env::args().skip(1).collect();
 
     let mut prev_arg: String = "".to_string();
     let mut asm_commands = Assembly_Commands{root_file: String::from(""), output_file: Output_File::NONE, asm_flags: Flags::NONE};
@@ -56,10 +75,16 @@ pub fn get_assembly_commands() -> Result<Assembly_Commands, Vec<String>>{
     for arg in args {
         
         asm_commands.asm_flags |= is_flag(&prev_arg, &arg);
+        asm_commands.output_file = is_valid_output(&prev_arg, &arg);
 
         prev_arg = arg;
     }
 
+    match asm_commands.output_file {
+        Output_File::BIN(ref string) => {println!("bin output: {}", string)},
+        Output_File::TXT(ref string) => {println!("txt output: {}", string)},
+        _ => {},
+    }
 
     Ok(asm_commands)
 }
