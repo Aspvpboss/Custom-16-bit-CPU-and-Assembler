@@ -1,5 +1,3 @@
-use std::thread::current;
-
 use crate::files::RawFileLines;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -17,11 +15,6 @@ enum State{
     Semicolon,
     Dot,
     Slash
-}
-
-enum Mode{
-    Token,
-    InString,
 }
 
 pub struct RawTokens{
@@ -114,7 +107,6 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
 
             // Handle comment
             if matches!(current_state, State::Slash) && matches!(prev_state, State::Slash){
-                // tokens.pop();
                 break;
             }
 
