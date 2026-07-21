@@ -10,6 +10,9 @@ struct Player{
 };
 
 Player::health
+// comment
+
+// cool comment stuff hahahahahahhahahahahah
 
 
-file.asm -o burger.bin
+file.asm -o burger.bin aa

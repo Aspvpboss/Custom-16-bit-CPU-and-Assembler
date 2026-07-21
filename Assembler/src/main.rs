@@ -13,7 +13,7 @@ fn main() {
     let mut tokens = tokenize::tokenize(raw_file);
 
     for s in &tokens{
-        // println!("{} ", s.raw_token);
+        println!("L:{} C:{} ----- {} ", s.line, s.column, s.raw_token);
     }
 
 
