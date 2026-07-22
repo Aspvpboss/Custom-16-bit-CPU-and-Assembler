@@ -1,4 +1,4 @@
-use crate::files::RawFileLines;
+use crate::files::{AsmFile, RawFileLines};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum State{
@@ -22,6 +22,12 @@ pub struct RawTokens{
     pub line: u32,
     pub column: u32,
 }
+
+pub struct Tokens{
+    pub name: String,
+    pub raw_tokens: Vec<RawTokens>,
+}
+
 
 
 enum Mode{
@@ -92,10 +98,11 @@ fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawTokens>, c
 
 
 
-pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
+pub fn tokenize(asm_file: AsmFile) -> Tokens{
+
     let mut tokens: Vec<RawTokens> = Vec::new();
 
-    for raw_line in raw_file {
+    for raw_line in asm_file.raw_lines {
 
         let mut token_byte_index = 0;
         let mut current_state = State::Whitespace;
@@ -183,7 +190,7 @@ pub fn tokenize(raw_file: Vec<RawFileLines>) -> Vec<RawTokens>{
         }
     }
 
-    tokens
+    Tokens { name: asm_file.name, raw_tokens: tokens }
 }
 
 

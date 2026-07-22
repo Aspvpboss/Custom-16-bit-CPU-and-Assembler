@@ -12,8 +12,8 @@ fn main() {
 
     let mut tokens = tokenize::tokenize(raw_file);
 
-    for s in &tokens{
-        println!("L:{} C:{} ----- {} ", s.line, s.column, s.raw_token);
+    for s in &tokens.raw_tokens{
+        println!("F: {} L:{} C:{} ----- {} ", tokens.name, s.line, s.column, s.raw_token);
     }
 
 

@@ -9,8 +9,14 @@ pub struct RawFileLines{
 
 
 
+pub struct AsmFile{
+    pub name: String,
+    pub raw_lines: Vec<RawFileLines>,
+}
 
-pub fn read_and_process_file(file_name: &str) -> Result<Vec<RawFileLines>, io::Error>{
+
+
+pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, io::Error>{
 
     let mut raw_lines = vec![
         RawFileLines{
@@ -18,6 +24,7 @@ pub fn read_and_process_file(file_name: &str) -> Result<Vec<RawFileLines>, io::E
             line_number: 0
         },
     ];
+
 
     let file = File::open(file_name)?;
     let reader = BufReader::new(file);
@@ -35,5 +42,8 @@ pub fn read_and_process_file(file_name: &str) -> Result<Vec<RawFileLines>, io::E
          line_number: 0, 
     });
 
-    Ok(raw_lines)
+
+    let asm_file = AsmFile{name: file_name.to_string(), raw_lines: raw_lines};
+    
+    Ok(asm_file)
 }
