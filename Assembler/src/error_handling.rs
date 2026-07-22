@@ -71,11 +71,10 @@ impl ErrorHandler {
     }
 
 
-    // bool indicated if program should be stopped
-    pub fn handle<T>(&mut self, result: Result<T, Vec<AsmError>>){
+    pub fn handle<T>(&mut self, result: Result<T, Vec<AsmError>>) -> T{
 
         let input_errors = match result {
-            Ok(_) => {return},
+            Ok(value) => {return value},
             Err(error) => error,
         };
 
