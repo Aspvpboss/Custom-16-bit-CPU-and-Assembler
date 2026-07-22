@@ -2,7 +2,7 @@ mod lexical_analysis;
 mod tokenize;
 mod files;
 mod cli_handler;
-mod error;
+mod error_handling;
 
 fn main() {
 

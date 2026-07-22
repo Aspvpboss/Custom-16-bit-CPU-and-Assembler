@@ -12,7 +12,6 @@ impl Flags {
 }
 
 pub enum Output_File {
-    NONE,
     ERROR,
     TXT(String),
     BIN(String),
@@ -49,7 +48,7 @@ fn is_flag(prev: &String, current: &String) -> u8 {
 
 fn is_valid_output(prev: &String, current: &String) -> Output_File {
     if prev.as_str() != "-o" || current.is_empty() {
-        return Output_File::NONE;
+        return Output_File::ERROR;
     }
 
     if let Some((_, ext)) = current.rsplit_once('.') {
@@ -60,7 +59,7 @@ fn is_valid_output(prev: &String, current: &String) -> Output_File {
         }
     }
 
-    Output_File::NONE
+    Output_File::ERROR
 }
 
 
@@ -70,7 +69,7 @@ pub fn get_assembly_commands() -> Result<Assembly_Commands, Vec<String>>{
     let args: Vec<String> = env::args().skip(1).collect();
 
     let mut prev_arg: String = "".to_string();
-    let mut asm_commands = Assembly_Commands{root_file: String::from(""), output_file: Output_File::NONE, asm_flags: Flags::NONE};
+    let mut asm_commands = Assembly_Commands{root_file: String::from(""), output_file: Output_File::ERROR, asm_flags: Flags::NONE};
 
     for arg in args {
         
