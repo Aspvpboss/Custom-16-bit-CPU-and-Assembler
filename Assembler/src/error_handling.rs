@@ -18,17 +18,23 @@ pub struct AsmError{
     message: String,
     err_type: AsmErrorType,
     location: Option<ErrorLocation>,
+    panic: bool,
 
 }
 
 impl AsmError{
 
     pub fn new(error_message: String, error_type: AsmErrorType) -> AsmError{
-        AsmError{ message: error_message, err_type: error_type, location: None}
+        AsmError{ message: error_message, err_type: error_type, location: None, panic: false}
     }
 
     pub fn with_location(mut self, line: u32, column: u32, file_name: String) -> Self{
         self.location = Some(ErrorLocation{line: line, column: column, file_name: file_name});
+        self
+    }
+
+    pub fn panic(mut self) -> Self{
+        self.panic = true;
         self
     }
 
@@ -45,7 +51,7 @@ impl std::fmt::Display for AsmError {
             return write!(f, "{}({}, {}): {} - {}", location.file_name, location.line, location.column, err_type_str, self.message);
         }
 
-        write!(f, "{} {}", err_type_str, self.message)
+        write!(f, "{} - {}", err_type_str, self.message)
     }
 }
 
@@ -54,7 +60,6 @@ impl std::fmt::Display for AsmError {
 pub struct ErrorHandler{
 
     errors: Vec<AsmError>,
-    panic: bool
 
 }
 
@@ -62,7 +67,33 @@ pub struct ErrorHandler{
 impl ErrorHandler {
 
     pub fn new() -> ErrorHandler{
-        ErrorHandler { errors: Vec::new(), panic: false }
+        ErrorHandler { errors: Vec::new()}
+    }
+
+
+    // bool indicated if program should be stopped
+    pub fn handle<T>(&mut self, result: Result<T, Vec<AsmError>>){
+
+        let input_errors = match result {
+            Ok(_) => {return},
+            Err(error) => error,
+        };
+
+        let mut should_panic = false;
+        for error in &input_errors {
+            if error.panic {should_panic = true};
+        }
+
+        self.errors.extend(input_errors);
+
+        if should_panic {
+            for error in &self.errors{
+                println!("{}", error);
+            }
+
+            panic!();
+        }
+
     }
 
 }
