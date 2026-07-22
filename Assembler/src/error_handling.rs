@@ -1,24 +1,35 @@
 
 
+
 pub enum AsmErrorType{
     Input,
 }
 
+
+struct ErrorLocation{
+    line: u32,
+    column: u32,
+    file_name: String,
+}
 
 
 pub struct AsmError{
 
     message: String,
     err_type: AsmErrorType,
-    line: Option<u32>,
-    column: Option<u32>,
+    location: Option<ErrorLocation>,
 
 }
 
 impl AsmError{
 
-    pub fn new(error_message: String, error_type: AsmErrorType, error_line: Option<u32>, error_column: Option<u32>) -> AsmError{
-        AsmError{ message: error_message, err_type: error_type, line: error_line, column: error_column}
+    pub fn new(error_message: String, error_type: AsmErrorType) -> AsmError{
+        AsmError{ message: error_message, err_type: error_type, location: None}
+    }
+
+    pub fn with_location(mut self, line: u32, column: u32, file_name: String) -> Self{
+        self.location = Some(ErrorLocation{line: line, column: column, file_name: file_name});
+        self
     }
 
 }
@@ -28,12 +39,10 @@ impl std::fmt::Display for AsmError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let err_type_str = match self.err_type {
             AsmErrorType::Input => "Input Error",
-            _ => "",
         };
-        if let Some(line) = self.line {
-            if let Some(column) = self.column {
-                return write!(f, "At {}:{}, {} {}", line, column, err_type_str, self.message)
-            }
+
+        if let Some(location) = &self.location {
+            return write!(f, "{}({}, {}): {} - {}", location.file_name, location.line, location.column, err_type_str, self.message);
         }
 
         write!(f, "{} {}", err_type_str, self.message)
@@ -49,4 +58,12 @@ pub struct ErrorHandler{
 
 }
 
+
+impl ErrorHandler {
+
+    pub fn new() -> ErrorHandler{
+        ErrorHandler { errors: Vec::new(), panic: false }
+    }
+
+}
 
