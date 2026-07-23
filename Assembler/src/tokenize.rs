@@ -1,4 +1,5 @@
 use crate::files::{AsmFile, RawFileLines};
+use crate::error_handling::{AsmError, AsmErrorType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum State{
@@ -98,7 +99,7 @@ fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawTokens>, c
 
 
 
-pub fn tokenize(asm_file: AsmFile) -> Tokens{
+pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
 
     let mut tokens: Vec<RawTokens> = Vec::new();
 
@@ -190,7 +191,7 @@ pub fn tokenize(asm_file: AsmFile) -> Tokens{
         }
     }
 
-    Tokens { name: asm_file.name, raw_tokens: tokens }
+    Ok(Tokens { name: asm_file.name, raw_tokens: tokens })
 }
 
 

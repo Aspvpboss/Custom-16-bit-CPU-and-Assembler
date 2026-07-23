@@ -1,5 +1,6 @@
 use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::io::{BufRead, BufReader};
+use crate::error_handling::{AsmError, AsmErrorType};
 
 
 pub struct RawFileLines{
@@ -16,7 +17,7 @@ pub struct AsmFile{
 
 
 
-pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, io::Error>{
+pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, Vec<AsmError>>{
 
     let mut raw_lines = vec![
         RawFileLines{
@@ -26,11 +27,26 @@ pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, io::Error>{
     ];
 
 
-    let file = File::open(file_name)?;
+    let Ok(file) = File::open(file_name) else{
+        let file_error = AsmError::new(
+            format!("failed to open {}", file_name),
+            AsmErrorType::Input);
+        
+        return Err(vec![file_error]);        
+    };
+
+
     let reader = BufReader::new(file);
 
     for(line_num, line) in reader.lines().enumerate() {
-        let line = line?;
+        let Ok(line) = line else{
+            let file_error = AsmError::new(
+                format!("failed read line in {}", file_name),
+                AsmErrorType::Input);
+            
+            return Err(vec![file_error]);        
+        };
+
         raw_lines.push(RawFileLines {
             string: line,
             line_number: (line_num as u32) + 1,
