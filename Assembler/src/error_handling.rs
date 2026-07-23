@@ -1,6 +1,11 @@
 
 
 
+struct AsmResult<T>(Result<T, Vec<AsmError>>);
+
+
+
+
 pub enum AsmErrorType{
     Input,
 }
@@ -57,42 +62,22 @@ impl std::fmt::Display for AsmError {
 
 
 
-pub struct ErrorHandler{
 
-    errors: Vec<AsmError>,
+impl<T> AsmResult<T> {
 
-}
+    pub fn asm_handle(result: Result<T, Vec<AsmError>>) -> T{
 
+        match result {
+            Ok(success) => success,
+            Err(errors) => {
 
-impl ErrorHandler {
-
-    pub fn new() -> ErrorHandler{
-        ErrorHandler { errors: Vec::new()}
-    }
-
-
-    pub fn handle<T>(&mut self, result: Result<T, Vec<AsmError>>) -> T{
-
-        let input_errors = match result {
-            Ok(value) => {return value},
-            Err(error) => error,
-        };
-
-        let mut should_panic = false;
-        for error in &input_errors {
-            if error.panic {should_panic = true};
-        }
-
-        self.errors.extend(input_errors);
-
-        if should_panic {
-            for error in &self.errors{
-                println!("{}", error);
+                for error in &errors {
+                    println!("{}", error);
+                } 
+                panic!();
             }
-
-            panic!();
         }
-
+        
     }
 
 }
