@@ -60,7 +60,7 @@ pub fn handle<T>(result: Result<T, Vec<AsmError>>) -> T{
         Err(errors) => {
 
             for error in &errors {
-                println!("{error}");
+                eprintln!("{error}");
             }
 
             std::process::exit(1);
