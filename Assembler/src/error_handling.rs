@@ -48,23 +48,3 @@ impl std::fmt::Display for AsmError {
         write!(f, "{} - {}", err_type_str, self.message)
     }
 }
-
-
-
-
-
-pub fn handle<T>(result: Result<T, Vec<AsmError>>) -> T{
-
-    match result {
-        Ok(success) => success,
-        Err(errors) => {
-
-            for error in &errors {
-                eprintln!("{error}");
-            }
-
-            std::process::exit(1);
-        }
-    }
-
-}

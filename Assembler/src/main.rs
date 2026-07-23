@@ -3,19 +3,23 @@ mod tokenize;
 mod files;
 mod cli_handler;
 mod error_handling;
+mod run;
 
-fn main() {
+use std::process::ExitCode;
 
-    // cli_handler::get_assembly_commands();    
+fn main() -> ExitCode{
 
-    let raw_file = error_handling::handle(files::read_and_process_file("burger.txt"));
+    match run::run() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(errors) => {
 
-    let tokens = error_handling::handle(tokenize::tokenize(raw_file));
+            for error in &errors {
+                eprintln!("{error}");
+            }
 
-    for s in &tokens.raw_tokens{
-        println!("F: {} L:{} C:{} ----- {} ", tokens.name, s.line, s.column, s.raw_token);
+            ExitCode::FAILURE
+        }
     }
-
 
 }
 
