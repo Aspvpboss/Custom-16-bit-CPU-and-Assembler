@@ -1,7 +1,7 @@
-use crate::cli_handler;
+use crate::asm::cli_handler;
 use crate::error_handling::AsmError;
-use crate::files;
-use crate::tokenize;
+use crate::asm::files;
+use crate::asm::tokenize;
 
 pub fn run() -> Result<(), Vec<AsmError>>{
     cli_handler::get_assembly_commands();    

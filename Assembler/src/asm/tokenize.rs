@@ -1,4 +1,4 @@
-use crate::files::{AsmFile, RawFileLines};
+use crate::asm::files::{AsmFile, RawFileLines};
 use crate::error_handling::{AsmError, AsmErrorType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

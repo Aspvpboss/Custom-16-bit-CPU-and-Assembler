@@ -1,9 +1,7 @@
-mod lexical_analysis;
-mod tokenize;
-mod files;
-mod cli_handler;
+mod asm;
 mod error_handling;
 mod run;
+
 
 use std::process::ExitCode;
 
