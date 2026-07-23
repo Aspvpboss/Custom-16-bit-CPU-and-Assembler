@@ -30,7 +30,7 @@ pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, Vec<AsmError>>{
     let Ok(file) = File::open(file_name) else{
         let file_error = AsmError::new(
             format!("failed to open {}", file_name),
-            AsmErrorType::Input);
+            AsmErrorType::File);
         
         return Err(vec![file_error]);        
     };
@@ -42,7 +42,7 @@ pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, Vec<AsmError>>{
         let Ok(line) = line else{
             let file_error = AsmError::new(
                 format!("failed read line in {}", file_name),
-                AsmErrorType::Input);
+                AsmErrorType::File);
             
             return Err(vec![file_error]);        
         };

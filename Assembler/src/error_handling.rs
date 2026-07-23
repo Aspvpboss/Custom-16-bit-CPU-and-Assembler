@@ -3,6 +3,7 @@
 
 pub enum AsmErrorType{
     Input,
+    File,
 }
 
 
@@ -39,6 +40,7 @@ impl std::fmt::Display for AsmError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let err_type_str = match self.err_type {
             AsmErrorType::Input => "Input Error",
+            AsmErrorType::File => "File Error",
         };
 
         if let Some(location) = &self.location {

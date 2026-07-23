@@ -4,7 +4,8 @@ use crate::asm::files;
 use crate::asm::tokenize;
 
 pub fn run() -> Result<(), Vec<AsmError>>{
-    cli_handler::get_assembly_commands();    
+    
+    cli_handler::get_assembly_commands()?;    
 
     let raw_file = files::read_and_process_file("burger.txt")?;
     let tokens = tokenize::tokenize(raw_file)?;
