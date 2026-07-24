@@ -13,6 +13,12 @@ struct Player{
     pos : Vec2
 }
 
+.include "cool.txt"
+
+//.include "piss"
+
+//.include "nope
+
 Player::health
 // comment
 :::

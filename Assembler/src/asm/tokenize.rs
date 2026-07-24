@@ -1,5 +1,6 @@
-use crate::asm::files::{AsmFile, RawFileLines};
+use crate::asm::files::{self, AsmFile, RawFileLines, read_and_process_file};
 use crate::error_handling::{AsmError, AsmErrorType};
+use std::rc::Rc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum State{
@@ -22,10 +23,11 @@ pub struct RawTokens{
     pub raw_token: String,
     pub line: u32,
     pub column: u32,
+    pub file_name: Rc<String>,
 }
 
 pub struct Tokens{
-    pub name: String,
+    pub file_name: String,
     pub raw_tokens: Vec<RawTokens>,
 }
 
@@ -84,16 +86,74 @@ fn match_single_chars(state: &State) -> bool {
 
 
 
-fn flush_token(raw_line: &RawFileLines, tokens: &mut Vec<RawTokens>, token_byte_index: &mut usize, byte_index: usize, column: u32){
+fn flush_token(raw_line: &RawFileLines, tokens: &mut Vec<RawTokens>, token_byte_index: &mut usize, byte_index: usize, column: u32, ){
     if *token_byte_index != byte_index{
         let slice = raw_line.string[*token_byte_index..byte_index].to_string();
-        tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: column});
+        tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: column, file_name: });
         *token_byte_index = byte_index;
     } 
 }
 
 fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawTokens>, column: u32){
     tokens.push(RawTokens { raw_token: str.to_string(), line: raw_line.line_number, column: column});
+}
+
+
+
+fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
+
+    let mut errors: Vec<AsmError> = Vec::new();
+    let mut raw = tokens.raw_tokens;
+
+    let mut i = 0;
+    while i < raw.len() {
+
+        if raw[i].raw_token != ".include" {
+            i += 1;
+            continue;
+        }
+
+        match (raw.get(i + 1), raw.get(i + 2), raw.get(i + 3)) {
+            (Some(q1), Some(file_token), Some(q2))
+                if q1.raw_token == "\"" && q2.raw_token == "\"" => {
+                    let file_name = file_token.raw_token.as_str();
+                    match read_and_process_file(file_name) {
+                        Ok(raw_file) => {
+                            match tokenize(raw_file) {
+                                Ok(included_tokens) => {raw.splice(i..i+4, included_tokens.raw_tokens); },
+                                Err(token_errors) => {
+                                    errors.extend(token_errors);
+                                    i += 4;
+                                }
+                            }
+                        },
+                        Err(file_errors) => {
+                            errors.extend(file_errors);
+                            errors.push(AsmError::new(
+                                format!("Failed to include {}", file_name),
+                                AsmErrorType::Include,
+                            ).with_location(file_token.line, file_token.column, tokens.file_name.clone()));
+                            i += 4;
+                        }
+                    }
+                }
+            _ => {
+                errors.push(AsmError::new(
+                    "malformed .include directive, expected .include \"file_name\"".to_string(),
+                    AsmErrorType::Include,
+                ).with_location(raw[i].line, raw[i].column, tokens.file_name.clone()));
+                
+                i += 1;
+            }
+        }       
+
+    }
+
+    if !errors.is_empty() {
+        return Err(errors);
+    }
+
+    Ok(Tokens {raw_tokens: raw, file_name: tokens.file_name})
 }
 
 
@@ -191,7 +251,8 @@ pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
         }
     }
 
-    Ok(Tokens { name: asm_file.name, raw_tokens: tokens })
+
+    return resolve_include(Tokens { file_name: asm_file.name, raw_tokens: tokens })
 }
 
 
