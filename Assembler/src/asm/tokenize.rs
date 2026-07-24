@@ -27,6 +27,7 @@ pub struct RawTokens{
 }
 
 pub struct Tokens{
+    pub included_files: Vec<String>,
     pub raw_tokens: Vec<RawTokens>,
 }
 
@@ -99,10 +100,23 @@ fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawTokens>, c
 
 
 
+fn is_included(included_files: &Vec<String>, file_name: &String) -> Option<String>{
+
+    for included_file in included_files {
+        if file_name == included_file {
+            return None;
+        }
+    }
+
+    Some(file_name.clone())
+}
+
+
 fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
 
     let mut errors: Vec<AsmError> = Vec::new();
     let mut raw = tokens.raw_tokens;
+    let mut included_files = tokens.included_files;
 
     let mut i = 0;
     while i < raw.len() {
@@ -115,11 +129,20 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
         match (raw.get(i + 1), raw.get(i + 2), raw.get(i + 3)) {
             (Some(q1), Some(file_token), Some(q2))
                 if q1.raw_token == "\"" && q2.raw_token == "\"" => {
-                    let file_name = file_token.raw_token.as_str();
-                    match read_and_process_file(file_name) {
+                    
+                    let Some(file_name) = is_included(&included_files, &file_token.raw_token) else{
+                        i += 4;
+                        continue;
+                    };
+
+
+                    match read_and_process_file(file_name.as_str()) {
                         Ok(raw_file) => {
-                            match tokenize(raw_file) {
-                                Ok(included_tokens) => {raw.splice(i..i+4, included_tokens.raw_tokens); },
+                            match tokenize(raw_file, &mut included_files) {
+                                Ok(included_tokens) => {
+                                    raw.splice(i+4..i+4, included_tokens.raw_tokens); 
+                                    i += 4;
+                                },
                                 Err(token_errors) => {
                                     errors.extend(token_errors);
                                     i += 4;
@@ -152,14 +175,15 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
         return Err(errors);
     }
 
-    Ok(Tokens {raw_tokens: raw})
+    Ok(Tokens {raw_tokens: raw, included_files: included_files})
 }
 
 
 
 
-pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
+pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<Tokens, Vec<AsmError>>{
 
+    included_files.push(asm_file.name.clone());
     let file_name = Rc::new(asm_file.name.clone());
     let mut tokens: Vec<RawTokens> = Vec::new();
 
@@ -252,7 +276,7 @@ pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
     }
 
 
-    return resolve_include(Tokens {raw_tokens: tokens })
+    return resolve_include(Tokens {raw_tokens: tokens, included_files: included_files.to_vec()})
 }
 
 
