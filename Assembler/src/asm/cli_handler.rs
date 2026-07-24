@@ -148,7 +148,7 @@ fn handle_errors((root_file, output_file, flags): (Option<String>, Option<Output
     let output_file = match output_file {
         Some(output) => {output},
         None => {
-            errors.push(AsmError::new("No output file given".to_string(), AsmErrorType::Input));
+            errors.push(AsmError::new("No output file given, only .txt and .bin formats are supported".to_string(), AsmErrorType::Input));
             should_error = true;
             Output_File::BIN(String::from(""))
         }
