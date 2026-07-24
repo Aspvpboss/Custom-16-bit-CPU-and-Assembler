@@ -1,3 +1,7 @@
+
+
+
+
 struct Vec2{
     x : .word,
     y : .word
@@ -18,3 +22,5 @@ Player::health
 "burger
 
 file.asm -o burger.bin aa
+
+
