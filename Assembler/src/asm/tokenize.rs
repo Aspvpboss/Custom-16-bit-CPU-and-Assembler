@@ -1,4 +1,4 @@
-use crate::asm::files::{self, AsmFile, RawFileLines, read_and_process_file};
+use crate::asm::files::{AsmFile, RawFileLines, read_and_process_file};
 use crate::error_handling::{AsmError, AsmErrorType};
 use std::rc::Rc;
 

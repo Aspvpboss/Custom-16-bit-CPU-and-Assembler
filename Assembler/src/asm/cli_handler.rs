@@ -19,12 +19,13 @@ pub enum Output_File {
 
 
 
-
-pub struct Assembly_Commands {
-    pub root_file: Option<String>,
-    pub output_file: Option<Output_File>,
+pub struct Assembly_Commands{
+    pub root_file: String,
+    pub output_file: Output_File,
     pub flags: u8,
+
 }
+
 
 
 impl Assembly_Commands {
@@ -34,18 +35,10 @@ impl Assembly_Commands {
         println!("Assembly commands:");
         println!("==================");
 
-        if let Some(root_file) = &self.root_file {
-            println!("Root file: {}", root_file)
-        } else {
-            println!("No root file") 
-        }
-        if let Some(output_file) = &self.output_file {
-            match output_file {
-                Output_File::BIN(name) => {println!("Output file: {}", name)},
-                Output_File::TXT(name) => {println!("Output file: {}", name)},
-            }
-        } else {
-            println!("No output file")
+        println!("Root file: {}", self.root_file);
+        match self.output_file {
+            Output_File::BIN(ref name) => {println!("Output file: {}", name)},
+            Output_File::TXT(ref name) => {println!("Output file: {}", name)},
         }
 
         if self.flags & Flags::ERROR != 0 {
@@ -137,20 +130,32 @@ fn is_valid_input(prev: &String, current: &String) -> Option<String>{
 }
 
 
-fn handle_errors(asm_commands: &mut Assembly_Commands, prev_arg: &String) -> Option<Vec<AsmError>> {
+fn handle_errors((root_file, output_file, flags): (Option<String>, Option<Output_File>, u8), prev_arg: &String) -> Result<Assembly_Commands, Vec<AsmError>> {
 
     let mut errors: Vec<AsmError> = Vec::new();
     let mut should_error = false;
 
-    if asm_commands.root_file.is_none(){
-        errors.push(AsmError::new("No root file given".to_string(), AsmErrorType::Input));
-        should_error = true;
-    }
-    if asm_commands.root_file.is_none(){
-        errors.push(AsmError::new("No output file given".to_string(), AsmErrorType::Input));
-        should_error = true;
-    }
-    if asm_commands.flags & Flags::ERROR != 0 {
+
+    let root_file = match root_file {
+        Some(string) => {string},
+        None => {
+            errors.push(AsmError::new("No root file given".to_string(), AsmErrorType::Input));
+            should_error = true;
+            String::from("")
+        },
+    };
+
+    let output_file = match output_file {
+        Some(output) => {output},
+        None => {
+            errors.push(AsmError::new("No output file given".to_string(), AsmErrorType::Input));
+            should_error = true;
+            Output_File::BIN(String::from(""))
+        }
+    };
+
+
+    if flags & Flags::ERROR != 0 {
         errors.push(AsmError::new("Incorrect flag given".to_string(), AsmErrorType::Input));
         should_error = true;
     }
@@ -166,10 +171,10 @@ fn handle_errors(asm_commands: &mut Assembly_Commands, prev_arg: &String) -> Opt
     }
 
     if should_error {
-        return Some(errors);
+        return Err(errors);
     }
 
-    None
+    Ok(Assembly_Commands{root_file: root_file, output_file: output_file, flags: flags})
 }
 
 pub fn get_assembly_commands() -> Result<Assembly_Commands, Vec<AsmError>>{
@@ -177,28 +182,30 @@ pub fn get_assembly_commands() -> Result<Assembly_Commands, Vec<AsmError>>{
     let args: Vec<String> = env::args().skip(1).collect();
 
     let mut prev_arg: String = "".to_string();
-    let mut asm_commands = Assembly_Commands{root_file: None, output_file: None, flags: Flags::NONE};
+
+    let mut output_file: Option<Output_File> = None;
+    let mut root_file: Option<String> = None;
+    let mut flags: u8 = 0;
 
     for arg in args {
         
-        asm_commands.flags |= is_flag(&prev_arg, &arg);
+        flags |= is_flag(&prev_arg, &arg);
        
-        if asm_commands.output_file.is_none() {
-            asm_commands.output_file = is_valid_output(&prev_arg, &arg);
+        if output_file.is_none() {
+            output_file = is_valid_output(&prev_arg, &arg);
         }
 
-        if asm_commands.root_file.is_none(){
-            asm_commands.root_file = is_valid_input(&prev_arg, &arg);
+        if root_file.is_none(){
+            root_file = is_valid_input(&prev_arg, &arg);
         } 
         
         prev_arg = arg;
     }
 
-    asm_commands.print();
-    
-    if let Some(errors) = handle_errors(&mut asm_commands, &prev_arg) {
-        return Err(errors);
+
+    match handle_errors((root_file, output_file, flags), &prev_arg){
+        Ok(commands) => {return Ok(commands)},
+        Err(errors) => {return Err(errors)},
     }
 
-    Ok(asm_commands)
 }

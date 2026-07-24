@@ -1,2 +1,10 @@
 yo gurt
 more stuff
+
+
+.include "wrong
+
+.include "test.txt"
+.include
+
+//piss
