@@ -140,7 +140,15 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
                         Ok(raw_file) => {
                             match tokenize(raw_file, &mut included_files) {
                                 Ok(included_tokens) => {
+
                                     raw.splice(i+4..i+4, included_tokens.raw_tokens); 
+
+                                    for f in included_tokens.included_files {
+                                        if !included_files.contains(&f) {
+                                            included_files.push(f);
+                                        }
+                                    }
+
                                     i += 4;
                                 },
                                 Err(token_errors) => {
