@@ -1,4 +1,5 @@
 
+pub mod lexer;
 pub mod lexical_analysis;
 pub mod tokenize;
 pub mod files;
