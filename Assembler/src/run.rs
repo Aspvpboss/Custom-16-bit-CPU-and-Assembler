@@ -11,7 +11,7 @@ pub fn run() -> Result<(), Vec<AsmError>>{
     let tokens = tokenize::tokenize(raw_file)?;
 
     for s in &tokens.raw_tokens{
-        println!("F: {} L:{} C:{} ----- {} ", tokens.file_name, s.line, s.column, s.raw_token);
+        println!("F: {} L:{} C:{} ----- {} ", s.file_name, s.line, s.column, s.raw_token);
     }
 
     Ok(())

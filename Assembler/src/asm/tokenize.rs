@@ -27,7 +27,6 @@ pub struct RawTokens{
 }
 
 pub struct Tokens{
-    pub file_name: String,
     pub raw_tokens: Vec<RawTokens>,
 }
 
@@ -86,16 +85,16 @@ fn match_single_chars(state: &State) -> bool {
 
 
 
-fn flush_token(raw_line: &RawFileLines, tokens: &mut Vec<RawTokens>, token_byte_index: &mut usize, byte_index: usize, column: u32, ){
+fn flush_token(raw_line: &RawFileLines, tokens: &mut Vec<RawTokens>, token_byte_index: &mut usize, byte_index: usize, column: u32, file_name: &Rc<String>){
     if *token_byte_index != byte_index{
         let slice = raw_line.string[*token_byte_index..byte_index].to_string();
-        tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: column, file_name: });
+        tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: column, file_name: Rc::clone(file_name)});
         *token_byte_index = byte_index;
     } 
 }
 
-fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawTokens>, column: u32){
-    tokens.push(RawTokens { raw_token: str.to_string(), line: raw_line.line_number, column: column});
+fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawTokens>, column: u32, file_name: &Rc<String>){
+    tokens.push(RawTokens { raw_token: str.to_string(), line: raw_line.line_number, column: column, file_name: Rc::clone(file_name)});
 }
 
 
@@ -132,7 +131,7 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
                             errors.push(AsmError::new(
                                 format!("Failed to include {}", file_name),
                                 AsmErrorType::Include,
-                            ).with_location(file_token.line, file_token.column, tokens.file_name.clone()));
+                            ).with_location(file_token.line, file_token.column, file_token.file_name.to_string()));
                             i += 4;
                         }
                     }
@@ -141,7 +140,7 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
                 errors.push(AsmError::new(
                     "malformed .include directive, expected .include \"file_name\"".to_string(),
                     AsmErrorType::Include,
-                ).with_location(raw[i].line, raw[i].column, tokens.file_name.clone()));
+                ).with_location(raw[i].line, raw[i].column, raw[i].file_name.to_string()));
                 
                 i += 1;
             }
@@ -153,7 +152,7 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
         return Err(errors);
     }
 
-    Ok(Tokens {raw_tokens: raw, file_name: tokens.file_name})
+    Ok(Tokens {raw_tokens: raw})
 }
 
 
@@ -161,6 +160,7 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
 
 pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
 
+    let file_name = Rc::new(asm_file.name.clone());
     let mut tokens: Vec<RawTokens> = Vec::new();
 
     for raw_line in asm_file.raw_lines {
@@ -177,7 +177,7 @@ pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
 
             if matches!(mode, Mode::Token){
                 if matches!(prev_state, State::Quote){
-                    flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column);
+                    flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                     token_byte_index = byte_index;
                     mode = Mode::InString;
                 }
@@ -202,19 +202,19 @@ pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
                     if matches!(current_state, State::Colon) {
                         
                         if matches!(prev_state, State::Character) {
-                            flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column);
+                            flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                         }
 
                         if matches!(prev_state, State::Colon) {
                             tokens.pop();
                             token_byte_index = byte_index + 1;
-                            push_token(&raw_line, "::", &mut tokens, current_column);
+                            push_token(&raw_line, "::", &mut tokens, current_column, &file_name);
                             prev_state = State::Whitespace;
                             continue;
                         }
 
                         // Single ':'
-                        push_token(&raw_line, ":", &mut tokens, current_column);
+                        push_token(&raw_line, ":", &mut tokens, current_column, &file_name);
 
                         prev_state = State::Colon;
                         token_byte_index = byte_index + 1;
@@ -223,11 +223,11 @@ pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
 
                     // handles single tokens ('{', '}', '[', ']')
                     if match_single_chars(&prev_state) {
-                        flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column);
+                        flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                     } 
                     // handles full tokens and consective single tokens 
                     if (match_single_chars(&current_state) || matches!(current_state, State::Whitespace)) && matches!(prev_state, State::Character){
-                        flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column - 1);
+                        flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column - 1, &file_name);
                     }
                         
                     prev_state = current_state;
@@ -235,7 +235,7 @@ pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
 
                 Mode::InString => {
                     if matches!(current_state, State::Quote) {
-                        flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column);
+                        flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                     }
                     
                     prev_state = current_state;
@@ -246,13 +246,13 @@ pub fn tokenize(asm_file: AsmFile) -> Result<Tokens, Vec<AsmError>>{
         if !matches!(prev_state, State::Whitespace) && !(matches!(current_state, State::Slash) && matches!(prev_state, State::Slash)){
             let slice = raw_line.string[token_byte_index..].to_string();
             if !slice.is_empty() {
-                tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: current_column});
+                tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: current_column, file_name: Rc::clone(&file_name)});
             } 
         }
     }
 
 
-    return resolve_include(Tokens { file_name: asm_file.name, raw_tokens: tokens })
+    return resolve_include(Tokens {raw_tokens: tokens })
 }
 
 
