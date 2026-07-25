@@ -3,12 +3,14 @@ use crate::error_handling::{AsmError, AsmErrorType};
 use std::rc::Rc;
 use crate::asm::tokenize::{Tokens, RawToken};
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum LabelKind{
     Address,
     StringLit,
     Array,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Labels {
     kind: LabelKind,
     name: String,
@@ -16,6 +18,7 @@ pub struct Labels {
 }
 
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Instructions {
     // Memory
     Load = 0,
@@ -58,6 +61,7 @@ pub enum Instructions {
 }
 
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Identifiers {
     Instruction(Instructions),
     Reg(u8),
@@ -66,6 +70,7 @@ pub enum Identifiers {
     Label(Labels),
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Directives {
     Include,
     Allocate,
@@ -76,12 +81,14 @@ pub enum Directives {
 }
 
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum NumberTypes {
     Int(i32),
     Float(f32),
 }
 
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum RawLexedToken {
     Ident(Identifiers),
     Direct(Directives),
