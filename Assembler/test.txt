@@ -8,13 +8,25 @@
 
 W_Array: .word {1, 3, 5, 7};
 Array: .byte {1, 3, 5, 7};
+String: .string "Burger\n";
+player_two: Player{
+    x : 5,
+    y : 10,
+    pos : Vec2{
+        x : 5,
+        y : 10
+    },
+};
+
 
 Small_Array: .allocate .byte[1024];
 Big_Array: .allocate .word[1024];
-player_one: .allocate Player;
+player_one: .allocate Player[10];
+empty_string: .allocate .string[10];
 
 
-String: .string "Burger\n";
+
+
 
 Label:
 ADD r0 r2 r3;
@@ -28,8 +40,8 @@ struct Vec2{
 }
 
 struct Player{
-    health : float,
-    alive : byte,
+    health : .float,
+    alive : .byte,
     pos : Vec2
 }
 

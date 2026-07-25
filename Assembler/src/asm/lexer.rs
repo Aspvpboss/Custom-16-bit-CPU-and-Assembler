@@ -1,6 +1,7 @@
 
-use crate::error_handling::{AsmError, AsmErrorType};
 use std::rc::Rc;
+use std::collections::HashMap;
+use crate::error_handling::{AsmError, AsmErrorType};
 use crate::asm::tokenize::{Tokens, RawToken};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -110,7 +111,7 @@ pub enum RawLexedToken {
 }
 
 pub struct LexedToken{
-    token: RawLexedToken,
+    pub token: RawLexedToken,
     pub line: u32,
     pub column: u32,
     pub file_name: Rc<String>,
@@ -128,6 +129,7 @@ impl LexedToken{
     }
 
 }
+
 
 
 
