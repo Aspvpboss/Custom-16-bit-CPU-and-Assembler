@@ -12,7 +12,12 @@ pub fn lexical_analysis() -> Result<Vec<LexedToken> ,Vec<AsmError>>{
 
     let raw_root_file = files::read_and_process_file(&commands.root_file)?;
     let tokens = tokenize::tokenize(raw_root_file, &mut Vec::new())?;
-    
+
+    for token in &tokens.raw_tokens {
+        println!("{}", token.raw_token);
+    }
+
+
     lexer::lexer(tokens)
 }
 

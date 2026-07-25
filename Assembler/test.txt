@@ -1,5 +1,8 @@
 
-
+-1.232323232
+1123123123
+0xdsdflksdfj
+0b01010101010
 
 
 struct Vec2{
@@ -13,7 +16,7 @@ struct Player{
     pos : Vec2
 }
 
-.include "cool.txt"
+//.include "cool.txt"
 
 //.include "piss"
 

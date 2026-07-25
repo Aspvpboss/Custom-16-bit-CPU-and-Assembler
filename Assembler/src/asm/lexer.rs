@@ -16,7 +16,7 @@ pub struct Labels {
 }
 
 
-pub enum Instruction {
+pub enum Instructions {
     // Memory
     Load = 0,
     Str,
@@ -59,10 +59,10 @@ pub enum Instruction {
 
 
 pub enum Identifiers {
-    Instruction,
-    Reg(String),
-    WideReg(String),
-    FloatReg(String),
+    Instruction(Instructions),
+    Reg(u8),
+    WideReg(u8),
+    FloatReg(u8),
     Label(Labels),
 }
 
@@ -76,10 +76,16 @@ pub enum Directives {
 }
 
 
+pub enum NumberTypes {
+    Int(i32),
+    Float(f32),
+}
+
+
 pub enum RawLexedToken {
     Ident(Identifiers),
     Direct(Directives),
-    Number(String),
+    Number(NumberTypes),
     StringLit(String),
     Unknown(String),
     FileStart,
@@ -98,7 +104,6 @@ pub enum RawLexedToken {
 
 pub struct LexedToken{
     token: RawLexedToken,
-    line_num: u32,
     pub line: u32,
     pub column: u32,
     pub file_name: Rc<String>,
