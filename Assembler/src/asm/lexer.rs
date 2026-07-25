@@ -1,7 +1,7 @@
 
 use crate::error_handling::{AsmError, AsmErrorType};
 use std::rc::Rc;
-use crate::asm::tokenize::Tokens;
+use crate::asm::tokenize::{Tokens, RawToken};
 
 pub enum LabelKind{
     Address,
@@ -98,8 +98,8 @@ pub enum RawLexedToken {
     LParen,
     RParen,
     Colon,
+    DoubleColon,
     Semicolon,
-    Dot
 }
 
 pub struct LexedToken{
@@ -108,6 +108,20 @@ pub struct LexedToken{
     pub column: u32,
     pub file_name: Rc<String>,
 }
+
+impl LexedToken{
+
+    pub fn new(lexed_token: RawLexedToken, og_token: RawToken) -> LexedToken{
+        LexedToken { 
+            token: lexed_token, 
+            line: og_token.line, 
+            column: og_token.column, 
+            file_name: Rc::clone(&og_token.file_name) 
+        }
+    }
+
+}
+
 
 
 /*

@@ -2,7 +2,7 @@ use crate::asm::files::{AsmFile, RawFileLines, read_and_process_file};
 use crate::error_handling::{AsmError, AsmErrorType};
 use std::rc::Rc;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum State{
     Whitespace,
     Character,
@@ -19,7 +19,7 @@ enum State{
     Slash
 }
 
-pub struct RawTokens{
+pub struct RawToken{
     pub raw_token: String,
     pub line: u32,
     pub column: u32,
@@ -28,11 +28,11 @@ pub struct RawTokens{
 
 pub struct Tokens{
     pub included_files: Vec<String>,
-    pub raw_tokens: Vec<RawTokens>,
+    pub raw_tokens: Vec<RawToken>,
 }
 
 
-
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Mode{
     Token,
     InString,
@@ -86,16 +86,16 @@ fn match_single_chars(state: &State) -> bool {
 
 
 
-fn flush_token(raw_line: &RawFileLines, tokens: &mut Vec<RawTokens>, token_byte_index: &mut usize, byte_index: usize, column: u32, file_name: &Rc<String>){
+fn flush_token(raw_line: &RawFileLines, tokens: &mut Vec<RawToken>, token_byte_index: &mut usize, byte_index: usize, column: u32, file_name: &Rc<String>){
     if *token_byte_index != byte_index{
         let slice = raw_line.string[*token_byte_index..byte_index].to_string();
-        tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: column, file_name: Rc::clone(file_name)});
+        tokens.push(RawToken {raw_token: slice, line: raw_line.line_number, column: column, file_name: Rc::clone(file_name)});
         *token_byte_index = byte_index;
     } 
 }
 
-fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawTokens>, column: u32, file_name: &Rc<String>){
-    tokens.push(RawTokens { raw_token: str.to_string(), line: raw_line.line_number, column: column, file_name: Rc::clone(file_name)});
+fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawToken>, column: u32, file_name: &Rc<String>){
+    tokens.push(RawToken { raw_token: str.to_string(), line: raw_line.line_number, column: column, file_name: Rc::clone(file_name)});
 }
 
 
@@ -193,7 +193,7 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<T
 
     included_files.push(asm_file.name.clone());
     let file_name = Rc::new(asm_file.name.clone());
-    let mut tokens: Vec<RawTokens> = Vec::new();
+    let mut tokens: Vec<RawToken> = Vec::new();
 
     for raw_line in asm_file.raw_lines {
 
@@ -207,37 +207,38 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<T
             current_state = get_state(ch);
             current_column += 1;
 
-            if matches!(mode, Mode::Token){
-                if matches!(prev_state, State::Quote){
+            if mode == Mode::Token{
+                // if matches!(prev_state, State::Quote){
+                if prev_state == State::Quote{
                     flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                     token_byte_index = byte_index;
                     mode = Mode::InString;
                 }
             } else {
-                if matches!(prev_state, State::Quote){
+                if prev_state == State::Quote{
                     mode = Mode::Token;
                 }
             }
 
             match mode{
                 Mode::Token => {
-                    if !matches!(current_state, State::Whitespace) && matches!(prev_state, State::Whitespace) {
+                    if current_state != State::Whitespace && prev_state == State::Whitespace {
                         token_byte_index = byte_index;
                     }
 
                     // Handle comment
-                    if matches!(current_state, State::Slash) && matches!(prev_state, State::Slash){
+                    if current_state == State::Slash && prev_state == State::Slash{
                         break;
                     }
 
                     // Handle ':' and '::'
-                    if matches!(current_state, State::Colon) {
+                    if current_state == State::Colon {
                         
-                        if matches!(prev_state, State::Character) {
+                        if prev_state == State::Character {
                             flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                         }
 
-                        if matches!(prev_state, State::Colon) {
+                        if prev_state == State::Colon {
                             tokens.pop();
                             token_byte_index = byte_index + 1;
                             push_token(&raw_line, "::", &mut tokens, current_column, &file_name);
@@ -258,7 +259,7 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<T
                         flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                     } 
                     // handles full tokens and consective single tokens 
-                    if (match_single_chars(&current_state) || matches!(current_state, State::Whitespace)) && matches!(prev_state, State::Character){
+                    if (match_single_chars(&current_state) || current_state == State::Whitespace) && prev_state == State::Character{
                         flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column - 1, &file_name);
                     }
                         
@@ -266,7 +267,7 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<T
                 }
 
                 Mode::InString => {
-                    if matches!(current_state, State::Quote) {
+                    if current_state == State::Quote {
                         flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                     }
                     
@@ -275,10 +276,10 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<T
             }
         }
 
-        if !matches!(prev_state, State::Whitespace) && !(matches!(current_state, State::Slash) && matches!(prev_state, State::Slash)){
+        if prev_state != State::Whitespace && !(current_state == State::Slash && prev_state == State::Slash){
             let slice = raw_line.string[token_byte_index..].to_string();
             if !slice.is_empty() {
-                tokens.push(RawTokens {raw_token: slice, line: raw_line.line_number, column: current_column, file_name: Rc::clone(&file_name)});
+                tokens.push(RawToken {raw_token: slice, line: raw_line.line_number, column: current_column, file_name: Rc::clone(&file_name)});
             } 
         }
     }
