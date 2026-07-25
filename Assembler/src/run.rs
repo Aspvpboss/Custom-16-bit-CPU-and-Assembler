@@ -1,18 +1,11 @@
 use crate::error_handling::AsmError;
+use crate::asm::lexical_analysis;
 
 pub fn run() -> Result<(), Vec<AsmError>>{
     
+    
+    let lexed_tokens = lexical_analysis::lexical_analysis()?;
 
-
-
-    for s in &tokens.raw_tokens{
-        println!("F: {} L:{} C:{} ----- {} ", s.file_name, s.line, s.column, s.raw_token);
-    }
-
-    println!("");
-    for s in &tokens.included_files {
-        println!("included file: {s}");
-    }
 
     Ok(())
 }

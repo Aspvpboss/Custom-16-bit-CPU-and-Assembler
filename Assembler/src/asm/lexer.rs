@@ -1,6 +1,7 @@
 
+use crate::error_handling::{AsmError, AsmErrorType};
 use std::rc::Rc;
-use crate::asm::files::RawFileLines;
+use crate::asm::tokenize::Tokens;
 
 pub enum LabelKind{
     Address,
@@ -63,7 +64,6 @@ pub enum Identifiers {
     WideReg(String),
     FloatReg(String),
     Label(Labels),
-    MacroLabel(Labels),
 }
 
 pub enum Directives {
@@ -108,13 +108,12 @@ pub struct LexedToken{
 /*
     will tokenize and lex a processed file
 */
-pub fn lexer() -> Vec<Token> {
+pub fn lexer(tokens: Tokens) -> Result<Vec<LexedToken>, Vec<AsmError>> {
 
-    let mut tokens: Vec<Token> = Vec::new();
+    let mut lexed_tokens: Vec<LexedToken> = Vec::new();
 
-    tokens    
+    Ok(lexed_tokens)
 }
-
 
 
 
