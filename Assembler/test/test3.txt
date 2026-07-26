@@ -1,4 +1,5 @@
 
+
 // comments
 // r0 - byte register
 // wr0 - word register
@@ -25,7 +26,7 @@ player_one: .allocate Player[10];
 empty_string: .allocate .string[10];
 
 
-.include "boi.txt"
+.include "test/test4.txt"
 
 
 Label:

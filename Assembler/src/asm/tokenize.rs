@@ -1,6 +1,6 @@
 use crate::asm::files::{AsmFile, RawFileLines, read_and_process_file};
 use crate::error_handling::{AsmError, AsmErrorType};
-use crate::asm::lexer;
+use crate::asm::first_pass_lexer::{self, LexedToken, RawLexedToken};
 use std::rc::Rc;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -25,11 +25,6 @@ pub struct RawToken{
     pub line: u32,
     pub column: u32,
     pub file_name: Rc<String>,
-}
-
-pub struct Tokens{
-    pub included_files: Vec<String>,
-    pub raw_tokens: Vec<RawToken>,
 }
 
 
@@ -101,54 +96,48 @@ fn push_token(raw_line: &RawFileLines, str: &str, tokens: &mut Vec<RawToken>, co
 
 
 
-fn is_included(included_files: &Vec<String>, file_name: &String) -> Option<String>{
-
-    for included_file in included_files {
-        if file_name == included_file {
-            return None;
-        }
-    }
-
-    Some(file_name.clone())
-}
-
-
-fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
+fn resolve_include(mut lexed_tokens: Vec<LexedToken>, included_files: &mut Vec<String>) -> Result<(Vec<LexedToken>, &mut Vec<String>), Vec<AsmError>>{
 
     let mut errors: Vec<AsmError> = Vec::new();
-    let mut raw = tokens.raw_tokens;
-    let mut included_files = tokens.included_files;
 
     let mut i = 0;
-    while i < raw.len() {
+    while i < lexed_tokens.len() {
 
-        if raw[i].raw_token != ".include" {
+        if lexed_tokens[i].token != RawLexedToken::Direct(first_pass_lexer::Directives::Include) {
             i += 1;
             continue;
         }
 
-        match (raw.get(i + 1), raw.get(i + 2), raw.get(i + 3)) {
+        match (lexed_tokens.get(i + 1), lexed_tokens.get(i + 2), lexed_tokens.get(i + 3)) {
             (Some(q1), Some(file_token), Some(q2))
-                if q1.raw_token == "\"" && q2.raw_token == "\"" => {
+                if q1.token == RawLexedToken::Quote && q2.token == RawLexedToken::Quote => {
                     
-                    let Some(file_name) = is_included(&included_files, &file_token.raw_token) else{
+                    let RawLexedToken::Unknown(file_name) = &file_token.token else {
+                        errors.push(AsmError::new(
+                            "malformed .include directive, expected .include \"file_name\"".to_string(),
+                            AsmErrorType::Include,
+                        ).with_location(file_token.line, file_token.column, file_token.file_name.to_string()));
                         i += 4;
                         continue;
                     };
 
+                    if included_files.contains(file_name) {
+                        i += 4;
+                        continue;
+                    }
 
                     match read_and_process_file(file_name.as_str()) {
-                        Ok(raw_file) => {
-                            match tokenize(raw_file, &mut included_files) {
-                                Ok(included_tokens) => {
+                        Ok(lexed_tokens_file) => {
+                            match tokenize(lexed_tokens_file, included_files) {
+                                Ok((included_tokens, _)) => {
 
-                                    raw.splice(i+4..i+4, included_tokens.raw_tokens); 
+                                    lexed_tokens.splice(i+4..i+4, included_tokens); 
 
-                                    for f in included_tokens.included_files {
-                                        if !included_files.contains(&f) {
-                                            included_files.push(f);
-                                        }
-                                    }
+                                    // for f in included_files {
+                                    //     if !included_files.contains(&f) {
+                                    //         included_files.push(f.to_string());
+                                    //     }
+                                    // }
 
                                     i += 4;
                                 },
@@ -172,7 +161,7 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
                 errors.push(AsmError::new(
                     "malformed .include directive, expected .include \"file_name\"".to_string(),
                     AsmErrorType::Include,
-                ).with_location(raw[i].line, raw[i].column, raw[i].file_name.to_string()));
+                ).with_location(lexed_tokens[i].line, lexed_tokens[i].column, lexed_tokens[i].file_name.to_string()));
                 
                 i += 1;
             }
@@ -184,13 +173,13 @@ fn resolve_include(tokens: Tokens) -> Result<Tokens, Vec<AsmError>>{
         return Err(errors);
     }
 
-    Ok(Tokens {raw_tokens: raw, included_files: included_files})
+    Ok((lexed_tokens, included_files))
 }
 
 
 
 
-pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<Tokens, Vec<AsmError>>{
+pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<(Vec<LexedToken>, &mut Vec<String>), Vec<AsmError>>{
 
     included_files.push(asm_file.name.clone());
     let file_name = Rc::new(asm_file.name.clone());
@@ -285,8 +274,9 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<T
         }
     }
 
+    let lexed_tokens = first_pass_lexer::first_pass_lexer(tokens);
 
-    return resolve_include(Tokens {raw_tokens: tokens, included_files: included_files.to_vec()})
+    return resolve_include(lexed_tokens, included_files)
 }
 
 
