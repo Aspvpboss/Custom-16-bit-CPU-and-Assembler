@@ -7,6 +7,10 @@ pub fn run() -> Result<(), Vec<AsmError>>{
     let lexed_tokens = lexical_analysis::lexical_analysis()?;
 
 
+    for lexed_token in &lexed_tokens{
+        println!("{}", lexed_token);
+    }
+
     Ok(())
 }
 

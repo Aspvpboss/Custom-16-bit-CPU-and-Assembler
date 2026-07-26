@@ -98,7 +98,6 @@ pub enum RawLexedToken {
     Unknown(String),
     FileStart,
     FileEnd,
-    EOF,
     LCurly,
     RCurly,
     LBracket,
@@ -119,7 +118,7 @@ pub struct LexedToken{
 
 impl LexedToken{
 
-    pub fn new(lexed_token: RawLexedToken, og_token: RawToken) -> LexedToken{
+    pub fn new(lexed_token: RawLexedToken, og_token: &RawToken) -> LexedToken{
         LexedToken { 
             token: lexed_token, 
             line: og_token.line, 
@@ -130,7 +129,44 @@ impl LexedToken{
 
 }
 
+impl std::fmt::Display for LexedToken {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 
+        write!(
+            f,
+            "{}:{}:{} - {:?}",
+            self.file_name, self.line, self.column, self.token
+        )
+    }
+}
+
+
+fn lex_instruction_token(token: &RawToken) -> Option<RawLexedToken> {
+    match token.raw_token.as_str() {
+
+        _ => None
+    } 
+}
+
+
+fn lex_simple_tokens(token: &RawToken) -> LexedToken {
+
+    let lex_type = match token.raw_token.as_str() {
+
+        ".file_start" => {Some(RawLexedToken::FileStart)},
+        ".file_end" => {Some(RawLexedToken::FileEnd)},
+
+
+        _ => {None}    
+    };
+
+
+
+    match lex_type{
+        Some(lex_type) => LexedToken::new(lex_type, token),
+        None => LexedToken::new(RawLexedToken::Unknown(token.raw_token.clone()), token)
+    } 
+}
 
 
 /*
@@ -139,6 +175,17 @@ impl LexedToken{
 pub fn lexer(tokens: Tokens) -> Result<Vec<LexedToken>, Vec<AsmError>> {
 
     let mut lexed_tokens: Vec<LexedToken> = Vec::new();
+
+    let mut tokens = tokens.raw_tokens;
+
+    let mut i = 0;
+    while i < tokens.len() {
+        let token = &tokens[i];
+
+        lexed_tokens.push(lex_simple_tokens(token));
+
+        i += 1;
+    } 
 
     Ok(lexed_tokens)
 }
