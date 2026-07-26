@@ -3,5 +3,17 @@ name = "Assembler"
 version = "0.1.0"
 edition = "2024"
 
+[profile.release]
+opt-level = 3          # Maximum optimization for speed
+lto = "fat"            # Best cross-crate optimization
+codegen-units = 1      # Better optimization, slower compile
+panic = "abort"        # Removes unwinding code
+strip = "symbols"      # Strip debug symbols from binary
+debug = false          # No debug info
+incremental = false    # Better final codegen
+overflow-checks = false
+debug-assertions = false
+
+
 [dependencies]
 peak_alloc = "0.2.0"
