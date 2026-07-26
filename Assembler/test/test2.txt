@@ -26,7 +26,7 @@ player_one: .allocate Player[10];
 empty_string: .allocate .string[10];
 
 
-.include "test/test3.txt"
+//.include "test/test3.txt"
 
 
 Label:
