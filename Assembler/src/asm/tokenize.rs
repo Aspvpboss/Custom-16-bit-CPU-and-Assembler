@@ -17,7 +17,8 @@ enum State{
     Colon,
     Semicolon,
     Dot,
-    Slash
+    Slash,
+    BackSlash,
 }
 
 pub struct RawToken{
@@ -40,7 +41,7 @@ fn get_state(ch: char) -> State {
     if ch.is_whitespace(){
         return State::Whitespace;
     }
-    if ch.is_alphanumeric() || ch == '_' || ch == '-' || ch == '#' || ch == '\\'{
+    if ch.is_alphanumeric() || ch == '_' || ch == '-' || ch == '#'{
         return State::Character;
     }
 
@@ -56,6 +57,7 @@ fn get_state(ch: char) -> State {
         ';' => State::Semicolon,
         '.' => State::Dot,
         '/' => State::Slash,
+        '\\' => State::BackSlash,
         _ => State::Whitespace
     }
 }
@@ -192,19 +194,22 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<(
         let mut prev_state = State::Whitespace;
         let mut current_column: u32 = 0;
         let mut mode = Mode::Token;
+        let mut backslash_run: u32 = 0;
+        let mut string_closed = false;
 
         for (byte_index, ch) in raw_line.string.char_indices() {
             current_state = get_state(ch);
             current_column += 1;
 
             if mode == Mode::Token{
-                if prev_state == State::Quote{
+                if prev_state == State::Quote && !(prev_state == State::BackSlash && current_state == State::Quote) {
                     flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                     token_byte_index = byte_index;
                     mode = Mode::InString;
+                    backslash_run = 0;
                 }
             } else {
-                if prev_state == State::Quote{
+                if prev_state == State::Quote && string_closed{
                     mode = Mode::Token;
                 }
             }
@@ -256,10 +261,19 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<(
                 }
 
                 Mode::InString => {
-                    if current_state == State::Quote {
-                        flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
+                    if current_state == State::BackSlash {
+                        backslash_run += 1;
+                        string_closed = false;
+                    } else {
+                        if current_state == State::Quote && backslash_run % 2 == 0 {
+                            flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
+                            string_closed = true;
+                        } else {
+                            string_closed = false;
+                        }
+                        backslash_run = 0;
                     }
-                    
+
                     prev_state = current_state;
                 }
             }

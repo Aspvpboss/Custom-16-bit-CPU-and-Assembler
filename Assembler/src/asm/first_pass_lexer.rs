@@ -1,4 +1,4 @@
-use std::{rc::Rc, thread::current};
+use std::{rc::Rc, string};
 use crate::asm::tokenize::{RawToken};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -307,8 +307,29 @@ fn lex_string_literal(tokens: &Vec<RawToken>, i: usize) -> Option<LexedToken> {
     if tokens[i].raw_token != "\"" { return None; }
     if tokens[i + 2].raw_token != "\"" { return None; }
 
+    let mut string_lit = String::new();
+    let mut chars = tokens[i + 1].raw_token.chars();
+    while let Some(ch) = chars.next() {
+        if ch == '\\' {
+            match chars.next() {
+                Some('n') => string_lit.push('\n'),
+                Some('t') => string_lit.push('\t'),
+                Some('\\') => string_lit.push('\\'),
+                Some('"') => string_lit.push('"'),
+                Some(other) => {
+                    string_lit.push('\\');
+                    string_lit.push(other);
+                }
+                None => string_lit.push('\\'),
+            }
+        } else {
+            string_lit.push(ch);
+        }
+    }
+
+
     Some(LexedToken::new(
-        RawLexedToken::StringLit(tokens[i + 1].raw_token.clone()),
+        RawLexedToken::StringLit(string_lit),
         &tokens[i], // position at the opening quote
     ))
 }
