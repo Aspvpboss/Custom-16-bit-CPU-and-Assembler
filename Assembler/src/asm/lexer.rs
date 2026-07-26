@@ -104,6 +104,7 @@ pub enum RawLexedToken {
     RBracket,
     LParen,
     RParen,
+    Quote,
     Colon,
     DoubleColon,
     Semicolon,
@@ -141,25 +142,44 @@ impl std::fmt::Display for LexedToken {
 }
 
 
-fn lex_instruction_token(token: &RawToken) -> Option<RawLexedToken> {
-    match token.raw_token.as_str() {
+fn lex_instruction_token(token_str: &str) -> Option<RawLexedToken> {
+    match token_str {
 
         _ => None
     } 
 }
 
 
-fn lex_simple_tokens(token: &RawToken) -> LexedToken {
-
-    let lex_type = match token.raw_token.as_str() {
-
-        ".file_start" => {Some(RawLexedToken::FileStart)},
-        ".file_end" => {Some(RawLexedToken::FileEnd)},
-
-
+fn lex_easy_tokens(token_str: &str) -> Option<RawLexedToken>{
+    match token_str {
+        ".file_start" => Some(RawLexedToken::FileStart),
+        ".file_end" => Some(RawLexedToken::FileEnd),
+        ":" => Some(RawLexedToken::Colon),
+        "::" => Some(RawLexedToken::DoubleColon),
+        ";" => Some(RawLexedToken::Semicolon),
+        "{" => Some(RawLexedToken::LCurly),
+        "}" => Some(RawLexedToken::RCurly),
+        "[" => Some(RawLexedToken::LBracket),
+        "]" => Some(RawLexedToken::RBracket),
+        "(" => Some(RawLexedToken::LParen),
+        ")" => Some(RawLexedToken::RParen),
+        "\"" => Some(RawLexedToken::Quote),
         _ => {None}    
-    };
+    }
+}
 
+
+fn simple_lex(token: &RawToken) -> LexedToken {
+
+    let token_str = token.raw_token.as_str();
+    let mut lex_type: Option<RawLexedToken> = None;
+
+    if lex_type.is_none() {
+        lex_type = lex_easy_tokens(token_str);      
+    }
+    if lex_type.is_none() {
+        lex_type = lex_instruction_token(token_str);
+    }
 
 
     match lex_type{
@@ -176,13 +196,13 @@ pub fn lexer(tokens: Tokens) -> Result<Vec<LexedToken>, Vec<AsmError>> {
 
     let mut lexed_tokens: Vec<LexedToken> = Vec::new();
 
-    let mut tokens = tokens.raw_tokens;
+    let tokens = tokens.raw_tokens;
 
     let mut i = 0;
     while i < tokens.len() {
         let token = &tokens[i];
 
-        lexed_tokens.push(lex_simple_tokens(token));
+        lexed_tokens.push(simple_lex(token));
 
         i += 1;
     } 

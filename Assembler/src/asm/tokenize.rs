@@ -1,5 +1,6 @@
 use crate::asm::files::{AsmFile, RawFileLines, read_and_process_file};
 use crate::error_handling::{AsmError, AsmErrorType};
+use crate::asm::lexer;
 use std::rc::Rc;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
