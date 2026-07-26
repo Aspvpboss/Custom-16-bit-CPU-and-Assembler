@@ -116,14 +116,24 @@ pub struct LexedToken{
 
 impl LexedToken{
 
-    pub fn new(lexed_token: RawLexedToken, og_token: &RawToken) -> LexedToken{
+    pub fn new(lex_type: RawLexedToken, og_token: &RawToken) -> LexedToken{
         LexedToken { 
-            token: lexed_token, 
+            token: lex_type, 
             line: og_token.line, 
             column: og_token.column, 
             file_name: Rc::clone(&og_token.file_name) 
         }
     }
+
+    pub fn from(lex_type: RawLexedToken, lexed_token: &LexedToken) -> LexedToken {
+        LexedToken { 
+            token: lex_type, 
+            line: lexed_token.line, 
+            column: lexed_token.column, 
+            file_name: Rc::clone(&lexed_token.file_name) 
+        }
+    }
+
 
 }
 
@@ -138,6 +148,9 @@ impl std::fmt::Display for LexedToken {
     }
 }
 
+
+
+
 fn lex_number_token(token_str: &str) -> Option<RawLexedToken> {
     let rest = token_str.strip_prefix('#')?;
 
@@ -145,6 +158,13 @@ fn lex_number_token(token_str: &str) -> Option<RawLexedToken> {
         Some(r) => (r, true),
         None => (rest, false),
     };
+
+    // Floats: only plain decimal, no hex/bin float syntax.
+    if rest.contains('.') {
+        let value: f32 = rest.parse().ok()?;
+        let value = if negative { -value } else { value };
+        return Some(RawLexedToken::Number(NumberTypes::Float(value)));
+    }
 
     let value: i32 = if let Some(hex) = rest.strip_prefix("0x").or_else(|| rest.strip_prefix("0X")) {
         i32::from_str_radix(hex, 16).ok()?
@@ -155,9 +175,7 @@ fn lex_number_token(token_str: &str) -> Option<RawLexedToken> {
     };
 
     let value = if negative { -value } else { value };
-
     Some(RawLexedToken::Number(NumberTypes::Int(value)))
-
 }
 
 fn lex_identifiers_token(token_str: &str) -> Option<RawLexedToken> {
@@ -283,29 +301,34 @@ fn simple_lex(token: &RawToken) -> LexedToken {
     } 
 }
 
-fn lex_labels(current_token: &RawToken, current_lexed_token: LexedToken) -> LexedToken {
 
-    current_lexed_token
+fn lex_string_literal(tokens: &Vec<RawToken>, i: usize) -> Option<LexedToken> {
+    if i + 2 >= tokens.len() { return None; }
+    if tokens[i].raw_token != "\"" { return None; }
+    if tokens[i + 2].raw_token != "\"" { return None; }
+
+    Some(LexedToken::new(
+        RawLexedToken::StringLit(tokens[i + 1].raw_token.clone()),
+        &tokens[i], // position at the opening quote
+    ))
 }
 
 
-
 pub fn first_pass_lexer(tokens: Vec<RawToken>) -> Vec<LexedToken> {
-
     let mut lexed_tokens: Vec<LexedToken> = Vec::new();
-
 
     let mut i = 0;
     while i < tokens.len() {
-        let current_token = &tokens[i];
+        if let Some(string_lit_token) = lex_string_literal(&tokens, i) {
+            lexed_tokens.push(string_lit_token);
+            i += 3;
+            continue;
+        }
 
-        let lexed_token = simple_lex(current_token);
-        let lexed_token = lex_labels(current_token, lexed_token);
-
+        let lexed_token = simple_lex(&tokens[i]);
         lexed_tokens.push(lexed_token);
-
         i += 1;
-    } 
+    }
 
     lexed_tokens
 }

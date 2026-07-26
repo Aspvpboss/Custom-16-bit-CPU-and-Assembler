@@ -40,7 +40,7 @@ fn get_state(ch: char) -> State {
     if ch.is_whitespace(){
         return State::Whitespace;
     }
-    if ch.is_alphanumeric() || ch == '_' || ch == '-'{
+    if ch.is_alphanumeric() || ch == '_' || ch == '-' || ch == '#' || ch == '\\'{
         return State::Character;
     }
 
@@ -198,7 +198,6 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<(
             current_column += 1;
 
             if mode == Mode::Token{
-                // if matches!(prev_state, State::Quote){
                 if prev_state == State::Quote{
                     flush_token(&raw_line, &mut tokens, &mut token_byte_index, byte_index, current_column, &file_name);
                     token_byte_index = byte_index;
