@@ -5,6 +5,7 @@ pub enum AsmErrorType{
     Input,
     File,
     Include,
+    Macro,
 }
 
 
@@ -43,6 +44,7 @@ impl std::fmt::Display for AsmError {
             AsmErrorType::Input => "Input Error",
             AsmErrorType::File => "File Error",
             AsmErrorType::Include => "Include Error",
+            AsmErrorType::Macro => "Macro Error",
         };
 
         if let Some(location) = &self.location {

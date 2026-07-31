@@ -59,6 +59,14 @@ LOAD r0 0x7E00 // direct
 
 W_Array: .word {1, 3, 5, 7};
 Array: .byte {1, 3, 5, 7};
+player_two: Player {
+    health : 1.4123,
+    alive : 0,
+    pos : Vec2{
+        x : 1,
+        y : 1,
+    }
+}
 
 Small_Array: .allocate .byte[1024];
 Big_Array: .allocate .word[1024];

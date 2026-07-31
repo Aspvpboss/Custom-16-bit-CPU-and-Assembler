@@ -4,7 +4,6 @@ use crate::asm::tokenize::{RawToken};
 #[derive(Debug, Clone, PartialEq)]
 pub enum LabelKind{
     Address,
-    StringLit,
     Array,
 }
 
@@ -12,7 +11,6 @@ pub enum LabelKind{
 pub struct Labels {
     kind: LabelKind,
     name: String,
-    from_macro: bool,
 }
 
 
@@ -107,6 +105,7 @@ pub enum RawLexedToken {
     Semicolon,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct LexedToken{
     pub token: RawLexedToken,
     pub line: u32,
@@ -334,6 +333,17 @@ fn lex_string_literal(tokens: &Vec<RawToken>, i: usize) -> Option<LexedToken> {
     ))
 }
 
+fn lex_simple_label(tokens: &Vec<RawToken>, i : usize) -> Option<LexedToken> {
+    if i + 1 >= tokens.len() {return None; }
+    if tokens[i + 1].raw_token.as_str() != ":" {return None;}
+
+    Some(LexedToken::new(
+        RawLexedToken::Ident(Identifiers::Label(
+            Labels { kind: LabelKind::Address, name: tokens[i].raw_token.clone() },),
+        ), &tokens[i])
+    )
+}
+
 
 pub fn first_pass_lexer(tokens: Vec<RawToken>) -> Vec<LexedToken> {
     let mut lexed_tokens: Vec<LexedToken> = Vec::new();
@@ -343,6 +353,12 @@ pub fn first_pass_lexer(tokens: Vec<RawToken>) -> Vec<LexedToken> {
         if let Some(string_lit_token) = lex_string_literal(&tokens, i) {
             lexed_tokens.push(string_lit_token);
             i += 3;
+            continue;
+        }
+
+        if let Some(label_lit_token) = lex_simple_label(&tokens, i) {
+            lexed_tokens.push(label_lit_token);
+            i += 2;
             continue;
         }
 

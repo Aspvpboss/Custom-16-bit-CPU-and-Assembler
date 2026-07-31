@@ -56,5 +56,6 @@ LOAD r2 [player_one, Player::pos::x];
 #-1.234
 #1.234
 
+Label:
 
 " string\n\n \"morestuffafter" 
