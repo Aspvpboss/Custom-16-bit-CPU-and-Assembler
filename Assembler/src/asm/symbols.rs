@@ -1,4 +1,4 @@
-
+use crate::asm::macros::Macro;
 
 
 
@@ -13,11 +13,6 @@ pub struct DataLabel {
 
 pub struct VarType {
     size: u8,
-}
-
-
-pub struct Macro {
-
 }
 
 

@@ -6,3 +6,6 @@ pub mod files;
 pub mod cli_handler;
 pub mod symbols;
 pub mod second_pass_lexer;
+pub mod macros;
+
+
