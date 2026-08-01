@@ -11,7 +11,7 @@ pub fn lexical_analysis() -> Result<Vec<LexedToken> ,Vec<AsmError>>{
     let commands = cli_handler::get_assembly_commands()?;    
 
     let raw_root_file = files::read_and_process_file(&commands.root_file)?;
-    let (lexed_tokens, _) = tokenize::tokenize(raw_root_file, &mut Vec::new())?;
+    let lexed_tokens = tokenize::tokenize(raw_root_file)?;
 
     Ok(lexed_tokens)
 }

@@ -10,7 +10,7 @@ import os
 
 # ----- CONFIG: edit these -----
 DIRECTORY = "test"              # output directory (also used inside the .include path)
-COUNT = 1                 # how many files to generate
+COUNT = 2                 # how many files to generate
 PREFIX = "test"                 # filename prefix
 EXT = "txt"                     # file extension (no dot)
 START = 1                       # starting index
