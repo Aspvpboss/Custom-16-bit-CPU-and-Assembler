@@ -1,4 +1,4 @@
 
 a
-//.include "test/test.txt"
+.include "test/test.txt"
 a

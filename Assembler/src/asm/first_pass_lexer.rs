@@ -68,7 +68,7 @@ pub enum Identifiers {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Directives {
-    Include,
+    Include(String),
     Allocate,
     Struct,
     VariableType(String),
@@ -147,7 +147,7 @@ impl LexedToken{
             RawLexedToken::Number(NumberTypes::Float(f)) => f.to_string(),
 
             // Directives
-            RawLexedToken::Direct(Directives::Include) => ".include".to_string(),
+            RawLexedToken::Direct(Directives::Include(file_name)) => format!(".include {}", file_name),
             RawLexedToken::Direct(Directives::Allocate) => ".allocate".to_string(),
             RawLexedToken::Direct(Directives::Struct) => ".struct".to_string(),
             RawLexedToken::Direct(Directives::VariableType(s)) => s.clone(),
@@ -304,7 +304,6 @@ fn lex_instruction_token(token_str: &str) -> Option<RawLexedToken> {
 fn lex_directives_token(token_str: &str) -> Option<RawLexedToken> {
     match token_str {
 
-        ".include" => Some(RawLexedToken::Direct(Directives::Include)),
         ".allocate" => Some(RawLexedToken::Direct(Directives::Allocate)),
         ".struct" => Some(RawLexedToken::Direct(Directives::Struct)),
         ".macro" => Some(RawLexedToken::Direct(Directives::Macro)),
@@ -431,6 +430,28 @@ fn lex_file_guards(tokens: &Vec<RawToken>, i : usize) -> Option<LexedToken>{
     None
 }
 
+fn lex_include_dir(tokens: &Vec<RawToken>, i : usize) -> Option<LexedToken> {
+    
+    if i + 1 >= tokens.len() {return None;}
+
+    let Some(lexed_string) = lex_string_literal(&tokens, i + 1) else{
+        return None
+    };
+
+    let RawLexedToken::StringLit(file_name) = lexed_string.token else{
+        return None
+    };
+    
+    if tokens[i].raw_token == ".include" {
+        return Some(LexedToken::new(
+            RawLexedToken::Direct(Directives::Include(file_name)),
+            &tokens[i]
+        ))    
+    }
+
+    None
+}
+
 
 pub fn first_pass_lexer(tokens: Vec<RawToken>) -> Vec<LexedToken> {
     let mut lexed_tokens: Vec<LexedToken> = Vec::new();
@@ -451,6 +472,12 @@ pub fn first_pass_lexer(tokens: Vec<RawToken>) -> Vec<LexedToken> {
 
         if let Some(file_guard_token) = lex_file_guards(&tokens, i) {
             lexed_tokens.push(file_guard_token);
+            i += 4;
+            continue;
+        }
+
+        if let Some(include_token) = lex_include_dir(&tokens, i) {
+            lexed_tokens.push(include_token);
             i += 4;
             continue;
         }

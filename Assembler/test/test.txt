@@ -26,8 +26,6 @@ player_one: .allocate Player[10];
 empty_string: .allocate .string[10];
 
 
-.include "test/test2.txt"
-
 
 Label:
 ADD r0 r2 r3;

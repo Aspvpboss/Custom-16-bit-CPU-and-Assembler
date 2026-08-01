@@ -1,6 +1,6 @@
 use crate::asm::files::{AsmFile, RawFileLines, read_and_process_file};
 use crate::error_handling::{AsmError, AsmErrorType};
-use crate::asm::first_pass_lexer::{self, LexedToken, RawLexedToken};
+use crate::asm::first_pass_lexer::{self, LexedToken, RawLexedToken, Directives};
 use std::rc::Rc;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -105,20 +105,11 @@ fn resolve_include(mut lexed_tokens: Vec<LexedToken>, included_files: &mut Vec<S
     let mut i = 0;
     while i < lexed_tokens.len() {
 
-        if lexed_tokens[i].token != RawLexedToken::Direct(first_pass_lexer::Directives::Include) {
-            i += 1;
-            continue;
-        }
-
-        match lexed_tokens.get(i + 1) {
+        match lexed_tokens.get(i) {
             Some(file_token) => {
                     
-                    let RawLexedToken::StringLit(file_name) = &file_token.token else {
-                        errors.push(AsmError::new(
-                            "malformed .include directive, expected .include \"file_name\"".to_string(),
-                            AsmErrorType::Include,
-                        ).with_location(file_token.line, file_token.column, file_token.file_name.to_string()));
-                        i += 4;
+                    let RawLexedToken::Direct(Directives::Include(file_name)) = &file_token.token else {
+                        i += 1;
                         continue;
                     };
 
@@ -132,7 +123,7 @@ fn resolve_include(mut lexed_tokens: Vec<LexedToken>, included_files: &mut Vec<S
                             match tokenize(lexed_tokens_file, included_files) {
                                 Ok((included_tokens, _)) => {
 
-                                    lexed_tokens.splice(i+4..i+4, included_tokens); 
+                                    lexed_tokens.splice(i+1..i+1, included_tokens); 
 
                                     // for f in included_files {
                                     //     if !included_files.contains(&f) {
