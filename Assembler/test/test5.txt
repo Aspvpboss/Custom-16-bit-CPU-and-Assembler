@@ -1,4 +1,0 @@
-
-a
-.include "test/test.txt"
-a
