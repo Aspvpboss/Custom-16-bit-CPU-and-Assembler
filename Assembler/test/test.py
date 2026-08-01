@@ -10,7 +10,7 @@ import os
 
 # ----- CONFIG: edit these -----
 DIRECTORY = "test"              # output directory (also used inside the .include path)
-COUNT = 2                 # how many files to generate
+COUNT = 1               # how many files to generate
 PREFIX = "test"                 # filename prefix
 EXT = "txt"                     # file extension (no dot)
 START = 1                       # starting index
@@ -95,7 +95,7 @@ def clear_existing_txt_files(directory: str):
             path = os.path.join(directory, name)
             if os.path.isfile(path):
                 os.remove(path)
-                print(f"deleted {path}")
+                #print(f"deleted {path}")
 
 
 def main():
@@ -122,7 +122,7 @@ def main():
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(body)
 
-        print(f"wrote {out_path}" + (f"  -> includes {include_line}" if include_line else ""))
+        #print(f"wrote {out_path}" + (f"  -> includes {include_line}" if include_line else ""))
 
     print(f"\nDone. {len(filenames)} files written to '{DIRECTORY}/'.")
 

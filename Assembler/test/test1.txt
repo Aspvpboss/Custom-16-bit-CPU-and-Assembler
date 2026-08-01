@@ -45,4 +45,4 @@ struct Player{
 
 
 LOAD r2 [player_one, Player.pos.x];
-.include "test/test2.txt"
+
