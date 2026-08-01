@@ -110,11 +110,10 @@ fn resolve_include(mut lexed_tokens: Vec<LexedToken>, included_files: &mut Vec<S
             continue;
         }
 
-        match (lexed_tokens.get(i + 1), lexed_tokens.get(i + 2), lexed_tokens.get(i + 3)) {
-            (Some(q1), Some(file_token), Some(q2))
-                if q1.token == RawLexedToken::Quote && q2.token == RawLexedToken::Quote => {
+        match lexed_tokens.get(i + 1) {
+            Some(file_token) => {
                     
-                    let RawLexedToken::Unknown(file_name) = &file_token.token else {
+                    let RawLexedToken::StringLit(file_name) = &file_token.token else {
                         errors.push(AsmError::new(
                             "malformed .include directive, expected .include \"file_name\"".to_string(),
                             AsmErrorType::Include,
