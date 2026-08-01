@@ -15,16 +15,6 @@ pub struct AsmFile{
     pub raw_lines: Vec<RawFileLines>,
 }
 
-static mut FILE_ID: u32 = 0;
-
-fn generate_file_id() -> u32 {
-    unsafe{
-        let current = FILE_ID;
-        FILE_ID += 1; 
-        current
-    }
-}
-
 
 fn file_start_guard(line: String, line_num: usize, file_name: &str) -> Result<String, Vec<AsmError>>{
 
@@ -54,11 +44,9 @@ fn file_start_guard(line: String, line_num: usize, file_name: &str) -> Result<St
 
 pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, Vec<AsmError>>{
 
-    let current_id = generate_file_id();
-
     let mut raw_lines = vec![
         RawFileLines{
-            string: format!(".file_start #{}", current_id),
+            string: format!(".file_start \"{}\"", file_name),
             line_number: 0
         },
     ];
@@ -88,6 +76,7 @@ pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, Vec<AsmError>>{
 
         match file_start_guard(line, line_num + 1, file_name){
             Ok(line) => {
+
                 raw_lines.push(RawFileLines {
                     string: line,
                     line_number: (line_num as u32) + 1,
@@ -101,7 +90,7 @@ pub fn read_and_process_file(file_name: &str) -> Result<AsmFile, Vec<AsmError>>{
     }
 
     raw_lines.push(RawFileLines {
-         string: format!(".file_end #{}", current_id), 
+         string: format!(".file_end \"{}\"", file_name), 
          line_number: 0, 
     });
 

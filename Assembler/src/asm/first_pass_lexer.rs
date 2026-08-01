@@ -1,4 +1,4 @@
-use std::{rc::Rc};
+use std::{collections::btree_map::Keys, rc::Rc};
 use crate::asm::tokenize::{RawToken};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -91,8 +91,8 @@ pub enum RawLexedToken {
     Number(NumberTypes),
     StringLit(String),
     Unknown(String),
-    FileStart,
-    FileEnd,
+    FileStart(String),
+    FileEnd(String),
     LCurly,
     RCurly,
     LBracket,
@@ -124,15 +124,76 @@ impl LexedToken{
         }
     }
 
-    pub fn from(lex_type: RawLexedToken, lexed_token: &LexedToken) -> LexedToken {
-        LexedToken { 
-            token: lex_type, 
-            line: lexed_token.line, 
-            column: lexed_token.column, 
-            file_name: Rc::clone(&lexed_token.file_name) 
+    pub fn get_string(&self) -> String {
+        match &self.token {
+            // Punctuation / structural tokens
+            RawLexedToken::LCurly => "{".to_string(),
+            RawLexedToken::RCurly => "}".to_string(),
+            RawLexedToken::LBracket => "[".to_string(),
+            RawLexedToken::RBracket => "]".to_string(),
+            RawLexedToken::LParen => "(".to_string(),
+            RawLexedToken::RParen => ")".to_string(),
+            RawLexedToken::Quote => "\"".to_string(),
+            RawLexedToken::Colon => ":".to_string(),
+            RawLexedToken::DoubleColon => "::".to_string(),
+            RawLexedToken::Semicolon => ";".to_string(),
+            RawLexedToken::FileStart(id) => format!(".file_start #{id}"),
+            RawLexedToken::FileEnd(id) => format!(".file_end #{id}"),
+
+            // Literal-carrying tokens
+            RawLexedToken::StringLit(s) => s.clone(),
+            RawLexedToken::Unknown(s) => s.clone(),
+            RawLexedToken::Number(NumberTypes::Int(i)) => i.to_string(),
+            RawLexedToken::Number(NumberTypes::Float(f)) => f.to_string(),
+
+            // Directives
+            RawLexedToken::Direct(Directives::Include) => ".include".to_string(),
+            RawLexedToken::Direct(Directives::Allocate) => ".allocate".to_string(),
+            RawLexedToken::Direct(Directives::Struct) => ".struct".to_string(),
+            RawLexedToken::Direct(Directives::VariableType(s)) => s.clone(),
+            RawLexedToken::Direct(Directives::Glob) => ".glob".to_string(),
+            RawLexedToken::Direct(Directives::Macro) => ".macro".to_string(),
+
+            // Identifiers
+            RawLexedToken::Ident(Identifiers::Reg(n)) => format!("r{}", n),
+            RawLexedToken::Ident(Identifiers::WideReg(n)) => format!("w{}", n),
+            RawLexedToken::Ident(Identifiers::FloatReg(n)) => format!("f{}", n),
+            RawLexedToken::Ident(Identifiers::Label(l)) => l.name.clone(),
+            RawLexedToken::Ident(Identifiers::Instruction(instr)) => match instr {
+                Instructions::Load => "load".to_string(),
+                Instructions::Str => "str".to_string(),
+                Instructions::Push => "push".to_string(),
+                Instructions::Pop => "pop".to_string(),
+                Instructions::Mov => "mov".to_string(),
+                Instructions::Syscall => "syscall".to_string(),
+                Instructions::Jmp => "jmp".to_string(),
+                Instructions::Jif => "jif".to_string(),
+                Instructions::Cal => "cal".to_string(),
+                Instructions::Cif => "cif".to_string(),
+                Instructions::Ret => "ret".to_string(),
+                Instructions::Add => "add".to_string(),
+                Instructions::Sub => "sub".to_string(),
+                Instructions::Mul => "mul".to_string(),
+                Instructions::Div => "div".to_string(),
+                Instructions::Mod => "mod".to_string(),
+                Instructions::Cmp => "cmp".to_string(),
+                Instructions::And => "and".to_string(),
+                Instructions::Nor => "nor".to_string(),
+                Instructions::Xor => "xor".to_string(),
+                Instructions::Ars => "ars".to_string(),
+                Instructions::Lrs => "lrs".to_string(),
+                Instructions::Lls => "lls".to_string(),
+                Instructions::FAdd => "fadd".to_string(),
+                Instructions::FSub => "fsub".to_string(),
+                Instructions::FMul => "fmul".to_string(),
+                Instructions::FDiv => "fdiv".to_string(),
+                Instructions::FSqrt => "fsqrt".to_string(),
+                Instructions::FCmp => "fcmp".to_string(),
+                Instructions::FInt => "fint".to_string(),
+                Instructions::IFlo => "iflo".to_string(),
+            },
         }
     }
-
 
 }
 
@@ -255,8 +316,6 @@ fn lex_directives_token(token_str: &str) -> Option<RawLexedToken> {
 
 fn lex_easy_tokens(token_str: &str) -> Option<RawLexedToken>{
     match token_str {
-        ".file_start" => Some(RawLexedToken::FileStart),
-        ".file_end" => Some(RawLexedToken::FileEnd),
         ":" => Some(RawLexedToken::Colon),
         "::" => Some(RawLexedToken::DoubleColon),
         ";" => Some(RawLexedToken::Semicolon),
@@ -344,6 +403,34 @@ fn lex_simple_label(tokens: &Vec<RawToken>, i : usize) -> Option<LexedToken> {
     )
 }
 
+fn lex_file_guards(tokens: &Vec<RawToken>, i : usize) -> Option<LexedToken>{
+
+    if i + 1 >= tokens.len() {return None;}
+
+    let Some(lexed_string) = lex_string_literal(&tokens, i + 1) else{
+        return None
+    };
+
+    let RawLexedToken::StringLit(file_name) = lexed_string.token else{
+        return None
+    };
+
+    if tokens[i].raw_token == ".file_start" {
+        return Some(LexedToken::new(
+            RawLexedToken::FileStart(file_name),
+            &tokens[i]
+        ))    
+    }
+    if tokens[i].raw_token == ".file_end" {
+        return Some(LexedToken::new(
+            RawLexedToken::FileEnd(file_name),
+            &tokens[i]
+        ))    
+    }
+
+    None
+}
+
 
 pub fn first_pass_lexer(tokens: Vec<RawToken>) -> Vec<LexedToken> {
     let mut lexed_tokens: Vec<LexedToken> = Vec::new();
@@ -359,6 +446,12 @@ pub fn first_pass_lexer(tokens: Vec<RawToken>) -> Vec<LexedToken> {
         if let Some(label_lit_token) = lex_simple_label(&tokens, i) {
             lexed_tokens.push(label_lit_token);
             i += 2;
+            continue;
+        }
+
+        if let Some(file_guard_token) = lex_file_guards(&tokens, i) {
+            lexed_tokens.push(file_guard_token);
+            i += 4;
             continue;
         }
 

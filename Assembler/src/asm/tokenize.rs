@@ -286,6 +286,10 @@ pub fn tokenize(asm_file: AsmFile, included_files: &mut Vec<String>) -> Result<(
         }
     }
 
+    // for token in &tokens {
+    //     println!("{}", token.raw_token)
+    // }
+
     let lexed_tokens = first_pass_lexer::first_pass_lexer(tokens);
 
     return resolve_include(lexed_tokens, included_files)
