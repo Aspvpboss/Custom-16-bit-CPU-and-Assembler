@@ -6,7 +6,6 @@ pub struct Macro {
     macro_name: String,
     parameters: Vec<String>,
     macro_body: Vec<LexedToken>,
-    is_public: bool,
 }
 
 

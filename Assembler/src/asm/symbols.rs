@@ -7,19 +7,16 @@ use std::rc::Rc;
 #[derive(Default)]
 pub struct FunctionLabel {
     address : u16,
-    is_public: bool,
 }
 
 #[derive(Default)]
 pub struct DataLabel {
     address : u16,
-    is_public: bool,
 }
 
 #[derive(Default)]
 pub struct VarType {
     size: u8,
-    is_public: bool,
 }
 
 
@@ -35,11 +32,12 @@ pub enum SymbolType{
 pub struct Symbol {
     symbol: SymbolType,
     name : String,
+    is_public: bool,
 }
 
 impl Symbol {
-    fn new(name : String, symbol_type : SymbolType) -> Rc<Symbol> {
-        Rc::new(Symbol {symbol: symbol_type, name: name.clone()})
+    fn new(name : String, symbol_type : SymbolType, is_public : bool) -> Rc<Symbol> {
+        Rc::new(Symbol {symbol: symbol_type, name: name.clone(), is_public: is_public})
     }
 }
 
