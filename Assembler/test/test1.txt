@@ -7,8 +7,8 @@
 
 
 
-W_Array: .word {#1, #3, #5, #7};
-Array: .byte {#1, #3, #5, #7};
+.glob W_Array: .word {#1, #3, #5, #7};
+.glob Array: .byte {#1, #3, #5, #7};
 player_two: Player {
     health : #1.4123,
     alive : #0,
