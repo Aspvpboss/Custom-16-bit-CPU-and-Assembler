@@ -19,5 +19,3 @@ debug-assertions = false
 
 [dependencies]
 peak_alloc = "0.2.0"
-
-#cargo +nightly build --release --target x86_64-pc-windows-gnu -Z build-std=std,panic_abort
