@@ -37,6 +37,11 @@ pub struct Symbol {
     name : String,
 }
 
+impl Symbol {
+    fn new(name : String, symbol_type : SymbolType) -> Rc<Symbol> {
+        Rc::new(Symbol {symbol: symbol_type, name: name.clone()})
+    }
+}
 
 
 pub struct SymbolTable{
@@ -48,18 +53,47 @@ impl SymbolTable {
         SymbolTable { symbol_table: HashMap::new() }
     }
 
-    fn add_symbol(mut self, file_name : String, name : String, symbol_type : SymbolType) -> Result<Self, AsmError> {
-        if self.symbol_table.contains_key(&name){
-            return Err(AsmError::new(
-                format!("Tried to included symbols that already exist in "), 
-                AsmErrorType::Include))
+    fn add_symbol(&mut self, file_name : String, symbol : &Rc<Symbol>) -> Option<AsmError> {
+        if let Some(existing_symbols) = self.symbol_table.get(&file_name) {
+            for existing in existing_symbols {
+                if existing.name == symbol.name {
+                    return Some(AsmError::new(
+                        format!("Duplicate symbol '{}' found in {}", existing.name, file_name),
+                        AsmErrorType::Include));
+                }
+            }
         }
+
+        let entry = self.symbol_table.entry(file_name).or_default();
+        entry.push(Rc::clone(symbol));
+
+        None
+    }
+
+    fn include_file_symbols(&mut self, source_file: &String, dest_file: String) -> Option<Vec<AsmError>>{
+
+        let mut errors: Vec<AsmError> = Vec::new();
         
+        let Some(source_table) = self.symbol_table.get(source_file) else{
+            errors.push(AsmError::new(
+                format!("Tried to included symbols from {} that doesn't exist", source_file), 
+                AsmErrorType::Include));
+            return Some(errors)
+        };
 
-        let symbol = Rc::new(Symbol {symbol: symbol_type, name: name.clone()});
-        self.symbol_table.entry(file_name).or_insert_with(Vec::new).push(symbol);
+        let symbols = source_table.clone();
+        
+        for symbol in &symbols {
+            if let Some(error) = self.add_symbol(dest_file.clone(), symbol){
+                errors.push(error);
+            }
+        }
 
-        Ok(self)        
+        if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
+        }
     }
 }
 
