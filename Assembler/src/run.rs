@@ -13,9 +13,9 @@ pub fn run() -> Result<(), Vec<AsmError>>{
     let lexed_tokens = lexical_analysis::lexical_analysis()?;
 
 
-    // for lexed_token in &lexed_tokens{
-    //     println!("{}", lexed_token);
-    // }
+    for lexed_token in &lexed_tokens{
+        println!("{}", lexed_token);
+    }
 
     println!("current heap KB: {}", PEAK_ALLOC.current_usage_as_kb());
 

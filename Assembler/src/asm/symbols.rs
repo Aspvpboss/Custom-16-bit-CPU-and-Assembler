@@ -48,12 +48,16 @@ impl SymbolTable {
         SymbolTable { symbol_table: HashMap::new() }
     }
 
-    fn add_symbol(self, name : String, symbol_type : SymbolType) -> Result<Self, AsmError> {
+    fn add_symbol(mut self, file_name : String, name : String, symbol_type : SymbolType) -> Result<Self, AsmError> {
         if self.symbol_table.contains_key(&name){
-            return Err(AsmError::new(format!("Tried to included symbols that already exist in "), AsmErrorType::Include))
+            return Err(AsmError::new(
+                format!("Tried to included symbols that already exist in "), 
+                AsmErrorType::Include))
         }
         
-        let symbol = Symbol {symbol: symbol_type, name: name};
+
+        let symbol = Rc::new(Symbol {symbol: symbol_type, name: name.clone()});
+        self.symbol_table.entry(file_name).or_insert_with(Vec::new).push(symbol);
 
         Ok(self)        
     }
