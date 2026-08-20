@@ -38,6 +38,8 @@ EMU_Result iterate(Emulator *emu){
     result = execute(emu, &instruction);
     if(result == 1) return EMU_SUCCESS;
 
+    result = mmio();
+    if(result == 1) return EMU_SUCCESS; 
 
     return EMU_CONTINUE;
 }

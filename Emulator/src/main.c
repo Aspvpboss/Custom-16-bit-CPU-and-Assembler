@@ -17,6 +17,8 @@ int main(){
     }
 
     while(!SDL_GetAtomicU32(&emulator_state)){
+
+        // main rendering loop
         printf(" main thread                  \r");
         SDL_Delay(4000);
     }
