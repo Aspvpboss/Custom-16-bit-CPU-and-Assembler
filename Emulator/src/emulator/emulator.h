@@ -44,7 +44,8 @@ typedef struct{
 
 } Emulator;
 
-
+#define IS_SIXTEEN_BIT_REG(reg) (reg & 0x0010) >> 4
+#define STRIP_FIFTH_BIT(reg) (reg & 0b1111)
 
 int emulator_main(void *ptr);
 
