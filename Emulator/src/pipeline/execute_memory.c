@@ -9,7 +9,7 @@
 
     0x7F00 - 0x7FFF: MMIO (256B)
 
-    0x8000 - 0xFFFF: Selected ROM bank (32 KiB for each bank)
+    0x8000 - 0xFFFF: Selected RAM bank (32 KiB for each bank)
         can support techinically up to 2 ^ 16 amount of banks,
         each bank being a binary file that is loaded
 */
@@ -20,12 +20,22 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
 
     if(!ram) return 1;
 
-    if(address < 0x100 || address > 0x7FFF) return 1;
+    if(address < 0x100) return 1;
 
     u8 *active_vram = ram->vram_selector ? ram->vram_two : ram->vram_one;
 
 
-    if(address > 0x6EFF && address < 0x7F00){ // VRAM
+    if(address >= 0x0100 && address < 0x6F00){ // RAM
+
+        if(sixteen_bit_write == true && address + 1 >= 0x6F00) return 1;
+
+        u16 offset = address - 0x0100;
+
+        ram->ram[offset] = value & 0x00ff;
+        if(sixteen_bit_write) ram->ram[offset + 1] = (value & 0xff00) >> 8;
+
+
+    } else if(address >= 0x6F00 && address < 0x7F00){ // VRAM
 
         if(sixteen_bit_write == true && address + 1 > 0x7EFF) return 1;
 
@@ -34,7 +44,9 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
         active_vram[offset] = (value & 0x00ff);
         if(sixteen_bit_write) active_vram[offset + 1] = (value & 0xff00) >> 8;
 
-    } else if(address > 0x7EFF && address < 0x8000){ // MMIO
+    } 
+    
+    else if(address > 0x7EFF && address < 0x8000){ // MMIO
      
         if(sixteen_bit_write == true && address + 1 > 0x7FFF) return 1;
 
@@ -43,14 +55,12 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
         ram->mmio[offset] = value & 0x00ff;
         if(sixteen_bit_write) ram->mmio[offset + 1] = (value & 0xff00) >> 8;
 
-    } else{ // RAM
+    } else if (address > 0x8000){
 
-        if(sixteen_bit_write == true && address + 1 > 0x6EFF) return 1;
+        if(sixteen_bit_write == true && (u32)(address + 1) > 0xFFFF) return 1;
+        
+        u16 offset = address - 0x8000;
 
-        u16 offset = address - 0x0100;
-
-        ram->ram[offset] = value & 0x00ff;
-        if(sixteen_bit_write) ram->ram[offset + 1] = (value & 0xff00) >> 8;   
         
     }
 
