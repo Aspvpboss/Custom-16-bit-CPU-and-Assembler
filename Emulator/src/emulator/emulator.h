@@ -28,7 +28,7 @@ typedef struct{
     u8 vram_one[0x1000];
     u8 vram_two[0x1000];
     u8 mmio[0x100];
-    u8 rom_bank[0x8000];
+    u8 ram_bank[0x8000];
 
 } EMU_Ram;
 

@@ -46,7 +46,7 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
 
     } 
     
-    else if(address > 0x7EFF && address < 0x8000){ // MMIO
+    else if(address >= 0x7F00 && address < 0x8000){ // MMIO
      
         if(sixteen_bit_write == true && address + 1 > 0x7FFF) return 1;
 
@@ -55,12 +55,14 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
         ram->mmio[offset] = value & 0x00ff;
         if(sixteen_bit_write) ram->mmio[offset + 1] = (value & 0xff00) >> 8;
 
-    } else if (address > 0x8000){
+    } else if (address >= 0x8000){
 
         if(sixteen_bit_write == true && (u32)(address + 1) > 0xFFFF) return 1;
         
         u16 offset = address - 0x8000;
 
+        ram->ram_bank[offset] = value & 0x00ff;
+        if(sixteen_bit_write) ram->ram_bank[offset + 1] = (value & 0xff00) >> 8;
         
     }
 
@@ -75,35 +77,7 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 
     u8 *active_vram = ram->vram_selector ? ram->vram_two : ram->vram_one;
 
-
-    if(address > 0x6EFF && address < 0x7F00){ // VRAM
-
-        if(sixteen_bit_read == true && address + 1 > 0x7EFF) return 1;
-
-        u16 offset = address - 0x6F00; 
-
-        *value = active_vram[offset];
-        *value |= sixteen_bit_read ? (active_vram[offset + 1] << 8) : 0;
-
-    } else if(address > 0x7EFF && address < 0x8000){ // MMIO
-     
-        if(sixteen_bit_read == true && address + 1 > 0x7FFF) return 1;
-
-        u16 offset = address - 0x7F00;
-
-        *value = ram->mmio[offset];
-        *value |= sixteen_bit_read ? (ram->mmio[offset + 1] << 8) : 0;
-    
-    } else if(address > 0x7FFF){ // ROM bank
-
-        if(sixteen_bit_read == true && address + 1 > 0xFFFF) return 1;
-
-        u16 offset = address - 0x8000;
-
-        *value = ram->rom_bank[offset];
-        *value |= sixteen_bit_read ? (ram->rom_bank[offset + 1] << 8) : 0;
-
-    } else if(address < 0x100){ // bootloader
+    if(address < 0x100){ // bootloader
 
         if(sixteen_bit_read == true && address + 1 > 0x00FF) return 1;
 
@@ -111,7 +85,7 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
         *value |= sixteen_bit_read ? (ram->bootloader[address + 1] << 8) : 0;
 
 
-    } else{ // RAM
+    } else if(address >= 0x0100 && address < 0x6F00){ // RAM
 
         if(sixteen_bit_read == true && address + 1 > 0x6EFF) return 1;
 
@@ -120,8 +94,34 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
         *value = ram->ram[offset];
         *value |= sixteen_bit_read ? (ram->ram[offset + 1] << 8) : 0;
         
-    }
+    } else if(address >= 0x6F00 && address < 0x7F00){ // VRAM
 
+        if(sixteen_bit_read == true && address + 1 > 0x7EFF) return 1;
+
+        u16 offset = address - 0x6F00; 
+
+        *value = active_vram[offset];
+        *value |= sixteen_bit_read ? (active_vram[offset + 1] << 8) : 0;
+
+    } else if(address >= 0x7F00 && address < 0x8000){ // MMIO
+     
+        if(sixteen_bit_read == true && address + 1 > 0x7FFF) return 1;
+
+        u16 offset = address - 0x7F00;
+
+        *value = ram->mmio[offset];
+        *value |= sixteen_bit_read ? (ram->mmio[offset + 1] << 8) : 0;
+    
+    } else if(address >= 0x8000){ // RAM bank
+
+        if(sixteen_bit_read == true && address + 1 > 0xFFFF) return 1;
+
+        u16 offset = address - 0x8000;
+
+        *value = ram->ram_bank[offset];
+        *value |= sixteen_bit_read ? (ram->ram_bank[offset + 1] << 8) : 0;
+
+    }
 
     return 0;
 }
