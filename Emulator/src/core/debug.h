@@ -10,9 +10,9 @@ int memory_test(EMU_Ram *ram);
 
 
 #ifdef NDEBUG
-    #define d_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+    #define d_printf(fmt, ...) 
 #else
-    #define d_printf(fmt, ...)
+    #define d_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #endif
 
 #endif
