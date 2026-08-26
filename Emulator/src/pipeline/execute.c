@@ -1,8 +1,8 @@
 
-#include "emulator/debug.h"
+#include "core/debug.h"
 #include "pipeline/execute.h"
-#include "pipeline/execute_math.h"
-#include "pipeline/execute_memory.h"
+#include "execute/execute_math.h"
+#include "execute/execute_memory.h"
 
 
 int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){

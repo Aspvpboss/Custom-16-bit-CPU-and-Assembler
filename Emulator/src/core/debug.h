@@ -1,8 +1,8 @@
 #ifndef EMU_DEBUG_H_
 #define EMU_DEBUG_H_
 
-#include "emulator/flags.h"
-#include "emulator/emulator.h"
+#include "hardware/flags.h"
+#include "hardware/emulator.h"
 
 void print_cmp_flags(CMP_Flags flags);
 void print_individual_bytes(u64 value);

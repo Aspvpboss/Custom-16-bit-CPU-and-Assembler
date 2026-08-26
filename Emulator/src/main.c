@@ -1,4 +1,4 @@
-#include "emulator/emulator.h"
+#include "hardware/emulator.h"
 #include <SDLite/SDLite.h>
 #include <SDLite/SDL3/SDL_thread.h>
 

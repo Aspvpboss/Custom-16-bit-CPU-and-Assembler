@@ -1,8 +1,8 @@
-#include "init.h"
-#include "iterate.h"
-#include "destroy.h"
-#include "debug.h"
-#include "emulator/emulator.h"
+#include "core/init.h"
+#include "core/iterate.h"
+#include "core/destroy.h"
+#include "core/debug.h"
+#include "hardware/emulator.h"
 
 
 int emulator_main(void *ptr){

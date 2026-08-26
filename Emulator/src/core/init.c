@@ -4,7 +4,6 @@
 
 Emulator* init(){
 
-
     Emulator *emu = t_malloc(sizeof(Emulator));
     if(!emu) return NULL;
 
