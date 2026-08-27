@@ -1,4 +1,8 @@
-#include "debug.h"
+#include "core/init.h"
+#include "core/iterate.h"
+#include "core/destroy.h"
+#include "core/test.h"
+#include "test.h"
 #include "pipeline/execute/execute_memory.h"
 
 void print_cmp_flags(CMP_Flags flags){
@@ -63,7 +67,6 @@ int memory_test(EMU_Ram *ram){
         d_printf("simple read_memory failed\n");
         return 1;
     }
-    d_printf("\n%d\n", destination_value);
 
     if(write_memory(ram, 0x6F01, 0xffff, false)){
         d_printf("vram write_memory failed\n");
@@ -77,8 +80,6 @@ int memory_test(EMU_Ram *ram){
         d_printf("vram read_memory failed, expected 0xff, got %d\n", destination_value);
         return 1;
     }
-    d_printf("%d\n", destination_value);
-
 
     if(write_memory(ram, 0x7F01, 0xffff, false)){
         d_printf("mmio write_memory failed\n");
@@ -92,8 +93,6 @@ int memory_test(EMU_Ram *ram){
         d_printf("mmio read_memory failed, expected 0xff, got %d\n", destination_value);
         return 1;
     }
-    d_printf("%d\n", destination_value);
-
 
     if(write_memory(ram, 0xffff, 0x00ff, false)){
         d_printf("write_memory failed, tried to write to ram failed\n");
@@ -124,7 +123,30 @@ int memory_test(EMU_Ram *ram){
         return 1;
     }
 
-
     return 0;
 }
 
+
+
+
+
+
+
+
+int run_tests(){
+
+    bool failed_test = false;
+
+    Emulator *test_emu = init();
+    if(!test_emu) return 1;
+
+    d_printf("--Testing memory--\n");
+    if(memory_test(&test_emu->ram)){
+        d_printf("--Failed Test--\n");
+        failed_test = true;
+    } else d_printf("--Passed Test--\n\n");
+
+
+    destroy(test_emu); 
+    return failed_test;
+}

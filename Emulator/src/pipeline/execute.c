@@ -1,5 +1,4 @@
 
-#include "core/debug.h"
 #include "pipeline/execute.h"
 #include "execute/execute_math.h"
 #include "execute/execute_memory.h"
@@ -10,7 +9,6 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
     EMU_Instructions opcode = EMU_JMP;
     // EMU_instruction opcode = instruction->opcode;
 
-    memory_test(&emu->ram);
 
     switch(opcode){
 
