@@ -19,8 +19,8 @@ static void alu_add(u16 a, u16 b, u16 *dst, CMP_Flags *flags){
 static void alu_sub(u16 a, u16 b, u16 *dst, CMP_Flags *flags){
     
     u32 wide = (u32)a - (u32)b;
-
     u16 result = (u16)wide;
+    *dst = result;
     
     if(a < b)
         *flags |= CMP_CAR;

@@ -127,12 +127,6 @@ int memory_test(EMU_Ram *ram){
 }
 
 
-
-
-
-
-
-
 int run_tests(){
 
     bool failed_test = false;
