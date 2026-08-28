@@ -127,6 +127,16 @@ int memory_test(EMU_Ram *ram){
 }
 
 
+#define test(string, function) \
+    do { \
+        d_printf("%s\n", string); \
+        if(function){ \
+            d_printf("--Failed Test--\n"); \
+            failed_test = true; \
+        } else d_printf("--Passed Test--\n\n"); \
+    } while (0)
+
+
 int run_tests(){
 
     bool failed_test = false;
@@ -134,12 +144,7 @@ int run_tests(){
     Emulator *test_emu = init();
     if(!test_emu) return 1;
 
-    d_printf("--Testing memory--\n");
-    if(memory_test(&test_emu->ram)){
-        d_printf("--Failed Test--\n");
-        failed_test = true;
-    } else d_printf("--Passed Test--\n\n");
-
+    test("--Testing memory--", memory_test(&test_emu->ram));
 
     destroy(test_emu); 
     return failed_test;
