@@ -9,7 +9,7 @@ int main(){
 
     if(SDLite_Init(NULL, NULL, false, false))
         return 1;
-   
+  
     SDL_Thread *emulator_thread = SDL_CreateThread(emulator_main, "emulator", &emulator_state);
     if(!emulator_thread){
         SDLite_Quit();
@@ -17,6 +17,8 @@ int main(){
     }
 
     while(!SDL_GetAtomicU32(&emulator_state)){
+
+        // main rendering loop
         printf(" main thread                  \r");
         SDL_Delay(4000);
     }

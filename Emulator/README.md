@@ -11,7 +11,7 @@
 
 0x7F00 - 0x7FFF: MMIO (256B)
 
-0x8000 - 0xFFFF: Selected ROM bank (32 KiB for each bank)
+0x8000 - 0xFFFF: Selected RAM bank (32 KiB for each bank)
     can support techinically up to 2 ^ 16 amount of banks,
     each bank being a binary file that is loaded
 

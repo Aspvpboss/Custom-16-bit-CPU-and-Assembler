@@ -95,8 +95,8 @@ int memory_test(EMU_Ram *ram){
     d_printf("%d\n", destination_value);
 
 
-    if(!write_memory(ram, 0xffff, 0x00ff, false)){
-        d_printf("write_memory failed, tried to write to rom failed\n");
+    if(write_memory(ram, 0xffff, 0x00ff, false)){
+        d_printf("write_memory failed, tried to write to ram failed\n");
         return 1;
     }
     if(!write_memory(ram, 0x0000, 0x00ff, false)){
