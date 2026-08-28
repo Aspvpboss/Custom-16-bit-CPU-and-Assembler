@@ -1,12 +1,3 @@
-# Current goals
-
-```
-Complete move execute instructions
-Complete control flow instructions
-Create Unit tests for each instruction
-Start work on MMIO
-```
-
 
 
 # Address space
@@ -20,7 +11,7 @@ Start work on MMIO
 
 0x7F00 - 0x7FFF: MMIO (256B)
 
-0x8000 - 0xFFFF: Selected RAM bank (32 KiB for each bank)
+0x8000 - 0xFFFF: Selected ROM bank (32 KiB for each bank)
     can support techinically up to 2 ^ 16 amount of banks,
     each bank being a binary file that is loaded
 
@@ -52,7 +43,7 @@ most functions will XIP (execute in place), but there should be a function in lo
 FPU and ALU operations only use 4-bit addresses for registers; however, for memory operations, an additional high bit extends this field to 5 bits, where the extra bit specifies the transfer width (0 = 8-bit word, 1 = 16-bit byte)
     
 
-# Instruction Set - (31 instructions)
+# Instruction Set - (32 instructions)
 
 
 ### 5 memory instructions
