@@ -43,7 +43,7 @@ most functions will XIP (execute in place), but there should be a function in lo
 FPU and ALU operations only use 4-bit addresses for registers; however, for memory operations, an additional high bit extends this field to 5 bits, where the extra bit specifies the transfer width (0 = 8-bit word, 1 = 16-bit byte)
     
 
-# Instruction Set - (32 instructions)
+# Instruction Set - (31 instructions)
 
 
 ### 5 memory instructions

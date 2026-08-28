@@ -3,7 +3,7 @@
 
 #include "my_stdtypes.h"
 #include <SDLite/MemTrack.h>
-#include "emulator/flags.h"
+#include "hardware/flags.h"
 
 enum ALU_Registers{
 

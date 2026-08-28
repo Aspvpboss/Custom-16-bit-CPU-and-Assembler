@@ -1,7 +1,7 @@
 
 GCC = gcc
 
-SRC = $(wildcard src/*.c src/emulator/*.c src/pipeline/*.c)
+SRC = $(wildcard src/*.c src/emulator/*.c src/pipeline/*.c src/pipeline/execute/*.c src/core/*.c src/hardware/*.c)
 OUT = build/CEMU.exe
 
 INCLUDE = -Isrc
@@ -10,8 +10,8 @@ LINK = -lSDL3 -lSDL3_image -lSDL3_mixer -lSDL3_ttf
 
 
 W_FLAGS = -Wall -Werror -Wpedantic
-OPT_FLAG = -O3 -s -DSTDLIB_ALLOCATIONS
-DEBUG_FLAG = -g -DNDEBUG -DTRACK_ALLOCATIONS
+OPT_FLAG = -O3 -s -DNDEBUG -DSTDLIB_ALLOCATIONS
+DEBUG_FLAG = -g -DTRACK_ALLOCATIONS
 
 
 default: debug_build run

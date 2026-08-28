@@ -1,7 +1,7 @@
 #ifndef DESTROY_H_
 #define DESTROY_H_
 
-#include "emulator/emulator.h"
+#include "hardware/emulator.h"
 
 void destroy(Emulator *emu);
 

@@ -6,9 +6,9 @@
 #include <SDLite/SDL3/SDL_thread.h>
 #include <SDLite/SDL3/SDL_atomic.h>
 
-#include "emulator/flags.h"
-#include "emulator/alu.h"
-#include "emulator/fpu.h"
+#include "hardware/flags.h"
+#include "hardware/alu.h"
+#include "hardware/fpu.h"
 
 
 typedef struct{

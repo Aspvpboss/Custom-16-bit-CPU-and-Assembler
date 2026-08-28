@@ -1,7 +1,7 @@
 #ifndef EXECUTE_MATH_EMU_H
 #define EXECUTE_MATH_EMU_H
 
-#include "emulator/emulator.h"
+#include "hardware/emulator.h"
 #include "pipeline/instruction.h"
 
 

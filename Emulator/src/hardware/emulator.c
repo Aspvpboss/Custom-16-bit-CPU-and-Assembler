@@ -1,18 +1,22 @@
-#include "init.h"
-#include "iterate.h"
-#include "destroy.h"
-#include "debug.h"
-#include "emulator/emulator.h"
+#include "core/init.h"
+#include "core/iterate.h"
+#include "core/destroy.h"
+#include "core/test.h"
+#include "hardware/emulator.h"
 
+#define RETURN_THREAD(status) SDL_SetAtomicU32(emulator_state, 1); return status; 
 
 int emulator_main(void *ptr){
   
     SDL_AtomicU32 *emulator_state = (SDL_AtomicU32*)ptr;
 
+    if(RUN_TESTS()){
+        RETURN_THREAD(1);
+    }
+
     Emulator *emu = init();
     if(!emu){
-        SDL_SetAtomicU32(emulator_state, 1);
-        return 1;
+        RETURN_THREAD(1);
     }
 
 
@@ -27,8 +31,7 @@ int emulator_main(void *ptr){
         
         if(result == EMU_FAILURE){
             destroy(emu);
-            SDL_SetAtomicU32(emulator_state, 1);
-            return 1;
+            RETURN_THREAD(1);
         }
 
         if(SDLite_Input_KeyJustPressed(emu->SDLite_io.input, SDL_SCANCODE_T)){
@@ -49,7 +52,5 @@ int emulator_main(void *ptr){
 
     destroy(emu);
 
-    SDL_SetAtomicU32(emulator_state, 1);
-    
-    return 0;
+    RETURN_THREAD(0);
 }
