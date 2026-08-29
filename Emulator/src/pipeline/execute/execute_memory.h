@@ -8,6 +8,8 @@
 
 int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read);
 int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write);
+int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction);
+int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction);
 
 
 #endif
