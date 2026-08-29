@@ -13,6 +13,8 @@ int emulator_main(void *ptr){
     if(RUN_TESTS()){
         RETURN_THREAD(1);
     }
+    
+    RETURN_THREAD(0);
 
     Emulator *emu = init();
     if(!emu){

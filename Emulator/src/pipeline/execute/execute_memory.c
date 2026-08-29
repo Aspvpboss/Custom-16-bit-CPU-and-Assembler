@@ -141,8 +141,12 @@ int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction){
     u16 memory_value = 0;
     if(read_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], &memory_value, sixteen_bit_read)){
         d_printf("exe_pop failed to read from memory");
+        PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
+
+    emu->alu.registers[reg_write_addr] = memory_value;
+    emu->alu.registers[ALU_STACK_POINTER] += sixteen_bit_read ? 2 : 1;
 
     return 0;
 }
