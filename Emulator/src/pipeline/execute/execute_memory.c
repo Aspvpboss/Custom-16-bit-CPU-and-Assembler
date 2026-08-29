@@ -127,6 +127,8 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 }
 
 
+
+
 int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
     
     bool sixteen_bit_write = IS_SIXTEEN_BIT_REG(instruction->operands[0]);
@@ -246,4 +248,38 @@ int exe_load(Emulator *emu, EMU_Decoded_Instruction *instruction){
     emu->alu.registers[reg_write_addr] = memory_read_value;
     
     return 0;
+}
+
+int exe_mov(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    u8 src_addr = STRIP_FIFTH_BIT(instruction->operands[0]);
+    u8 dest_addr = STRIP_FIFTH_BIT(instruction->operands[1]);
+
+    u16 *int_registers = &emu->alu.registers;
+    f16 *float_registers = &emu->fpu.registers;
+
+    switch(instruction->operands[2]){
+       
+        case MOV_REG_TO_REG:{
+            int_registers[dest_addr] = int_registers[src_addr];
+            return 0;
+        }
+        case MOV_REG_TO_FLOAT:{
+            float_registers[dest_addr] = int_registers[src_addr];
+            return 0;
+        }
+        case MOV_FLOAT_TO_REG:{
+            int_registers[dest_addr] = float_registers[src_addr];
+            return 0;
+        }
+        case MOV_FLOAT_TO_FLOAT:{
+            float_registers[dest_addr] = float_registers[src_addr];
+            return 0;
+        }
+        
+        default:
+            break;
+    } 
+
+    return 1;
 }
