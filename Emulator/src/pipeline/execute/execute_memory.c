@@ -127,3 +127,22 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 }
 
 
+int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    return 0;
+}
+
+
+int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction){
+
+    bool sixteen_bit_read = IS_SIXTEEN_BIT_REG(instruction->operands[0]);
+    u8 reg_write_addr = STRIP_FIFTH_BIT(instruction->operands[0]);
+
+    u16 memory_value = 0;
+    if(read_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], &memory_value, sixteen_bit_read)){
+        d_printf("exe_pop failed to read from memory");
+        return 1;
+    }
+
+    return 0;
+}

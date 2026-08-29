@@ -12,9 +12,13 @@ int run_tests();
 #ifdef NDEBUG
     #define d_printf(fmt, ...) 
     #define RUN_TESTS()
+    #define PRINT_CMP_FLAGS(flags)
+    #define PRINT_INDIVIDUAL_BYTES(value)
 #else
     #define d_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
     #define RUN_TESTS() run_tests()
+    #define PRINT_CMP_FLAGS(flags) print_cmp_flags(flags)
+    #define PRINT_INDIVIDUAL_BYTES(value) print_individual_bytes(value)
 #endif
 
 #endif

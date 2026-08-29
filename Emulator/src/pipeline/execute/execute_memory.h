@@ -4,7 +4,7 @@
 
 #include "hardware/emulator.h"
 #include "pipeline/instruction.h"
-
+#include "core/test.h"
 
 int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read);
 int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write);
