@@ -2,8 +2,9 @@
 #include "core/iterate.h"
 #include "core/destroy.h"
 #include "core/test.h"
-#include "test.h"
+#include "pipeline/execute/execute_math.h"
 #include "pipeline/execute/execute_memory.h"
+#include "test.h"
 
 void print_cmp_flags(CMP_Flags flags){
  
@@ -126,12 +127,22 @@ int memory_test(EMU_Ram *ram){
     return 0;
 }
 
+int memory_instructions_test(Emulator *emu){
+
+    EMU_Decoded_Instruction instruction;
+    // instruction.
+
+    return 0;
+}
+
+
+
 
 #define test(string, function) \
     do { \
         d_printf("%s\n", string); \
         if(function){ \
-            d_printf("--Failed Test--\n"); \
+            d_printf("--Failed Test--\n\n"); \
             failed_test = true; \
         } else d_printf("--Passed Test--\n\n"); \
     } while (0)
@@ -144,7 +155,8 @@ int run_tests(){
     Emulator *test_emu = init();
     if(!test_emu) return 1;
 
-    test("--Testing memory--", memory_test(&test_emu->ram));
+    test("--Testing memory functionality--", memory_test(&test_emu->ram));
+    test("--Testing memory instructions--", memory_instructions_test(test_emu));
 
     destroy(test_emu); 
     return failed_test;

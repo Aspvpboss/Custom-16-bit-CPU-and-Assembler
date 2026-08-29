@@ -130,7 +130,12 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 
 
 int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
-    
+   
+    if(instruction->addressing_mode != ADDR_IMMEDIATE_EIGHT){
+        d_printf("exe_push was given an invalid addressing mode");
+        return 1;
+    }
+
     bool sixteen_bit_write = IS_SIXTEEN_BIT_REG(instruction->operands[0]);
     u8 reg_read_addr = STRIP_FIFTH_BIT(instruction->operands[0]);
 
@@ -149,6 +154,11 @@ int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
 int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
+    if(instruction->addressing_mode != ADDR_IMMEDIATE_EIGHT){
+        d_printf("exe_pop was given an invalid addressing mode");
+        return 1;
+    }
+    
     bool sixteen_bit_read = IS_SIXTEEN_BIT_REG(instruction->operands[0]);
     u8 reg_write_addr = STRIP_FIFTH_BIT(instruction->operands[0]);
 
@@ -194,6 +204,7 @@ int exe_str(Emulator *emu, EMU_Decoded_Instruction *instruction){
         }
         default:
             write_failed = true;
+            d_printf("exe_str was given an invalid addressing mode");
             break;
        
     }
@@ -235,6 +246,7 @@ int exe_load(Emulator *emu, EMU_Decoded_Instruction *instruction){
         }
         default:
             read_failed = true;
+            d_printf("exe_load was given an invalid addressing mode");
             break;
     }
 
@@ -255,8 +267,8 @@ int exe_mov(Emulator *emu, EMU_Decoded_Instruction *instruction){
     u8 src_addr = STRIP_FIFTH_BIT(instruction->operands[0]);
     u8 dest_addr = STRIP_FIFTH_BIT(instruction->operands[1]);
 
-    u16 *int_registers = &emu->alu.registers;
-    f16 *float_registers = &emu->fpu.registers;
+    u16 *int_registers = emu->alu.registers;
+    f16 *float_registers = emu->fpu.registers;
 
     switch(instruction->operands[2]){
        
