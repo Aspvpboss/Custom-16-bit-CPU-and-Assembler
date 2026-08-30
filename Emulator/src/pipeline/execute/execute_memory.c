@@ -141,7 +141,7 @@ int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 memory_value = emu->alu.registers[reg_read_addr];
     if(write_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], memory_value, sixteen_bit_write)){
-        d_printf("exe_push failed to read from memory");
+        d_printf("exe_push failed to read from memory\n");
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -155,7 +155,7 @@ int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
 int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     if(instruction->addressing_mode != ADDR_IMMEDIATE_EIGHT){
-        d_printf("exe_pop was given an invalid addressing mode");
+        d_printf("exe_pop was given an invalid addressing mode\n");
         return 1;
     }
     
@@ -163,14 +163,14 @@ int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction){
     u8 reg_write_addr = STRIP_FIFTH_BIT(instruction->operands[0]);
 
     u16 memory_value = 0;
+    emu->alu.registers[ALU_STACK_POINTER] += sixteen_bit_read ? 2 : 1;
     if(read_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], &memory_value, sixteen_bit_read)){
-        d_printf("exe_pop failed to read from memory");
+        d_printf("exe_pop failed to read from memory\n");
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
 
     emu->alu.registers[reg_write_addr] = memory_value;
-    emu->alu.registers[ALU_STACK_POINTER] += sixteen_bit_read ? 2 : 1;
 
     return 0;
 }
@@ -204,13 +204,13 @@ int exe_str(Emulator *emu, EMU_Decoded_Instruction *instruction){
         }
         default:
             write_failed = true;
-            d_printf("exe_str was given an invalid addressing mode");
+            d_printf("exe_str was given an invalid addressing mode\n");
             break;
        
     }
     
     if(write_failed){
-        d_printf("exe_str failed to read from memory");
+        d_printf("exe_str failed to read from memory\n");
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -246,12 +246,12 @@ int exe_load(Emulator *emu, EMU_Decoded_Instruction *instruction){
         }
         default:
             read_failed = true;
-            d_printf("exe_load was given an invalid addressing mode");
+            d_printf("exe_load was given an invalid addressing mode\n");
             break;
     }
 
     if(read_failed){
-        d_printf("exe_load failed to read from memory");
+        d_printf("exe_load failed to read from memory\n");
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -293,5 +293,6 @@ int exe_mov(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
     } 
 
+    d_printf("exe_mov was given an invalid addressing mode\n");
     return 1;
 }

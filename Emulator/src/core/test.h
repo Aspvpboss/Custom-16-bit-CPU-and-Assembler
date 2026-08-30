@@ -4,6 +4,7 @@
 #include "hardware/flags.h"
 #include "hardware/emulator.h"
 
+void print_register_files(Emulator *emu);
 void print_cmp_flags(CMP_Flags flags);
 void print_individual_bytes(u64 value);
 int run_tests();
@@ -19,6 +20,7 @@ int run_tests();
     #define RUN_TESTS() run_tests()
     #define PRINT_CMP_FLAGS(flags) print_cmp_flags(flags)
     #define PRINT_INDIVIDUAL_BYTES(value) print_individual_bytes(value)
+    #define PRINT_REGISTER_FILES(emu) print_register_files(emu)
 #endif
 
 #endif

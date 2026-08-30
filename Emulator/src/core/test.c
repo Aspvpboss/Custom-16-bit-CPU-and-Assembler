@@ -36,6 +36,21 @@ void print_cmp_flags(CMP_Flags flags){
 
 }
 
+void print_register_files(Emulator *emu){
+
+    const char *reg_names[] = {
+        "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11",
+        "RAM_Bank", "FP", "SP", "PC"};
+
+    for(int i = 0; i < ALU_REG_AMOUNT; i++){
+        if(i == ALU_FRAME_POINTER || i == ALU_STACK_POINTER){
+            d_printf("%s : %X\n", reg_names[i], emu->alu.registers[i]);
+        } else{
+            d_printf("%s : %d\n", reg_names[i], emu->alu.registers[i]);
+        }
+    }
+
+}
 
 
 void print_individual_bytes(u64 value){
@@ -128,9 +143,124 @@ int memory_test(EMU_Ram *ram){
 }
 
 int memory_instructions_test(Emulator *emu){
-
     EMU_Decoded_Instruction instruction;
-    // instruction.
+
+    // 1. Test exe_mov functionality and edge cases
+    emu->alu.registers[ALU_ZERO] = 43981; // Value in base 10
+    instruction.operands[OP_ZERO] = ALU_ZERO; // source register (8-bit)
+    instruction.operands[OP_ONE] = ALU_ONE;   // destination register (8-bit)
+    instruction.operands[OP_TWO] = MOV_REG_TO_REG;
+    
+    if (exe_mov(emu, &instruction) != 0 || emu->alu.registers[ALU_ONE] != 43981) {
+        d_printf("exe_mov MOV_REG_TO_REG failed\n");
+        return 1;
+    }
+
+    // Test invalid move opcode edge case
+    instruction.operands[OP_TWO] = 255; 
+    if (exe_mov(emu, &instruction) == 0) {
+        d_printf("exe_mov allowed invalid opcode\n");
+        return 1;
+    }
+
+    // 2. Test exe_push and exe_pop functionality and stack pointer tracking
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0500; // Address in hex
+    emu->alu.registers[ALU_TWO] = 22136;          // Value in base 10
+
+    // Push 16-bit register (bit 4 set indicates 16-bit)
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    instruction.operands[OP_ZERO] = ALU_TWO | 0x0010; 
+    
+    if (exe_push(emu, &instruction) != 0) {
+        d_printf("exe_push failed\n");
+        return 1;
+    }
+    // Stack pointer should decrease by 2 for a 16-bit write
+    if (emu->alu.registers[ALU_STACK_POINTER] != 0x04FE) { // Address in hex
+        d_printf("exe_push stack pointer update failed, expected 0x04FE, got 0x%X\n", emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // Pop into a 16-bit destination register
+    instruction.operands[OP_ZERO] = ALU_THREE | 0x0010;
+    if (exe_pop(emu, &instruction) != 0) {
+        d_printf("exe_pop failed\n");
+        return 1;
+    }
+    // Value should match and stack pointer should restore to 0x0500
+    if (emu->alu.registers[ALU_THREE] != 22136) { // Value in base 10
+        d_printf("exe_pop value mismatch, expected 22136, got %d\n", emu->alu.registers[ALU_THREE]);
+        return 1;
+    }
+    if (emu->alu.registers[ALU_STACK_POINTER] != 0x0500) { // Address in hex
+        d_printf("exe_pop stack pointer restore failed, expected 0x0500, got 0x%X\n", emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // Test push/pop invalid addressing mode edge case
+    instruction.addressing_mode = ADDR_REG;
+    if (exe_push(emu, &instruction) == 0 || exe_pop(emu, &instruction) == 0) {
+        d_printf("exe_push/pop allowed invalid addressing mode\n");
+        return 1;
+    }
+
+    // 3. Test exe_str and exe_load (Direct and Indirect Addressing Modes)
+    emu->alu.registers[ALU_FOUR] = 4386; // Value in base 10
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN_DEST;
+    instruction.operands[OP_ZERO] = 0x0250;           // Address in hex
+    instruction.operands[OP_ONE] = ALU_FOUR | 0x0010; // 16-bit source register 4
+
+    if (exe_str(emu, &instruction) != 0) {
+        d_printf("exe_str ADDR_IMMEDIATE_SIXTEEN_DEST failed\n");
+        return 1;
+    }
+
+    // Load back using direct addressing into register 5
+    emu->alu.registers[ALU_FIVE] = 0;
+    instruction.operands[OP_ZERO] = 0x0250;           // Address in hex
+    instruction.operands[OP_ONE] = ALU_FIVE | 0x0010; // 16-bit destination register 5
+
+    if (exe_load(emu, &instruction) != 0) {
+        d_printf("exe_load ADDR_IMMEDIATE_SIXTEEN_DEST failed\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_FIVE] != 4386) { // Value in base 10
+        d_printf("exe_load value mismatch, expected 4386, got %d\n", emu->alu.registers[ALU_FIVE]);
+        return 1;
+    }
+
+    // Test ADDR_REG_INDIRECT for store and load
+    emu->alu.registers[ALU_SIX] = 0x0300;   // Address in hex
+    emu->alu.registers[ALU_SEVEN] = 39338; // Value in base 10
+
+    instruction.addressing_mode = ADDR_REG_INDIRECT;
+    instruction.operands[OP_ZERO] = ALU_SIX;           // register holding the address
+    instruction.operands[OP_ONE] = ALU_SEVEN | 0x0010; // 16-bit source register 7
+
+    if (exe_str(emu, &instruction) != 0) {
+        d_printf("exe_str ADDR_REG_INDIRECT failed\n");
+        return 1;
+    }
+
+    emu->alu.registers[ALU_EIGHT] = 0;
+    instruction.operands[OP_ZERO] = ALU_SIX;           // register holding the address
+    instruction.operands[OP_ONE] = ALU_EIGHT | 0x0010; // 16-bit destination register 8
+
+    if (exe_load(emu, &instruction) != 0) {
+        d_printf("exe_load ADDR_REG_INDIRECT failed\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_EIGHT] != 39338) { // Value in base 10
+        d_printf("exe_load indirect value mismatch, expected 39338, got %d\n", emu->alu.registers[ALU_EIGHT]);
+        return 1;
+    }
+
+    // Test invalid addressing mode edge case for str and load
+    instruction.addressing_mode = (EMU_Addressing_Modes)255;
+    if (exe_str(emu, &instruction) == 0 || exe_load(emu, &instruction) == 0) {
+        d_printf("exe_str/load allowed invalid addressing mode\n");
+        return 1;
+    }
 
     return 0;
 }
@@ -142,6 +272,7 @@ int memory_instructions_test(Emulator *emu){
     do { \
         d_printf("%s\n", string); \
         if(function){ \
+            PRINT_REGISTER_FILES(test_emu); \
             d_printf("--Failed Test--\n\n"); \
             failed_test = true; \
         } else d_printf("--Passed Test--\n\n"); \

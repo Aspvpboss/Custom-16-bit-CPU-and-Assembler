@@ -5,7 +5,7 @@ int exe_add(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -30,7 +30,7 @@ int exe_sub(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -55,7 +55,7 @@ int exe_mul(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -79,7 +79,7 @@ int exe_div(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -104,7 +104,7 @@ int exe_mod(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -153,7 +153,7 @@ int exe_and(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -178,7 +178,7 @@ int exe_nor(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -203,7 +203,7 @@ int exe_xor(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -228,7 +228,7 @@ int exe_ars(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -253,7 +253,7 @@ int exe_lrs(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -278,7 +278,7 @@ int exe_lls(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 *registers = emu->alu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -303,7 +303,7 @@ int exe_fadd(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -327,7 +327,7 @@ int exe_fsub(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -351,7 +351,7 @@ int exe_fmul(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -375,7 +375,7 @@ int exe_fdiv(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -399,7 +399,7 @@ int exe_fsqrt(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     f16 *registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -447,7 +447,7 @@ int exe_fint(Emulator *emu, EMU_Decoded_Instruction *instruction){
     u16 *alu_registers = emu->alu.registers;
     f16 *float_registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
@@ -468,7 +468,7 @@ int exe_iflo(Emulator *emu, EMU_Decoded_Instruction *instruction){
     u16 *alu_registers = emu->alu.registers;
     f16 *float_registers = emu->fpu.registers;
     u16 *operands = instruction->operands;
-    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_TWO]);
+    u16 write_reg_addr = STRIP_FIFTH_BIT(operands[OP_ONE]);
 
     EMU_Addressing_Modes addr_mode = instruction->addressing_mode;
 
