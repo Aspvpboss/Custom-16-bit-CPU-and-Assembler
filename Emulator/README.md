@@ -24,7 +24,7 @@ Start work on MMIO
     can support techinically up to 2 ^ 16 amount of banks,
     each bank being a binary file that is loaded
 
-most functions will XIP (execute in place), but there should be a function in loaded by the bootloader from rom into ram that will switch banks, so that the program isn't running from the rom bank while it is switching banks
+most functions will XIP (execute in place), but there should be a function in loaded by the bootloader from ram into ram that will switch banks, so that the program isn't running from the ram bank while it is switching banks
 
 # Addressing modes
 
@@ -47,7 +47,7 @@ most functions will XIP (execute in place), but there should be a function in lo
 # Registers
 | ALU registers | FPU registers |
 |:---:|:---:|
-| 8 16-bit registers, stack pointer, frame pointer, and rom bank register | 8 16-bit IEEE floating point registers |
+| 8 16-bit registers, stack pointer, frame pointer, and ram bank register | 8 16-bit IEEE floating point registers |
 
 FPU and ALU operations only use 4-bit addresses for registers; however, for memory operations, an additional high bit extends this field to 5 bits, where the extra bit specifies the transfer width (0 = 8-bit word, 1 = 16-bit byte)
     
@@ -72,7 +72,7 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 | Reg imm16 | RegC -> [regA + imm16] |
 | Imm8-dest | RegC -> [imm8] |
 | Imm16-dest | RegC -> [imm16] |
-##### Trying to store a register value to the ROM section will cause the emulator to throw an error and close
+##### Trying to store a register value to the RAM section will cause the emulator to throw an error and close
 
 
 | PUSH | pushs a register into memory|

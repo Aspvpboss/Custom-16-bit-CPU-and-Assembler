@@ -13,18 +13,23 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
     switch(opcode){
 
         case EMU_LOAD:
+            if(exe_load(emu, instruction)) return 1;
             break;
 
         case EMU_STR:
+            if(exe_str(emu, instruction)) return 1;
             break;
 
         case EMU_PUSH:
+            if(exe_push(emu, instruction)) return 1;
             break;
 
         case EMU_POP:
+            if(exe_pop(emu, instruction)) return 1;
             break;
 
         case EMU_MOV:
+            if(exe_mov(emu, instruction)) return 1;
             break;
 
         case EMU_SYSCALL:
