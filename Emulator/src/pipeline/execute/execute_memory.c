@@ -132,7 +132,7 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
    
     if(instruction->addressing_mode != ADDR_IMMEDIATE_EIGHT){
-        d_printf("exe_push was given an invalid addressing mode");
+        d_printf("exe_push was given an invalid addressing mode\n");
         return 1;
     }
 

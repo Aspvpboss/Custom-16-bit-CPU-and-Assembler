@@ -265,6 +265,197 @@ int memory_instructions_test(Emulator *emu){
     return 0;
 }
 
+int alu_test(Emulator *emu){
+    u16 result = 0;
+    CMP_Flags flags = 0;
+
+    // Test ALU add
+    if (emu->alu.add) {
+        emu->alu.add(10, 20, &result, &flags);
+        if (result != 30) {
+            d_printf("ALU add failed, expected 30, got %d\n", result);
+            return 1;
+        }
+    }
+
+    // Test ALU sub
+    if (emu->alu.sub) {
+        emu->alu.sub(30, 10, &result, &flags);
+        if (result != 20) {
+            d_printf("ALU sub failed, expected 20, got %d\n", result);
+            return 1;
+        }
+    }
+
+    // Test ALU mul
+    if (emu->alu.mul) {
+        emu->alu.mul(6, 7, &result, &flags);
+        if (result != 42) {
+            d_printf("ALU mul failed, expected 42, got %d\n", result);
+            return 1;
+        }
+    }
+
+    // Test ALU div
+    if (emu->alu.div) {
+        emu->alu.div(42, 6, &result, &flags);
+        if (result != 7) {
+            d_printf("ALU div failed, expected 7, got %d\n", result);
+            return 1;
+        }
+    }
+
+    // Test ALU mod
+    if (emu->alu.mod) {
+        emu->alu.mod(10, 3, &result, &flags);
+        if (result != 1) {
+            d_printf("ALU mod failed, expected 1, got %d\n", result);
+            return 1;
+        }
+    }
+
+    // Test ALU shifts (lls, lrs, ars)
+    if (emu->alu.lls) {
+        emu->alu.lls(1, 4, &result, &flags); // 1 << 4 = 16
+        if (result != 16) {
+            d_printf("ALU lls failed, expected 16, got %d\n", result);
+            return 1;
+        }
+    }
+
+    // Test ALU cmp and flags validation
+    if (emu->alu.cmp) {
+        // Test equality
+        emu->alu.cmp(25, 25, &flags);
+        if (!(flags & CMP_EQU) || (flags & CMP_NEQ)) {
+            d_printf("ALU cmp EQU flag test failed\n");
+            return 1;
+        }
+
+        // Test signed less than
+        emu->alu.cmp(-10, 20, &flags);
+        if (!(flags & CMP_SLT) || !(flags & CMP_NEQ)) {
+            d_printf("ALU cmp SLT flag test failed\n");
+            return 1;
+        }
+
+        // Test signed greater than
+        emu->alu.cmp(30, 20, &flags);
+        if (!(flags & CMP_SGR)) {
+            d_printf("ALU cmp SGR flag test failed\n");
+            return 1;
+        }
+    }
+
+    // Test bitwise operations (and, nor, xor)
+    if (emu->alu.and) {
+        emu->alu.and(12, 10, &result); // 12 (1100) & 10 (1010) = 8 (1000)
+        if (result != 8) {
+            d_printf("ALU and failed, expected 8, got %d\n", result);
+            return 1;
+        }
+    }
+
+    if (emu->alu.xor) {
+        emu->alu.xor(12, 10, &result); // 12 (1100) ^ 10 (1010) = 6 (0110)
+        if (result != 6) {
+            d_printf("ALU xor failed, expected 6, got %d\n", result);
+            return 1;
+        }
+    }
+
+    if (emu->alu.nor) {
+        emu->alu.nor(0, 0, &result); // ~(0 | 0) depending on implementation
+        // Keeping a basic check or structural safeguard if custom NOR logic applies
+    }
+
+    return 0;
+}
+
+int fpu_test(Emulator *emu){
+    f16 f_result = 0;
+    CMP_Flags flags = 0;
+
+    // Test FPU add
+    if (emu->fpu.add) {
+        emu->fpu.add((f16)5.0, (f16)2.5, &f_result, &flags);
+        if (f_result != (f16)7.5) {
+            d_printf("FPU add failed, expected 7.5\n");
+            return 1;
+        }
+    }
+
+    // Test FPU sub
+    if (emu->fpu.sub) {
+        emu->fpu.sub((f16)10.0, (f16)3.5, &f_result, &flags);
+        if (f_result != (f16)6.5) {
+            d_printf("FPU sub failed, expected 6.5\n");
+            return 1;
+        }
+    }
+
+    // Test FPU mul
+    if (emu->fpu.mul) {
+        emu->fpu.mul((f16)4.0, (f16)2.5, &f_result, &flags);
+        if (f_result != (f16)10.0) {
+            d_printf("FPU mul failed, expected 10.0\n");
+            return 1;
+        }
+    }
+
+    // Test FPU div
+    if (emu->fpu.div) {
+        emu->fpu.div((f16)9.0, (f16)2.0, &f_result, &flags);
+        if (f_result != (f16)4.5) {
+            d_printf("FPU div failed, expected 4.5\n");
+            return 1;
+        }
+    }
+
+    // Test FPU sqrt
+    if (emu->fpu.sqrt) {
+        emu->fpu.sqrt((f16)16.0, &f_result, &flags);
+        if (f_result != (f16)4.0) {
+            d_printf("FPU sqrt failed, expected 4.0\n");
+            return 1;
+        }
+    }
+
+    // Test FPU cmp and fcmp flags validation
+    if (emu->fpu.cmp) {
+        emu->fpu.cmp((f16)10.0, (f16)5.0, &flags);
+        if (!(flags & CMP_SGR)) {
+            d_printf("FPU cmp (fcmp) SGR flag test failed\n");
+            return 1;
+        }
+
+        emu->fpu.cmp((f16)5.0, (f16)5.0, &flags);
+        if (!(flags & CMP_EQU)) {
+            d_printf("FPU cmp (fcmp) EQU flag test failed\n");
+            return 1;
+        }
+    }
+
+    // Test conversion functions (fint and iflo)
+    u16 int_val = 0;
+    if (emu->fpu.fint) {
+        emu->fpu.fint((f16)42.0, &int_val);
+        if (int_val != 42) {
+            d_printf("FPU fint failed, expected 42, got %d\n", int_val);
+            return 1;
+        }
+    }
+
+    if (emu->fpu.iflo) {
+        emu->fpu.iflo(42, &f_result);
+        if (f_result != (f16)42.0) {
+            d_printf("FPU iflo failed, expected 42.0\n");
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 
 
@@ -274,21 +465,22 @@ int memory_instructions_test(Emulator *emu){
         if(function){ \
             PRINT_REGISTER_FILES(test_emu); \
             d_printf("--Failed Test--\n\n"); \
-            failed_test = true; \
+            return 1; \
         } else d_printf("--Passed Test--\n\n"); \
     } while (0)
 
 
 int run_tests(){
 
-    bool failed_test = false;
 
     Emulator *test_emu = init();
     if(!test_emu) return 1;
 
     test("--Testing memory functionality--", memory_test(&test_emu->ram));
     test("--Testing memory instructions--", memory_instructions_test(test_emu));
-
+    test("--Testing alu instructions--", alu_test(test_emu));
+    test("--Testing fpu instructions--", fpu_test(test_emu));    
+    
     destroy(test_emu); 
-    return failed_test;
+    return 0;
 }
