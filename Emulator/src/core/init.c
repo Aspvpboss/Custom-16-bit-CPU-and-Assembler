@@ -40,8 +40,5 @@ Emulator* init(){
     memset(emu->ram.ram_bank, 0, sizeof(emu->ram.ram_bank));
     emu->ram.vram_selector = false;
 
-    emu->program_counter = 0;
-
-
     return emu;
 }

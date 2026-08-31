@@ -15,14 +15,6 @@ enum FPU_Registers{
     FPU_SIX,
     FPU_SEVEN,
     FPU_EIGHT,
-    FPU_NINE,
-    FPU_TEN,
-    FPU_ELEVEN,
-    FPU_TWELVE,
-    FPU_THIRTEEN,
-    FPU_FOURTEEN,
-    FPU_FIFTEEN,
-    FPU_SIXTEEN,
     FPU_REG_AMOUNT
 
 };

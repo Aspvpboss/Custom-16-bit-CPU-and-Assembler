@@ -35,7 +35,6 @@ typedef struct{
 
 typedef struct{
 
-    u16 program_counter;
     EMU_Ram ram;
     SDLite_IO SDLite_io;
     EMU_Alu alu;

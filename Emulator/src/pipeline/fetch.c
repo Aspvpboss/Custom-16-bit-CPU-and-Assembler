@@ -6,14 +6,15 @@
 int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     EMU_Ram *ram = &emu->ram;
+    u16 *program_counter = &emu->alu.registers[ALU_PROGRAM_COUNTER];
 
-    if(emu->program_counter == __UINT16_MAX__ / 2){
-        emu->program_counter = 0;
+    if((*program_counter) == __UINT16_MAX__ / 2){
+        (*program_counter) = 0;
     } 
     
     u8 extra_bytes = 0;
 
-    if(read_memory(ram, emu->program_counter, (u16*)&instruction->raw_instruction, false)) return 1;
+    if(read_memory(ram, (*program_counter), (u16*)&instruction->raw_instruction, false)) return 1;
 
     instruction->addressing_mode = (EMU_Addressing_Modes)(instruction->raw_instruction >> 5);
 
@@ -58,16 +59,16 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
 
     for(u8 i = 1; i <= extra_bytes; i++){
-        emu->program_counter++;
+        (*program_counter)++;
         u8 raw_byte;
-        if(read_memory(ram, emu->program_counter, &raw_byte, false)) return 1;
+        if(read_memory(ram, (*program_counter), (u16*)&raw_byte, false)) return 1;
         instruction->raw_instruction |= raw_byte << (8 * i);
-        if(emu->program_counter == __UINT16_MAX__){
-            emu->program_counter = 0;
+        if((*program_counter) == __UINT16_MAX__){
+            (*program_counter) = 0;
         } 
     }
 
-    emu->program_counter++;
+    (*program_counter)++;
 
     return 0;
 }
