@@ -59,16 +59,15 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     for(u8 i = 1; i <= extra_bytes; i++){
         emu->program_counter++;
-        if(read_memory(ram, emu->program_counter, (u16*)&instruction->raw_instruction, false)) return 1;
-        if(emu->program_counter == __UINT16_MAX__ / 2){
+        u8 raw_byte;
+        if(read_memory(ram, emu->program_counter, &raw_byte, false)) return 1;
+        instruction->raw_instruction |= raw_byte << (8 * i);
+        if(emu->program_counter == __UINT16_MAX__){
             emu->program_counter = 0;
         } 
     }
 
-
     emu->program_counter++;
-    emu->program_counter = 0;
-
 
     return 0;
 }
