@@ -3,6 +3,7 @@
 
 #include "hardware/emulator.h"
 #include "pipeline/instruction.h"
+#include "core/test.h"
 
 
 #endif
