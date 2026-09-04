@@ -70,11 +70,13 @@ int exe_jif(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     switch(instruction->addressing_mode){
 
-        case ADDR_REG_INDIRECT:
+        case ADDR_REG_INDIRECT:{
             break;
+        }
         case ADDR_IMMEDIATE_EIGHT_DEST:
-        case ADDR_IMMEDIATE_SIXTEEN_DEST:
+        case ADDR_IMMEDIATE_SIXTEEN_DEST:{
             break;
+        }
 
         default:
             failure = true;
@@ -96,14 +98,17 @@ int exe_cal(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     switch(instruction->addressing_mode){
 
-        case ADDR_REG_INDIRECT:
+        case ADDR_REG_INDIRECT:{
             break;
+        }
         case ADDR_IMMEDIATE_EIGHT_DEST:
-        case ADDR_IMMEDIATE_SIXTEEN_DEST:
+        case ADDR_IMMEDIATE_SIXTEEN_DEST:{
             break;
+        }
         case ADDR_IMMEDIATE_EIGHT:
-        case ADDR_IMMEDIATE_SIXTEEN:
+        case ADDR_IMMEDIATE_SIXTEEN:{
             break;
+        }
 
         default:
             failure = true;
@@ -125,11 +130,13 @@ int exe_cif(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     switch(instruction->addressing_mode){
 
-        case ADDR_REG_INDIRECT:
+        case ADDR_REG_INDIRECT:{
             break;
+        }
         case ADDR_IMMEDIATE_EIGHT_DEST:
-        case ADDR_IMMEDIATE_SIXTEEN_DEST:
+        case ADDR_IMMEDIATE_SIXTEEN_DEST:{
             break;
+        }
 
         default:
             failure = true;
@@ -151,8 +158,9 @@ int exe_ret(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     switch(instruction->addressing_mode){
 
-        case ADDR_IMMEDIATE_EIGHT:
+        case ADDR_IMMEDIATE_EIGHT:{
             break;
+        }
 
         default:
             failure = true;
