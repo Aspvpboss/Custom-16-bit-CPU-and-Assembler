@@ -1,4 +1,5 @@
 #include "pipeline/execute/execute_control.h"
+#include "hardware/flags.h"
 
 int exe_syscall(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
@@ -30,14 +31,23 @@ int exe_jmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     switch(instruction->addressing_mode){
 
-        case ADDR_REG_INDIRECT:
+        case ADDR_REG_INDIRECT:{
+            u16 jmp_addr = emu->alu.registers[instruction->operands[OP_ONE]];
+            emu->alu.registers[ALU_PROGRAM_COUNTER] = jmp_addr;
             break;
+        }
         case ADDR_IMMEDIATE_EIGHT_DEST:
-        case ADDR_IMMEDIATE_SIXTEEN_DEST:
+        case ADDR_IMMEDIATE_SIXTEEN_DEST:{
+            u16 offset_addr = instruction->operands[OP_ONE];
+            emu->alu.registers[ALU_PROGRAM_COUNTER] += offset_addr;
             break;
+        }
         case ADDR_IMMEDIATE_EIGHT:
-        case ADDR_IMMEDIATE_SIXTEEN:
+        case ADDR_IMMEDIATE_SIXTEEN:{
+            u16 jmp_addr = instruction->operands[OP_ONE];
+            emu->alu.registers[ALU_PROGRAM_COUNTER] = jmp_addr;
             break;
+        }
 
         default:
             failure = true;
@@ -56,6 +66,7 @@ int exe_jmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
 int exe_jif(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     bool failure = false;
+    enum CMP_FlagMasks flags; 
 
     switch(instruction->addressing_mode){
 
