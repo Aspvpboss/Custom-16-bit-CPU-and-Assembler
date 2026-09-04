@@ -66,7 +66,8 @@ int exe_jmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
 int exe_jif(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     bool failure = false;
-    enum CMP_FlagMasks flags; 
+    enum CMP_FlagMasks check_flags = (enum CMP_FlagMasks)instruction->operands[OP_TWO]; 
+    u16 current_flags = emu->flags;
 
     switch(instruction->addressing_mode){
 
