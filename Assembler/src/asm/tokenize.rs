@@ -19,6 +19,7 @@ enum State{
     Dot,
     Slash,
     BackSlash,
+    Equal,
 }
 
 pub struct RawToken{
@@ -58,6 +59,7 @@ fn get_state(ch: char) -> State {
         '.' => State::Dot,
         '/' => State::Slash,
         '\\' => State::BackSlash,
+        '=' => State::Equal,
         _ => State::Whitespace
     }
 }
@@ -77,6 +79,7 @@ fn match_single_chars(state: &State) -> bool {
         State::Colon => true,
         State::Semicolon => true,
         State::Slash => true,
+        State::Equal => true,
         _ => false
     }
 }

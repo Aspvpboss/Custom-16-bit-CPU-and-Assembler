@@ -32,11 +32,11 @@ TEMPLATE = """
 W_Array: .word {#1, #3, #5, #7};
 Array: .byte {#1, #3, #5, #7};
 player_two: Player {
-    health : #1.4123,
-    alive : #0,
-    pos : Vec2{
-        x : #1,
-        y : #1,
+    health = #1.4123,
+    alive = #0,
+    pos = Vec2{
+        x = #1,
+        y = #1,
     }
 }
 
@@ -54,14 +54,14 @@ STR [r0, r2] r2;
 MOV fr0, wr2;
 
 struct Vec2{
-    x : .word,
-    y : .word
+    x = .word,
+    y = .word
 };
 
 struct Player{
-    health : .float,
-    alive : .byte,
-    pos : Vec2
+    health = .float,
+    alive = .byte,
+    pos = Vec2
 };
 
 

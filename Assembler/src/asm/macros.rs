@@ -3,7 +3,6 @@ use crate::error_handling::{AsmError, AsmErrorType};
 
 
 pub struct Macro {
-    macro_name: String,
     parameters: Vec<String>,
     macro_body: Vec<LexedToken>,
 }
