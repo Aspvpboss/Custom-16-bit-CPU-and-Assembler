@@ -1,9 +1,18 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/*"
+]
+default-members = ["crates/asm"]
 
-
-[package]
-name = "Assembler"
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
+
+[workspace.dependencies]
+asm-core = { path = "crates/asm-core" }
+asm-pass-one = { path = "crates/asm-pass-one" }
+asm-pass-two = { path = "crates/asm-pass-two" }
 
 [profile.release]
 opt-level = 3
@@ -16,8 +25,5 @@ incremental = false
 overflow-checks = false
 debug-assertions = false
 
-
-[dependencies]
-peak_alloc = "0.2.0"
 
 #cargo +nightly build --release --target x86_64-pc-windows-gnu -Z build-std=std,panic_abort
