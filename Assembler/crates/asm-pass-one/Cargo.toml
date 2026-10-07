@@ -1,0 +1,7 @@
+[package]
+name = "asm-pass-one"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+asm-core.workspace = true

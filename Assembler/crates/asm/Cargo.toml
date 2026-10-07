@@ -1,0 +1,9 @@
+[package]
+name = "asm"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+asm-core.workspace = true
+asm-pass-one.workspace = true
+asm-pass-two.workspace = true
