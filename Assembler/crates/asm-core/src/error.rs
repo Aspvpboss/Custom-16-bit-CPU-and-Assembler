@@ -20,10 +20,10 @@ pub struct AsmError {
 
 impl AsmError {
     
-    fn new(error_type : AsmErrorType) -> Self {
+    pub fn new(error_type : AsmErrorType) -> Self {
         AsmError { err_type: error_type, src_location: None }
     }
-    fn add_location(&mut self, row: u32, col : u32) {
+    pub fn add_location(&mut self, row: u32, col : u32) {
         self.src_location = Some(AsmErrorLocation { row, col })
     }
 
@@ -44,4 +44,4 @@ impl fmt::Display for AsmError {
 }
 
 
-type Result<T> = std::result::Result<T, AsmError>;
+pub type Result<T> = std::result::Result<T, Vec<AsmError>>;
