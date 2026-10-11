@@ -4,7 +4,7 @@ use std::fmt;
 
 
 pub enum AsmErrorType {
-
+    CLI(String),
 }
 
 pub struct AsmErrorLocation {
@@ -30,10 +30,11 @@ impl AsmError {
 }
 
 
-
 impl fmt::Display for AsmErrorType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "")
+        match self {
+            AsmErrorType::CLI(s) => write!(f, ""), 
+        }
     }
 }
 

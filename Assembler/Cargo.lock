@@ -15,6 +15,9 @@ dependencies = [
 [[package]]
 name = "asm-cli"
 version = "0.1.0"
+dependencies = [
+ "asm-core",
+]
 
 [[package]]
 name = "asm-core"
