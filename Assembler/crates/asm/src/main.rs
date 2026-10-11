@@ -18,7 +18,6 @@ pub fn main() -> ExitCode{
 fn run() -> Result<(), Vec<AsmError>>{
 
     let user_args = asm_cli::run()?;
-    asm_preprocessor::run()?;
     asm_pass_one::run()?;
     asm_pass_two::run()?;
 
