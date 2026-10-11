@@ -4,7 +4,8 @@ use asm_core::error::*;
 
 pub fn run(source_files: &[String]) -> Result<(), Vec<AsmError>>{
 
-    preprocessor::run(source_files)?;
+    let preprocessed_string = preprocessor::run(source_files)?;
+    println!("{preprocessed_string}");
 
     Ok(())
 }

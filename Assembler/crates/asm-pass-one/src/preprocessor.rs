@@ -1,5 +1,6 @@
 use asm_core::error::*;
 use std::fs;
+use std::collections::HashMap;
 
 fn open_file(source_file: &str) -> Result<String, AsmError>{
 
@@ -11,10 +12,35 @@ fn open_file(source_file: &str) -> Result<String, AsmError>{
    Ok(file_content) 
 }
 
+fn insert_start_end_directives(sum_files: &mut String, file_name : &str) {
+    sum_files.insert_str(0, format!("@start {file_name}\n").as_str());
+    sum_files.push_str(format!("\n@end {file_name} ").as_str());
+}
+
 pub fn run(source_files: &[String]) -> Result<String, Vec<AsmError>>{
 
     let mut sum_files = String::from("");
     let mut errors: Vec<AsmError> = Vec::new();
+    let mut file_strings_map: HashMap<&str, String> = HashMap::new();
+
+    for source_file in source_files {
+        let mut file_string = match open_file(source_file){
+            Ok(file_content) => {
+                file_content
+            }
+
+            Err(error) => {
+                errors.push(error);
+                continue;
+            }
+        };
+
+        insert_start_end_directives(&mut file_string, source_file);
+
+        file_strings_map.entry(source_file).or_insert(file_string);
+    }
+
+    println!("{file_strings_map:?}");
 
     let first_source_file = &source_files[0];   
     let file_string = match open_file(first_source_file){
@@ -30,6 +56,8 @@ pub fn run(source_files: &[String]) -> Result<String, Vec<AsmError>>{
     if let Some(file_string) = file_string {
         sum_files.push_str(&file_string);
     }
+
+    insert_start_end_directives(&mut sum_files, first_source_file);
 
     if !errors.is_empty(){
         return Err(errors);
