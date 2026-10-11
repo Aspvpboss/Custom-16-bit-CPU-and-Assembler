@@ -36,7 +36,7 @@ fn valid_file_extension(arg: &String, file_extensions : &Vec<&str>) -> Result<()
     Ok(())
 }
 
-pub fn run() -> Result<(), Vec<AsmError>>{
+pub fn run() -> Result<UserArgs, Vec<AsmError>>{
 
     let mut errors: Vec<AsmError> = Vec::new();
     let mut args = env::args().skip(1);
@@ -73,18 +73,21 @@ pub fn run() -> Result<(), Vec<AsmError>>{
     if src_files.is_empty() {
         errors.push(AsmError::new(AsmErrorType::CLI(String::from("No source files given"))));
     }
-    if output_file_name.is_none() {
-        errors.push(AsmError::new(AsmErrorType::CLI(String::from("No output file given"))));
-    }
-    if let Some(output_file) = output_file_name {
-        if let Err(error) = valid_file_extension(&output_file, &valid_output_files){
-            errors.push(error);
-        }
+
+    let output_file_name = match output_file_name {
+        Some(s) => {s},
+        None => {
+            errors.push(AsmError::new(AsmErrorType::CLI(String::from("No output file given"))));
+            String::from("")
+        },
+    };
+    if let Err(error) = valid_file_extension(&output_file_name, &valid_output_files){
+        errors.push(error);
     }
 
     if !errors.is_empty() {
         return Err(errors);
     }
 
-    Ok(())
+    Ok(UserArgs { src_files, output_file : output_file_name })
 }
