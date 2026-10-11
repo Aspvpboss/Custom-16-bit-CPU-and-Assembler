@@ -5,6 +5,7 @@ use std::fmt;
 
 pub enum AsmErrorType {
     CLI(String),
+    PREPRO(String),
 }
 
 pub struct AsmErrorLocation {
@@ -35,6 +36,7 @@ impl fmt::Display for AsmErrorType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             AsmErrorType::CLI(s) => write!(f, "CLI Error: {s}"), 
+            AsmErrorType::PREPRO(s) => write!(f, "Preprocessor Error: {s}"), 
         }
     }
 }
