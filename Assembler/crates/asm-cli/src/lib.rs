@@ -21,7 +21,20 @@ fn sub_command(args: &mut impl Iterator<Item = String>, optional_string: &mut Op
 
 fn valid_source_file(arg: &String) -> Result<(), AsmError> {
 
-    Ok(())
+    // splits into substrings, skip file name
+    let v: Vec<&str> = arg.as_str().split_terminator('.').skip(1).collect();
+
+    let Some(file_extension) = v.get(0) else {
+        return Err(AsmError::new(AsmErrorType::CLI(format!("failed to get file_extension for source file {arg}"))));
+    };
+
+    match *file_extension {
+        "asm" => {return Ok(())},
+        _ => {
+            return Err(AsmError::new(AsmErrorType::CLI(format!("invalid file extension {file_extension} in source file {arg}"))));
+        }
+    }
+
 }
 
 pub fn run() -> Result<(), Vec<AsmError>>{
