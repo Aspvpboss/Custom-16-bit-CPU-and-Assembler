@@ -44,5 +44,3 @@ impl fmt::Display for AsmError {
     }
 }
 
-
-pub type Result<T> = std::result::Result<T, Vec<AsmError>>;
