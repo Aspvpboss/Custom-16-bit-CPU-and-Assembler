@@ -10,6 +10,7 @@ dependencies = [
  "asm-core",
  "asm-pass-one",
  "asm-pass-two",
+ "asm-preprocessor",
 ]
 
 [[package]]
@@ -32,6 +33,13 @@ dependencies = [
 
 [[package]]
 name = "asm-pass-two"
+version = "0.1.0"
+dependencies = [
+ "asm-core",
+]
+
+[[package]]
+name = "asm-preprocessor"
 version = "0.1.0"
 dependencies = [
  "asm-core",
