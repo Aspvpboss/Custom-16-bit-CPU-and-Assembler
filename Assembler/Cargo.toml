@@ -11,9 +11,10 @@ edition = "2024"
 
 [workspace.dependencies]
 asm-core = { path = "crates/asm-core" }
+asm-cli = { path = "crates/asm-cli" }
+asm-preprocessor = { path = "crates/asm-preprocessor" }
 asm-pass-one = { path = "crates/asm-pass-one" }
 asm-pass-two = { path = "crates/asm-pass-two" }
-asm-cli = { path = "crates/asm-cli" }
 
 [profile.release]
 opt-level = 3

@@ -5,6 +5,7 @@ edition.workspace = true
 
 [dependencies]
 asm-core.workspace = true
+asm-cli.workspace = true
+asm-preprocessor.workspace = true
 asm-pass-one.workspace = true
 asm-pass-two.workspace = true
-asm-cli.workspace = true
