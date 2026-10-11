@@ -75,15 +75,17 @@ pub fn run() -> Result<UserArgs, Vec<AsmError>>{
     }
 
     let output_file_name = match output_file_name {
-        Some(s) => {s},
+        Some(s) => {
+            if let Err(error) = valid_file_extension(&s, &valid_output_files){
+                errors.push(error);
+            }
+            s
+        },
         None => {
             errors.push(AsmError::new(AsmErrorType::CLI(String::from("No output file given"))));
             String::from("")
         },
     };
-    if let Err(error) = valid_file_extension(&output_file_name, &valid_output_files){
-        errors.push(error);
-    }
 
     if !errors.is_empty() {
         return Err(errors);
