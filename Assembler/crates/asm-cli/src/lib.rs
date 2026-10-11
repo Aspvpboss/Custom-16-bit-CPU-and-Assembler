@@ -11,7 +11,7 @@ fn sub_command(args: &mut impl Iterator<Item = String>, optional_string: &mut Op
     }
 
     let Some(next_arg) = args.next() else{
-        return Ok(());
+        return Err(AsmError::new(AsmErrorType::CLI(format!("opened ended sub-command"))));
     }; 
 
     *optional_string = Some(next_arg);
@@ -19,22 +19,21 @@ fn sub_command(args: &mut impl Iterator<Item = String>, optional_string: &mut Op
     Ok(())
 }
 
-fn valid_source_file(arg: &String) -> Result<(), AsmError> {
+fn valid_file_extension(arg: &String, file_extensions : &Vec<&str>) -> Result<(), AsmError> {
 
     // splits into substrings, skip file name
     let v: Vec<&str> = arg.as_str().split_terminator('.').skip(1).collect();
 
     let Some(file_extension) = v.get(0) else {
-        return Err(AsmError::new(AsmErrorType::CLI(format!("failed to get file_extension for source file {arg}"))));
+        return Err(AsmError::new(AsmErrorType::CLI(format!("failed to get file_extension for file {arg}"))));
     };
 
-    match *file_extension {
-        "asm" => {return Ok(())},
-        _ => {
-            return Err(AsmError::new(AsmErrorType::CLI(format!("invalid file extension {file_extension} in source file {arg}"))));
-        }
+    if !file_extensions.contains(file_extension){
+        return Err(AsmError::new(AsmErrorType::CLI(
+            format!("invalid file extension {file_extension} for file {arg}. Valid file extensions are {file_extensions:?}"))));
     }
 
+    Ok(())
 }
 
 pub fn run() -> Result<(), Vec<AsmError>>{
@@ -44,6 +43,9 @@ pub fn run() -> Result<(), Vec<AsmError>>{
     let mut output_file_name: Option<String> = None;
     let mut source_directory: Option<String> = None;
     let mut src_files: Vec<String> = Vec::new();
+
+    let valid_source_files = vec!["asm"];
+    let valid_output_files = vec!["bin"];
 
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -59,12 +61,24 @@ pub fn run() -> Result<(), Vec<AsmError>>{
             }
 
             _ => { // if none else, assume source file
-                if let Err(error) = valid_source_file(&arg){
+                if let Err(error) = valid_file_extension(&arg, &valid_source_files){
                     errors.push(error);
                     continue;
                 }
                 src_files.push(arg);
             }
+        }
+    }
+
+    if src_files.is_empty() {
+        errors.push(AsmError::new(AsmErrorType::CLI(String::from("No source files given"))));
+    }
+    if output_file_name.is_none() {
+        errors.push(AsmError::new(AsmErrorType::CLI(String::from("No output file given"))));
+    }
+    if let Some(output_file) = output_file_name {
+        if let Err(error) = valid_file_extension(&output_file, &valid_output_files){
+            errors.push(error);
         }
     }
 
