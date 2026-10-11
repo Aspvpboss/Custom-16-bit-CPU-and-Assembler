@@ -3,3 +3,7 @@
 name = "asm-cli"
 version.workspace = true
 edition.workspace = true
+
+
+[dependencies]
+asm-core.workspace = true
