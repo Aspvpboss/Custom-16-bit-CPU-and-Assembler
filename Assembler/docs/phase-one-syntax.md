@@ -1,23 +1,21 @@
 # Basic Syntax (phase 1)
 
-## Preprocessor
 
 The preprocessor will do basic expensions of macros and include directives.
 It will also add in @start file_name @end file_name
 
-### Directives
+### Preprocessor Directives
 ```
 // public 
 @include file_name
 @macro macro_name macro_value
 
-// non public
+// non public, gets inserted automatically
 @start file_name
 @end file_name
 
 ```
 
-## Lexical Analysis
 
 ### Directives
 ```
