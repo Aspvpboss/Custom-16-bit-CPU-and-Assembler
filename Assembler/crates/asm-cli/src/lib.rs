@@ -19,7 +19,7 @@ fn sub_command(args: &mut impl Iterator<Item = String>, optional_string: &mut Op
     Ok(())
 }
 
-fn valid_file_extension(arg: &String, file_extensions : &Vec<&str>) -> Result<(), AsmError> {
+fn valid_file_extension(arg: &String, file_extensions : &[&str]) -> Result<(), AsmError> {
 
     // splits into substrings, skip file name
     let v: Vec<&str> = arg.as_str().split_terminator('.').skip(1).collect();
@@ -34,6 +34,22 @@ fn valid_file_extension(arg: &String, file_extensions : &Vec<&str>) -> Result<()
     }
 
     Ok(())
+}
+
+
+fn append_source_directory(src_files: &mut Vec<String>, source_directory: Option<String>) {
+
+    let Some(source_directory) = source_directory else{
+        return;
+    };
+
+    let mut source_directory = source_directory.clone();
+    source_directory += "/";
+
+    for file_name in src_files {
+        file_name.insert_str(0, &source_directory);
+    }
+
 }
 
 pub fn run() -> Result<UserArgs, Vec<AsmError>>{
@@ -54,7 +70,7 @@ pub fn run() -> Result<UserArgs, Vec<AsmError>>{
                     errors.push(error);
                 };
             }
-            "-s" => {
+            "-S" => {
                 if let Err(error) = sub_command(&mut args, &mut source_directory){
                     errors.push(error);
                 };
@@ -86,6 +102,8 @@ pub fn run() -> Result<UserArgs, Vec<AsmError>>{
             String::from("")
         },
     };
+
+    append_source_directory(&mut src_files, source_directory);
 
     if !errors.is_empty() {
         return Err(errors);
