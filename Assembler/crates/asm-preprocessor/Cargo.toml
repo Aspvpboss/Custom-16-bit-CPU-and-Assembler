@@ -1,7 +1,0 @@
-[package]
-name = "asm-preprocessor"
-version.workspace = true
-edition.workspace = true
-
-[dependencies]
-asm-core.workspace = true
