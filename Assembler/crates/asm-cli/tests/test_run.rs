@@ -44,6 +44,7 @@ extern "C" fn child_init() {
                             assert_eq!(err.to_string(), format!("CLI Error: {msg}"));
                             println!("CLI_ERR:{}", msg);
                         }
+                        _ => {},
                     }
                 }
             }
