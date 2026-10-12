@@ -1,7 +1,7 @@
 a
 b
 c
-d
+@include     "foo1.asm"
 e
 f
-d
+@include "burger.asm"
