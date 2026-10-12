@@ -14,8 +14,26 @@ fn open_file(source_file: &str) -> Result<String, AsmError>{
 
 fn insert_start_end_directives(sum_files: &mut String, file_name : &str) {
     sum_files.insert_str(0, format!("@start {file_name}\n").as_str());
-    sum_files.push_str(format!("\n@end {file_name} ").as_str());
+    sum_files.push_str(format!("\n@end {file_name}").as_str());
 }
+
+
+fn extract_include_path(text: &str) -> Option<&str> {
+    // 1. Find where `@include` starts
+    let include_part = text.split("@include").nth(1)?;
+
+    // 2. Find the opening quote
+    let start = include_part.find('"')? + 1;
+    let rest = &include_part[start..];
+
+    // 3. Find the closing quote
+    let end = rest.find('"')?;
+
+    Some(&rest[..end])
+}
+
+
+
 
 pub fn run(source_files: &[String]) -> Result<String, Vec<AsmError>>{
 
@@ -40,24 +58,52 @@ pub fn run(source_files: &[String]) -> Result<String, Vec<AsmError>>{
         file_strings_map.entry(source_file).or_insert(file_string);
     }
 
-    println!("{file_strings_map:?}");
-
     let first_source_file = &source_files[0];   
-    let file_string = match open_file(first_source_file){
-        Ok(file_content) => {
-            Some(file_content)
+    let first_file_string = match file_strings_map.get(first_source_file.as_str()) {
+        Some(string) => {string},
+        None => {
+            errors.push(AsmError::new(AsmErrorType::PREPRO("No source files found".to_string())));
+            &String::from("")
+        },
+    };
+
+    let mut line_stack: Vec<String> = first_file_string
+        .lines()
+        .map(|s| s.to_string())
+        .collect();
+    line_stack.reverse();
+
+    while let Some(line) = line_stack.pop(){
+        if !line.contains("@include"){
+            continue;
+        }
+   
+        if let Some(path) = extract_include_path(&line){
+            let Some(file_contents) = file_strings_map.get(path) else {
+                errors.push(AsmError::new(AsmErrorType::PREPRO(format!("Failed to include {path}"))));
+                continue;
+            };
+            let mut new_file: Vec<String> = file_contents
+                .lines()
+                .map(|s| s.to_string())
+                .collect();
+            new_file.reverse();
+            line_stack.append(&mut new_file);
         }
 
-        Err(error) => {
-            errors.push(error);
-            None
-        }
-    };
-    if let Some(file_string) = file_string {
-        sum_files.push_str(&file_string);
     }
 
-    insert_start_end_directives(&mut sum_files, first_source_file);
+
+
+    // for line in first_file_string.lines() {
+
+    //     if line.contains("@include") {
+    //         if let Some(path) = extract_include_path(line) {
+    //             println!("{path}");
+    //         }
+    //     }
+    // }
+
 
     if !errors.is_empty(){
         return Err(errors);
