@@ -15,4 +15,7 @@ burger */
 
 burger /* burger */ burger 
 
+@macro REG_POINTER r3
+
+
 @include "burger.asm"
