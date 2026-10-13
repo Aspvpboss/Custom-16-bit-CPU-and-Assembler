@@ -14,26 +14,6 @@ fn open_file(source_file: &str) -> Result<String, AsmError>{
 }
 
 
-fn insert_start_end_directives(sum_files: &mut String, file_name : &str) {
-    sum_files.insert_str(0, format!("@start {file_name}\n").as_str());
-    sum_files.push_str(format!("\n@end {file_name}").as_str());
-}
-
-
-fn extract_include_path(text: &str) -> Option<&str> {
-    // 1. Find where `@include` starts
-    let include_part = text.split("@include").nth(1)?;
-
-    // 2. Find the opening quote
-    let start = include_part.find('"')? + 1;
-    let rest = &include_part[start..];
-
-    // 3. Find the closing quote
-    let end = rest.find('"')?;
-
-    Some(&rest[..end])
-}
-
 
 fn source_file_to_string_hashmap<'a>(source_files: &'a [String], errors: &mut Vec<AsmError>) -> HashMap<&'a str, String>{
     let mut file_strings_map: HashMap<&str, String> = HashMap::new();
@@ -50,7 +30,7 @@ fn source_file_to_string_hashmap<'a>(source_files: &'a [String], errors: &mut Ve
             }
         };
 
-        insert_start_end_directives(&mut file_string, source_file);
+        Include::insert_start_end_directives(&mut file_string, source_file);
 
         file_strings_map.entry(source_file).or_insert(file_string);
     }
@@ -58,6 +38,28 @@ fn source_file_to_string_hashmap<'a>(source_files: &'a [String], errors: &mut Ve
     file_strings_map
 }
 
+struct Include;
+impl Include {
+    pub fn insert_start_end_directives(sum_files: &mut String, file_name : &str) {
+        sum_files.insert_str(0, format!("@start {file_name}\n").as_str());
+        sum_files.push_str(format!("\n@end {file_name}").as_str());
+    }
+
+
+    pub fn extract_include_path(text: &str) -> Option<&str> {
+        // 1. Find where `@include` starts
+        let include_part = text.split("@include").nth(1)?;
+
+        // 2. Find the opening quote
+        let start = include_part.find('"')? + 1;
+        let rest = &include_part[start..];
+
+        // 3. Find the closing quote
+        let end = rest.find('"')?;
+
+        Some(&rest[..end])
+    }
+}
 
 
 fn resolve_includes(file_strings_map: HashMap<&str, String>, source_dir: &String, errors: &mut Vec<AsmError>) -> Vec<String> {
@@ -83,7 +85,7 @@ fn resolve_includes(file_strings_map: HashMap<&str, String>, source_dir: &String
 
     while let Some(line) = line_stack.pop(){
         if line.contains("@include"){
-            if let Some(path) = extract_include_path(&line){
+            if let Some(path) = Include::extract_include_path(&line){
                 let src_path = source_dir.to_string() + path;
                 if included_paths.contains(&src_path){
                     continue;
@@ -111,54 +113,53 @@ fn resolve_includes(file_strings_map: HashMap<&str, String>, source_dir: &String
     combined_source   
 }
 
+struct Comments;
+impl Comments {
+    pub fn find_single_comment_slice(line: &str) -> Option<&str> {
 
-fn find_single_comment_slice(line: &str) -> Option<&str> {
-
-    // Find start of comment
-    let start = line.find("//")?;
-    let rest = &line[start..];
-
-    // Find the end of line
-    let end = rest.find('\n')?;
-
-    Some(&rest[..end])
-}
-
-
-fn find_multi_comment_slice<'a>(line: &'a str, multi_line_comment: bool) -> Option<(&'a str, bool)> {
-
-
-
-
-    // start of multi line comment
-    if let Some(start) = line.find("/*"){
+        // Find start of comment
+        let start = line.find("//")?;
         let rest = &line[start..];
+
         // Find the end of line
-        if let Some(end_multi_line) = rest.find("*/"){
-            return Some((&rest[..end_multi_line + 2], false));
-        }
         let end = rest.find('\n')?;
-        return Some((&rest[..end], true));
+
+        Some(&rest[..end])
     }
 
-    // end of multi line comment
-    if let Some(end_multi_line) = line.find("*/"){
-        return Some((&line[..end_multi_line + 2], false));        
-    }
-    
-    // if in multi line block, keep going
-    if multi_line_comment {
-        return Some((line, true));
+
+    pub fn find_multi_comment_slice<'a>(line: &'a str, multi_line_comment: bool) -> Option<(&'a str, bool)> {
+        // start of multi line comment
+        if let Some(start) = line.find("/*"){
+            let rest = &line[start..];
+            // Find the end of line
+            if let Some(end_multi_line) = rest.find("*/"){
+                return Some((&rest[..end_multi_line + 2], false));
+            }
+            let end = rest.find('\n')?;
+            return Some((&rest[..end], true));
+        }
+
+        // end of multi line comment
+        if let Some(end_multi_line) = line.find("*/"){
+            return Some((&line[..end_multi_line + 2], false));        
+        }
+        
+        // if in multi line block, keep going
+        if multi_line_comment {
+            return Some((line, true));
+        }
+
+        None
     }
 
-    None
-}
-
-fn mask_comment_with_spaces(comment: &str) -> String {
-    comment
-        .chars()
-        .map(|c| if c == '\n' { '\n' } else { ' ' })
-        .collect()
+    pub fn mask_comment_with_spaces(comment: &str) -> String {
+        comment
+            .chars()
+            .map(|c| if c == '\n' { '\n' } else { ' ' })
+            .collect()
+    }
+        
 }
 
 fn remove_comments(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> Vec<String>{
@@ -168,15 +169,15 @@ fn remove_comments(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> 
 
     for line in combined_source {
 
-        match find_single_comment_slice(&line) {
+        match Comments::find_single_comment_slice(&line) {
             Some(comment_portion) => {
                 let comment_removed = line.replace(comment_portion, "");
                 new_combined_source.push(comment_removed);
                 continue;
             }
             None => {
-                if let Some((comment_portion, is_multi_line)) = find_multi_comment_slice(&line, multi_line_comment){
-                    let blank = mask_comment_with_spaces(comment_portion);
+                if let Some((comment_portion, is_multi_line)) = Comments::find_multi_comment_slice(&line, multi_line_comment){
+                    let blank = Comments::mask_comment_with_spaces(comment_portion);
                     let comment_removed = line.replace(comment_portion, &blank);
                     new_combined_source.push(comment_removed);
                     multi_line_comment = is_multi_line;
@@ -202,6 +203,12 @@ fn vec_to_string(string_vec: Vec<String>) -> String {
 
     new_string
 }
+
+
+fn expand_macros() {
+
+}
+
 
 
 pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<AsmError>>{
