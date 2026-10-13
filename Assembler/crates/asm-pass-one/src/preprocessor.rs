@@ -35,9 +35,9 @@ fn extract_include_path(text: &str) -> Option<&str> {
 
 
 
-pub fn run(source_files: &[String]) -> Result<String, Vec<AsmError>>{
 
-    let mut sum_files = String::from("");
+pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<AsmError>>{
+
     let mut errors: Vec<AsmError> = Vec::new();
     let mut file_strings_map: HashMap<&str, String> = HashMap::new();
 
@@ -67,47 +67,47 @@ pub fn run(source_files: &[String]) -> Result<String, Vec<AsmError>>{
         },
     };
 
+    let mut all_files = String::from("");
     let mut line_stack: Vec<String> = first_file_string
         .lines()
         .map(|s| s.to_string())
         .collect();
     line_stack.reverse();
 
+    let mut included_paths: Vec<String> = Vec::new();
+
     while let Some(line) = line_stack.pop(){
-        if !line.contains("@include"){
-            continue;
-        }
-   
-        if let Some(path) = extract_include_path(&line){
-            let Some(file_contents) = file_strings_map.get(path) else {
-                errors.push(AsmError::new(AsmErrorType::PREPRO(format!("Failed to include {path}"))));
+        if line.contains("@include"){
+            if let Some(path) = extract_include_path(&line){
+                let src_path = source_dir.to_string() + path;
+                if included_paths.contains(&src_path){
+                    continue;
+                }
+                
+                let Some(file_contents) = file_strings_map.get(src_path.as_str()) else {
+                    errors.push(AsmError::new(AsmErrorType::PREPRO(format!("Failed to include {src_path}"))));
+                    continue;
+                };
+                let mut new_file: Vec<String> = file_contents
+                    .lines()
+                    .map(|s| s.to_string())
+                    .collect();
+                new_file.reverse();
+                line_stack.append(&mut new_file);
+                included_paths.push(src_path);
+
                 continue;
-            };
-            let mut new_file: Vec<String> = file_contents
-                .lines()
-                .map(|s| s.to_string())
-                .collect();
-            new_file.reverse();
-            line_stack.append(&mut new_file);
+            }
         }
 
+        all_files.push_str((line + "\n").as_str());
     }
 
-
-
-    // for line in first_file_string.lines() {
-
-    //     if line.contains("@include") {
-    //         if let Some(path) = extract_include_path(line) {
-    //             println!("{path}");
-    //         }
-    //     }
-    // }
-
+    println!("{all_files:?}");
 
     if !errors.is_empty(){
         return Err(errors);
     }
 
-    Ok(sum_files)
+    Ok(all_files)
 }
