@@ -1,7 +1,8 @@
-a
-b
-c
+
+1
+2
+3
 @include     "foo1.asm"
-e
-f
+
+
 @include "burger.asm"

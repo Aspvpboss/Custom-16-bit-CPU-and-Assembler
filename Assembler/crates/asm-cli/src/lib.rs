@@ -37,14 +37,7 @@ fn valid_file_extension(arg: &String, file_extensions : &[&str]) -> Result<(), A
 }
 
 
-fn append_source_directory(src_files: &mut Vec<String>, source_directory: Option<String>) {
-
-    let Some(source_directory) = source_directory else{
-        return;
-    };
-
-    let mut source_directory = source_directory.clone();
-    source_directory += "/";
+fn append_source_directory(src_files: &mut Vec<String>, source_directory: &String) {
 
     for file_name in src_files {
         file_name.insert_str(0, &source_directory);
@@ -103,11 +96,23 @@ pub fn run() -> Result<UserArgs, Vec<AsmError>>{
         },
     };
 
-    append_source_directory(&mut src_files, source_directory);
+    let mut source_directory =  match source_directory{
+        Some(s) => {
+            s
+        },
+        None => {
+            String::from("")
+        },
+
+    };
+
+    source_directory += "/";
+
+    append_source_directory(&mut src_files, &source_directory);
 
     if !errors.is_empty() {
         return Err(errors);
     }
 
-    Ok(UserArgs { src_files, output_file : output_file_name })
+    Ok(UserArgs { src_files, output_file : output_file_name, src_directory: source_directory })
 }

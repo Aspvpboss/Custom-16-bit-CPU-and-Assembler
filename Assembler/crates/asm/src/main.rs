@@ -18,7 +18,7 @@ pub fn main() -> ExitCode{
 fn run() -> Result<(), Vec<AsmError>>{
 
     let user_args = asm_cli::run()?;
-    asm_pass_one::run(&user_args.src_files)?;
+    asm_pass_one::run(&user_args.src_files, &user_args.src_directory)?;
     asm_pass_two::run()?;
 
     Ok(())
