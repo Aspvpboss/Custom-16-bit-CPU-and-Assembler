@@ -33,36 +33,14 @@ fn extract_include_path(text: &str) -> Option<&str> {
 }
 
 
+fn resolve_includes(file_strings_map: HashMap<&str, String>, source_dir: &String, errors: &mut Vec<AsmError>) -> String {
 
-
-
-pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<AsmError>>{
-
-    let mut errors: Vec<AsmError> = Vec::new();
-    let mut file_strings_map: HashMap<&str, String> = HashMap::new();
-
-    for source_file in source_files {
-        let mut file_string = match open_file(source_file){
-            Ok(file_content) => {
-                file_content
-            }
-
-            Err(error) => {
-                errors.push(error);
-                continue;
-            }
-        };
-
-        insert_start_end_directives(&mut file_string, source_file);
-
-        file_strings_map.entry(source_file).or_insert(file_string);
-    }
-
-    let first_source_file = &source_files[0];   
-    let first_file_string = match file_strings_map.get(first_source_file.as_str()) {
+    // includes start from this file
+    let first_file_string = "main.asm"; 
+    let first_file_string = match file_strings_map.get((source_dir.to_string() + first_file_string).as_str()) {
         Some(string) => {string},
         None => {
-            errors.push(AsmError::new(AsmErrorType::PREPRO("No source files found".to_string())));
+            errors.push(AsmError::new(AsmErrorType::PREPRO(format!("root file {first_file_string} not found"))));
             &String::from("")
         },
     };
@@ -102,6 +80,41 @@ pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<A
 
         all_files.push_str((line + "\n").as_str());
     }
+
+    all_files
+}
+
+
+fn source_file_to_string_hashmap<'a>(source_files: &'a [String], errors: &mut Vec<AsmError>) -> HashMap<&'a str, String>{
+    let mut file_strings_map: HashMap<&str, String> = HashMap::new();
+
+    for source_file in source_files {
+        let mut file_string = match open_file(source_file){
+            Ok(file_content) => {
+                file_content
+            }
+
+            Err(error) => {
+                errors.push(error);
+                continue;
+            }
+        };
+
+        insert_start_end_directives(&mut file_string, source_file);
+
+        file_strings_map.entry(source_file).or_insert(file_string);
+    }
+
+    file_strings_map
+}
+
+
+pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<AsmError>>{
+
+    let mut errors: Vec<AsmError> = Vec::new();
+
+    let file_strings_map = source_file_to_string_hashmap(source_files, &mut errors);
+    let all_files = resolve_includes(file_strings_map, source_dir, &mut errors);
 
     println!("{all_files:?}");
 
