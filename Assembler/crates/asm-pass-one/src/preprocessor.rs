@@ -3,6 +3,17 @@ use std::fs;
 use std::collections::HashMap;
 
 
+fn vec_to_string(string_vec: Vec<String>) -> String {
+    
+    let mut new_string = String::from("");
+    for line in string_vec {
+        new_string.push_str(line.as_str());
+    }
+
+    new_string
+}
+
+
 fn open_file(source_file: &str) -> Result<String, AsmError>{
 
     let Ok(file_content) = fs::read_to_string(source_file) else {
@@ -162,7 +173,7 @@ impl Comments {
         
 }
 
-fn remove_comments(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> Vec<String>{
+fn remove_comments(combined_source: Vec<String>, _errors: &mut Vec<AsmError>) -> Vec<String>{
 
     let mut new_combined_source: Vec<String> = Vec::new();
     let mut multi_line_comment: bool = false;
@@ -192,24 +203,44 @@ fn remove_comments(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> 
     new_combined_source
 }
 
+/*
+@macro macro_name macro_content
+*/
+struct Macro;
+impl Macro{
 
+    pub fn find_and_get_macro_name(line: &str) ->  Option<(&str, &str)>{
+        let macro_part = line.split("@macro").nth(1)?;
+        let macro_info: Vec<&str> = macro_part.split_whitespace().collect();
 
-fn vec_to_string(string_vec: Vec<String>) -> String {
-    
-    let mut new_string = String::from("");
-    for line in string_vec {
-        new_string.push_str(line.as_str());
+        let macro_name = *macro_info.get(0)?;
+        let macro_content = *macro_info.get(1)?;
+
+        Some((macro_name, macro_content))
     }
 
-    new_string
-}
+    pub fn check_and_expand_macro(line: &str, macro_table: &HashMap<&str, &str>) {
 
-
-fn expand_macros() {
+    }
 
 }
 
 
+fn expand_macros(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> String{
+
+    let mut macro_table: HashMap<String, String> = HashMap::new();
+    let mut new_combined_source: Vec<String> = Vec::new();
+
+    for line in combined_source {
+        if let Some((macro_name, macro_content)) = Macro::find_and_get_macro_name(&line){
+            macro_table.entry(macro_name.to_string()).or_insert(macro_content.to_string());
+        }
+    }
+
+    println!("{:?}", macro_table);
+
+    vec_to_string(new_combined_source)
+}
 
 pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<AsmError>>{
 
@@ -218,14 +249,9 @@ pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<A
     let file_strings_map = source_file_to_string_hashmap(source_files, &mut errors);
     let combined_source = resolve_includes(file_strings_map, source_dir, &mut errors);
     let combined_source = remove_comments(combined_source, &mut errors);
+    let combined_source = expand_macros(combined_source, &mut errors);
 
-    let combined_source = vec_to_string(combined_source);
-
-    println!("{combined_source}");
-
-    // for line in &combined_source {
-    //     println!("{line:?}");     
-    // }
+    // println!("{combined_source}");
     
     if !errors.is_empty(){
         return Err(errors);
