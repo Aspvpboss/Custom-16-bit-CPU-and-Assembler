@@ -1,6 +1,13 @@
+use asm_cli::user_args::{UserArgs, UserFlags};
 use asm_core::error::*;
 use std::fs;
 use std::collections::HashMap;
+
+
+pub enum DumpPreprocessor {
+    YES,
+    NO
+}
 
 
 fn vec_to_string(string_vec: Vec<String>) -> String {
@@ -221,6 +228,7 @@ impl Macro{
 
     pub fn check_and_expand_macro(line: &str, macro_table: &HashMap<String, String>) -> String{
 
+        let line = line.to_string().replace(",", " ");
         let tokenized_line: Vec<&str> = line.split_whitespace().collect();
         let mut new_line = line.to_string();
 
@@ -229,6 +237,7 @@ impl Macro{
                 new_line = new_line.replace(token, macro_content);
             }
         }
+
 
         new_line
     }
@@ -257,22 +266,35 @@ fn expand_macros(combined_source: Vec<String>, _errors: &mut Vec<AsmError>) -> S
 }
 
 
+fn write_dump_file(preprocessor_data: String) -> Result<(), AsmError> {
 
-pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<AsmError>>{
+    if let Err(_) = fs::write("PREPROCESSOR_DUMP.txt", preprocessor_data){
+        return Err(AsmError::new(AsmErrorType::PREPRO("failed to open PREPROCESSOR_DUMP.txt".to_string())));
+    };
+
+    Ok(())
+}
+
+
+
+pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
 
     let mut errors: Vec<AsmError> = Vec::new();
 
-    let file_strings_map = source_file_to_string_hashmap(source_files, &mut errors);
-    let combined_source = resolve_includes(file_strings_map, source_dir, &mut errors);
+    let file_strings_map = source_file_to_string_hashmap(&user_args.src_files, &mut errors);
+    let combined_source = resolve_includes(file_strings_map, &user_args.src_directory, &mut errors);
     let combined_source = remove_comments(combined_source, &mut errors);
     let combined_source = expand_macros(combined_source, &mut errors);
 
-    println!("{}", combined_source);
+    if user_args.user_flags.contains(&UserFlags::DumpPreprocessor){
+        if let Err(error) = write_dump_file(combined_source.clone()){
+            errors.push(error);
+        }
+    }
 
     if !errors.is_empty(){
         return Err(errors);
     }
 
-    // Ok(combined_source)
-    Ok("".to_string())
+    Ok(combined_source)
 }

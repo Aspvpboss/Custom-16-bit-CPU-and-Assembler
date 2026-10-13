@@ -5,3 +5,4 @@ edition.workspace = true
 
 [dependencies]
 asm-core.workspace = true
+asm-cli.workspace = true

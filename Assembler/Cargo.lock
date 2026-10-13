@@ -27,6 +27,7 @@ version = "0.1.0"
 name = "asm-pass-one"
 version = "0.1.0"
 dependencies = [
+ "asm-cli",
  "asm-core",
 ]
 

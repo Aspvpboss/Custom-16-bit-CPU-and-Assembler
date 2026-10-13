@@ -19,7 +19,7 @@ burger /* burger */ burger
 @macro #PI #3.141528
 
 
-add r0 REG_POINTER #PI
+add r0 REG_POINTER, #PI
 
 
 @include "burger.asm"
