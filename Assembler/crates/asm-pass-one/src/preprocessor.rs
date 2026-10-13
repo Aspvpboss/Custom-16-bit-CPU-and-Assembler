@@ -112,25 +112,56 @@ fn resolve_includes(file_strings_map: HashMap<&str, String>, source_dir: &String
 }
 
 
-fn find_comment_indices(line: &str) -> Option<&str> {
+fn find_single_comment_slice(line: &str) -> Option<&str> {
 
-    // 2. Find start of comment
+    // Find start of comment
     let start = line.find("//")?;
     let rest = &line[start..];
 
-    // 3. Find the end of line
+    // Find the end of line
     let end = rest.find('\n')?;
 
     Some(&rest[..end])
-
 }
+
+
+fn find_multi_comment_slice<'a>(line: &'a str, multi_line_comment: &mut bool) -> Option<&'a str> {
+
+    if let Some(end_multi_line) = line.find("*/"){
+        *multi_line_comment = false;
+        return Some(&line[..end_multi_line]);        
+    }
+
+
+    if *multi_line_comment{
+        return Some(line);
+    }
+
+    // Find start of comment
+    let start = line.find("/*")?;
+    let rest = &line[start..];
+
+    // Find the end of line
+    let end = rest.find('\n')?;
+    *multi_line_comment = true;
+
+    Some(&rest[..end])
+}
+
 
 fn remove_comments(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> Vec<String>{
 
     let mut new_combined_source: Vec<String> = Vec::new();
+    let mut multi_line_comment: bool = false;
 
     for line in combined_source {
-        if let Some(commend_portion) = find_comment_indices(&line){
+        if let Some(commend_portion) = find_single_comment_slice(&line){
+            let comment_removed = line.replace(commend_portion, "");
+            new_combined_source.push(comment_removed);
+            continue;
+        }
+
+        if let Some(commend_portion) = find_multi_comment_slice(&line, &mut multi_line_comment){
             let comment_removed = line.replace(commend_portion, "");
             new_combined_source.push(comment_removed);
             continue;
