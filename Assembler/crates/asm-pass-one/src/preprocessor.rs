@@ -129,7 +129,7 @@ fn find_multi_comment_slice<'a>(line: &'a str, multi_line_comment: &mut bool) ->
 
     if let Some(end_multi_line) = line.find("*/"){
         *multi_line_comment = false;
-        return Some(&line[..end_multi_line]);        
+        return Some(&line[..end_multi_line + 2]);        
     }
 
 
@@ -174,6 +174,18 @@ fn remove_comments(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> 
 }
 
 
+
+fn vec_to_string(string_vec: Vec<String>) -> String {
+    
+    let mut new_string = String::from("");
+    for line in string_vec {
+        new_string.push_str(line.as_str());
+    }
+
+    new_string
+}
+
+
 pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<AsmError>>{
 
     let mut errors: Vec<AsmError> = Vec::new();
@@ -182,12 +194,13 @@ pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<A
     let combined_source = resolve_includes(file_strings_map, source_dir, &mut errors);
     let combined_source = remove_comments(combined_source, &mut errors);
 
+    let combined_source = vec_to_string(combined_source);
 
-    println!("{combined_source:?}");
+    println!("{combined_source}");
 
-    for line in &combined_source {
-        println!("{line:?}");     
-    }
+    // for line in &combined_source {
+    //     println!("{line:?}");     
+    // }
     
     if !errors.is_empty(){
         return Err(errors);
