@@ -127,31 +127,39 @@ fn find_single_comment_slice(line: &str) -> Option<&str> {
 
 fn find_multi_comment_slice<'a>(line: &'a str, multi_line_comment: bool) -> Option<(&'a str, bool)> {
 
-    // end of multi line comment
-    if let Some(end_multi_line) = line.find("*/"){
-        return Some((&line[..end_multi_line + 2], false));        
-    }
 
-    // if in multi line block, keep going
-    if multi_line_comment {
-        return Some((line, true));
-    }
+
 
     // start of multi line comment
     if let Some(start) = line.find("/*"){
         let rest = &line[start..];
         // Find the end of line
-        if let Some(end_multi_line) = line.find("*/"){
+        if let Some(end_multi_line) = rest.find("*/"){
             return Some((&rest[..end_multi_line + 2], false));
         }
         let end = rest.find('\n')?;
         return Some((&rest[..end], true));
     }
 
+    // end of multi line comment
+    if let Some(end_multi_line) = line.find("*/"){
+        return Some((&line[..end_multi_line + 2], false));        
+    }
+    
+    // if in multi line block, keep going
+    if multi_line_comment {
+        return Some((line, true));
+    }
 
     None
 }
 
+fn mask_comment_with_spaces(comment: &str) -> String {
+    comment
+        .chars()
+        .map(|c| if c == '\n' { '\n' } else { ' ' })
+        .collect()
+}
 
 fn remove_comments(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> Vec<String>{
 
@@ -168,8 +176,8 @@ fn remove_comments(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> 
             }
             None => {
                 if let Some((comment_portion, is_multi_line)) = find_multi_comment_slice(&line, multi_line_comment){
-                    println!("{comment_portion}");
-                    let comment_removed = line.replace(comment_portion, "");
+                    let blank = mask_comment_with_spaces(comment_portion);
+                    let comment_removed = line.replace(comment_portion, &blank);
                     new_combined_source.push(comment_removed);
                     multi_line_comment = is_multi_line;
                     continue;
@@ -206,7 +214,7 @@ pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<A
 
     let combined_source = vec_to_string(combined_source);
 
-    // println!("{combined_source}");
+    println!("{combined_source}");
 
     // for line in &combined_source {
     //     println!("{line:?}");     

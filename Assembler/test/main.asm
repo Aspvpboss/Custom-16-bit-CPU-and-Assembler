@@ -5,6 +5,14 @@
 @include     "foo1.asm"
 burger
 
-burger /* burger */ burger
+
+/* burger
+a
+b
+c
+d
+burger */
+
+burger /* burger */ burger 
 
 @include "burger.asm"
