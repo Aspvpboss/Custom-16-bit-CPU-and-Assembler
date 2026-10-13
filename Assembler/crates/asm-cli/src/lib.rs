@@ -1,7 +1,7 @@
 pub mod user_args;
 
 use asm_core::error::*;
-use user_args::UserArgs;
+use user_args::{UserArgs, UserFlags};
 use std::env;
 
 fn sub_command(args: &mut impl Iterator<Item = String>, optional_string: &mut Option<String>) -> Result<(), AsmError>{
@@ -37,6 +37,23 @@ fn valid_file_extension(arg: &String, file_extensions : &[&str]) -> Result<(), A
 }
 
 
+fn process_debug_flags(args: &mut impl Iterator<Item = String>) -> Result<UserFlags, AsmError> {
+
+    let Some(next_arg) = args.next() else{
+        return Err(AsmError::new(AsmErrorType::CLI(format!("opened ended sub-command"))));
+    };
+
+    let flag = match next_arg.as_str() {
+        "PREPROCESSOR" => {UserFlags::DumpPreprocessor},
+        _ => {
+            return Err(AsmError::new(AsmErrorType::CLI(format!("invalid debug flag given"))));
+        }
+    };
+
+    Ok(flag)
+}
+
+
 fn append_source_directory(src_files: &mut Vec<String>, source_directory: &String) {
 
     for file_name in src_files {
@@ -52,6 +69,7 @@ pub fn run() -> Result<UserArgs, Vec<AsmError>>{
     let mut output_file_name: Option<String> = None;
     let mut source_directory: Option<String> = None;
     let mut src_files: Vec<String> = Vec::new();
+    let mut user_flags: Vec<UserFlags> = Vec::new();
 
     let valid_source_files = vec!["asm"];
     let valid_output_files = vec!["bin"];
@@ -67,6 +85,18 @@ pub fn run() -> Result<UserArgs, Vec<AsmError>>{
                 if let Err(error) = sub_command(&mut args, &mut source_directory){
                     errors.push(error);
                 };
+            }
+
+            "-D" => {
+
+                match process_debug_flags(&mut args){
+                    Ok(flag) => {
+                        user_flags.push(flag);
+                    },
+                    Err(error) => {
+                        errors.push(error);
+                    }
+                }
             }
 
             _ => { // if none else, assume source file
@@ -114,5 +144,5 @@ pub fn run() -> Result<UserArgs, Vec<AsmError>>{
         return Err(errors);
     }
 
-    Ok(UserArgs { src_files, output_file : output_file_name, src_directory: source_directory })
+    Ok(UserArgs { src_files, output_file : output_file_name, src_directory: source_directory, user_flags: user_flags })
 }
