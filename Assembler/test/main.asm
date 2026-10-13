@@ -3,14 +3,8 @@
 2
 3
 @include     "foo1.asm"
-// burger
+burger
 
-/*
-a
-multi
-line
-comment
-*/
-
+burger /* burger */ burger
 
 @include "burger.asm"
