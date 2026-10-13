@@ -219,14 +219,24 @@ impl Macro{
         Some((macro_name, macro_content))
     }
 
-    pub fn check_and_expand_macro(line: &str, macro_table: &HashMap<&str, &str>) {
+    pub fn check_and_expand_macro(line: &str, macro_table: &HashMap<String, String>) -> String{
 
+        let tokenized_line: Vec<&str> = line.split_whitespace().collect();
+        let mut new_line = line.to_string();
+
+        for token in tokenized_line {
+            if let Some(macro_content) = macro_table.get(token){
+                new_line = new_line.replace(token, macro_content);
+            }
+        }
+
+        new_line
     }
 
 }
 
 
-fn expand_macros(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> String{
+fn expand_macros(combined_source: Vec<String>, _errors: &mut Vec<AsmError>) -> String{
 
     let mut macro_table: HashMap<String, String> = HashMap::new();
     let mut new_combined_source: Vec<String> = Vec::new();
@@ -234,13 +244,19 @@ fn expand_macros(combined_source: Vec<String>, errors: &mut Vec<AsmError>) -> St
     for line in combined_source {
         if let Some((macro_name, macro_content)) = Macro::find_and_get_macro_name(&line){
             macro_table.entry(macro_name.to_string()).or_insert(macro_content.to_string());
+            new_combined_source.push("\n".to_string());
+            continue;
         }
+        let new_line = Macro::check_and_expand_macro(&line, &macro_table);
+        new_combined_source.push(new_line);
     }
 
     println!("{:?}", macro_table);
 
     vec_to_string(new_combined_source)
 }
+
+
 
 pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<AsmError>>{
 
@@ -251,8 +267,8 @@ pub fn run(source_files: &[String], source_dir: &String) -> Result<String, Vec<A
     let combined_source = remove_comments(combined_source, &mut errors);
     let combined_source = expand_macros(combined_source, &mut errors);
 
-    // println!("{combined_source}");
-    
+    println!("{}", combined_source);
+
     if !errors.is_empty(){
         return Err(errors);
     }
