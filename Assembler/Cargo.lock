@@ -6,9 +6,17 @@ version = 4
 name = "asm"
 version = "0.1.0"
 dependencies = [
+ "asm-cli",
  "asm-core",
  "asm-pass-one",
  "asm-pass-two",
+]
+
+[[package]]
+name = "asm-cli"
+version = "0.1.0"
+dependencies = [
+ "asm-core",
 ]
 
 [[package]]
@@ -19,6 +27,7 @@ version = "0.1.0"
 name = "asm-pass-one"
 version = "0.1.0"
 dependencies = [
+ "asm-cli",
  "asm-core",
 ]
 

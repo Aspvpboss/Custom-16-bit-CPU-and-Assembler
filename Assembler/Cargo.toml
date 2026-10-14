@@ -11,6 +11,7 @@ edition = "2024"
 
 [workspace.dependencies]
 asm-core = { path = "crates/asm-core" }
+asm-cli = { path = "crates/asm-cli" }
 asm-pass-one = { path = "crates/asm-pass-one" }
 asm-pass-two = { path = "crates/asm-pass-two" }
 

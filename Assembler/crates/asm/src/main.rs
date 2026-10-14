@@ -15,11 +15,10 @@ pub fn main() -> ExitCode{
 }
 
 
-fn run() -> Result<()>{
+fn run() -> Result<(), Vec<AsmError>>{
 
-    println!("foo");
-
-    asm_pass_one::run()?;
+    let user_args = asm_cli::run()?;
+    asm_pass_one::run(&user_args)?;
     asm_pass_two::run()?;
 
     Ok(())
