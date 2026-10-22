@@ -2,7 +2,7 @@
 #define EMU_ALU__
 
 #include "my_stdtypes.h"
-#include <SDLite/MemTrack.h>
+#include <SDLite/memtrack.h>
 #include "hardware/flags.h"
 
 enum ALU_Registers{

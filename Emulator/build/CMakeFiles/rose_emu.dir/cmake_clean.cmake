@@ -1,0 +1,38 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/rose_emu.dir/link.d"
+  "CMakeFiles/rose_emu.dir/src/core/destroy.c.o"
+  "CMakeFiles/rose_emu.dir/src/core/destroy.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/core/init.c.o"
+  "CMakeFiles/rose_emu.dir/src/core/init.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/core/iterate.c.o"
+  "CMakeFiles/rose_emu.dir/src/core/iterate.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/core/test.c.o"
+  "CMakeFiles/rose_emu.dir/src/core/test.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/hardware/alu.c.o"
+  "CMakeFiles/rose_emu.dir/src/hardware/alu.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/hardware/emulator.c.o"
+  "CMakeFiles/rose_emu.dir/src/hardware/emulator.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/hardware/fpu.c.o"
+  "CMakeFiles/rose_emu.dir/src/hardware/fpu.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/main.c.o"
+  "CMakeFiles/rose_emu.dir/src/main.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/pipeline/decode.c.o"
+  "CMakeFiles/rose_emu.dir/src/pipeline/decode.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/pipeline/execute.c.o"
+  "CMakeFiles/rose_emu.dir/src/pipeline/execute.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/pipeline/execute/execute_math.c.o"
+  "CMakeFiles/rose_emu.dir/src/pipeline/execute/execute_math.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/pipeline/execute/execute_memory.c.o"
+  "CMakeFiles/rose_emu.dir/src/pipeline/execute/execute_memory.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/pipeline/fetch.c.o"
+  "CMakeFiles/rose_emu.dir/src/pipeline/fetch.c.o.d"
+  "CMakeFiles/rose_emu.dir/src/pipeline/mmio.c.o"
+  "CMakeFiles/rose_emu.dir/src/pipeline/mmio.c.o.d"
+  "rose_emu"
+  "rose_emu.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang C)
+  include(CMakeFiles/rose_emu.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

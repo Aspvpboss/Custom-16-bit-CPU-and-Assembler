@@ -9,13 +9,20 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(SDLite REQUIRED)
 
 add_executable(rose_emu
-    src/init.c 
-    src/iterate.c 
-    src/render.c 
-    src/quit.c 
-    src/update.c 
-    src/sdl_events.c 
-    src/frame_events.c 
+    src/core/test.c 
+    src/core/init.c
+    src/core/iterate.c
+    src/core/destroy.c 
+    src/hardware/emulator.c 
+    src/hardware/alu.c 
+    src/hardware/fpu.c
+    src/pipeline/mmio.c
+    src/pipeline/fetch.c
+    src/pipeline/execute.c
+    src/pipeline/decode.c 
+    src/pipeline/execute/execute_memory.c 
+    src/pipeline/execute/execute_math.c
+    src/main.c
 )
 
 target_include_directories(rose_emu PUBLIC
@@ -28,6 +35,9 @@ target_compile_definitions(rose_emu
         TRACK_ALLOCATIONS
 )
 
-target_link_libraries(rose_emu 
-    SDLite::debugSDLite
+target_link_libraries(rose_emu
+    PUBLIC
+        SDLite::debugSDLite
+    PRIVATE
+        m
 )

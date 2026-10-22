@@ -1,0 +1,3 @@
+/home/aspvpboss17306/Documents/programs/Workbench/Custom-16-bit-CPU-and-Assembler/Emulator/build/CMakeFiles/rose_emu.dir
+/home/aspvpboss17306/Documents/programs/Workbench/Custom-16-bit-CPU-and-Assembler/Emulator/build/CMakeFiles/edit_cache.dir
+/home/aspvpboss17306/Documents/programs/Workbench/Custom-16-bit-CPU-and-Assembler/Emulator/build/CMakeFiles/rebuild_cache.dir
