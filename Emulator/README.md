@@ -1,9 +1,8 @@
 # Current goals
 
 ```
-Complete move execute instructions
 Complete control flow instructions
-Create Unit tests for each instruction
+Finish Unit tests for each instruction
 Start work on MMIO
 ```
 
