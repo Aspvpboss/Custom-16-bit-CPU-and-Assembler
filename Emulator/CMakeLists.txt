@@ -22,6 +22,7 @@ add_executable(rose_emu
     src/pipeline/decode.c 
     src/pipeline/execute/execute_memory.c 
     src/pipeline/execute/execute_math.c
+    src/pipeline/execute/execute_control.c
     src/main.c
 )
 
