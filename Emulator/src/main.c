@@ -26,17 +26,23 @@ int main(){
     if(check_version())
         return 1;
 
+    SDLite_Display *display = SDLite_CreateDisplay("Rose EMU", 400, 400, SDL_WINDOW_MAXIMIZED);
+    if(!display){
+        SDLite_Quit();
+        return 1;
+    }
+
     SDL_Thread *emulator_thread = SDL_CreateThread(emulator_main, "emulator", &emulator_state);
     if(!emulator_thread){
+        SDLite_DestroyDisplay(display);
         SDLite_Quit();
         return 1;
     }
 
     while(!SDL_GetAtomicU32(&emulator_state)){
-
         // main rendering loop
-        printf(" main thread                  \r");
-        SDL_Delay(4000);
+        SDLite_DisplayClear(display);
+        SDLite_DisplayPresent(display);
     }
 
 

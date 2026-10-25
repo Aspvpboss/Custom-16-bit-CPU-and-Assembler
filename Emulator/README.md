@@ -123,15 +123,12 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 | CAL | jumps to a function, pushes current address into stack |
 |:---:|:---|
 | Reg Indirect |  calls using regA value |
-| Imm8-dest |  relative call using imm8 |
 | Imm16-dest | relative call using imm16 |
-| Imm8 | absolute call using imm8 |
 | Imm16 | absolute call using imm16 |
 
 | CIF | Conditional CAL |
 |:---:|:---|
 | Reg Indirect |  cond jump using regA value |
-| Imm8-dest |  relative cond jump using imm8 |
 | Imm16-dest | relative cond jump using imm16 |
 ##### CIF uses regC as condition selector
 

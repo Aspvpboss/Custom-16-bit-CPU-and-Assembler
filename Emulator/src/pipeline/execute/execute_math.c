@@ -110,12 +110,12 @@ int exe_mod(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     if(addr_mode == ADDR_REG){        
 
-        emu->alu.div(registers[operands[OP_ZERO]], registers[operands[OP_TWO]], &registers[write_reg_addr], &emu->flags);
+        emu->alu.mod(registers[operands[OP_ZERO]], registers[operands[OP_TWO]], &registers[write_reg_addr], &emu->flags);
         return 0;
 
     } else if(addr_mode == ADDR_REG_IMMEDIATE_EIGHT || addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
-        emu->alu.div(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[write_reg_addr], &emu->flags);
+        emu->alu.mod(registers[operands[OP_ZERO]], operands[OP_TWO], &registers[write_reg_addr], &emu->flags);
         return 0;
 
     }
@@ -410,7 +410,7 @@ int exe_fsqrt(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     } else if(addr_mode == ADDR_REG_IMMEDIATE_SIXTEEN){
 
-        emu->fpu.sqrt((*(f16*)&operands[OP_TWO]), &registers[write_reg_addr], &emu->flags);
+        emu->fpu.sqrt((*(f16*)&operands[OP_ZERO]), &registers[write_reg_addr], &emu->flags);
         return 0;
     }
 

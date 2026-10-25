@@ -14,8 +14,6 @@ int emulator_main(void *ptr){
         RETURN_THREAD(1);
     }
     
-    RETURN_THREAD(0);
-
     Emulator *emu = init();
     if(!emu){
         RETURN_THREAD(1);
