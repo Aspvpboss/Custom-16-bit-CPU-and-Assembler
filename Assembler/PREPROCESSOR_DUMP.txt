@@ -1,0 +1,35 @@
+@start test/main.asm
+
+1
+2
+3
+@start test/foo1.asm
+4
+5
+6
+@end test/foo1.asm
+burger
+
+
+/* burger
+a
+b
+c
+d
+burger */
+
+burger /* burger */ burger 
+
+@macro REG_POINTER r3
+@macro #PI #3.141528
+
+
+add r0 REG_POINTER, #PI
+
+
+@start test/burger.asm
+7
+8
+9
+@end test/burger.asm
+@end test/main.asm

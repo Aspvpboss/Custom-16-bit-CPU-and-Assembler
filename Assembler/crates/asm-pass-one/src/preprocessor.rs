@@ -87,7 +87,7 @@ impl Include {
 
 
 fn resolve_includes(
-    file_vec_map: &HashMap<String, Vec<String>>, line: &mut String, 
+    file_vec_map: &HashMap<&str, Vec<String>>, line: &String, 
     included_paths: &mut Vec<String>, source_dir: &String, errors: &mut Vec<AsmError>) -> Option<Vec<String>>{
 
     let mut new_lines: Vec<String> = Vec::new();
@@ -107,6 +107,10 @@ fn resolve_includes(
             included_paths.push(src_path);
 
         }
+    }
+
+    if new_lines.is_empty() {
+        return None;
     }
 
     Some(new_lines)
@@ -268,21 +272,38 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
     let file_vec_map = source_file_to_string_hashmap(&user_args.src_files, &mut errors);
 
     let root_file = "main.asm"; 
-    let root_file_vec = match file_vec_map.get((user_args.src_directory.to_string() + root_file).as_str()) {
-        Some(string_vec) => {string_vec},
+    let mut root_file_vec = match file_vec_map.get((user_args.src_directory.to_string() + root_file).as_str()) {
+        Some(string_vec) => {string_vec.clone()},
         None => {
             errors.push(AsmError::new(AsmErrorType::PREPRO(format!("root file {root_file} not found"))));
-            &Vec::new()
+            Vec::new()
         },
     };
 
-    for line in root_file_vec {
-        
+    let mut combined_source_vec: Vec<String> = Vec::new(); 
+    let mut included_paths: Vec<String> = Vec::new();
+
+    while let Some(line) = root_file_vec.pop() {
+
+        if let Some(mut included_file) = resolve_includes(&file_vec_map, &line, &mut included_paths, &user_args.src_directory, &mut errors){
+            root_file_vec.append(&mut included_file);
+            continue;
+        };
+
+
+        combined_source_vec.push(line + "\n");
     }
 
-    let combined_source = resolve_includes(file_strings_map, &user_args.src_directory, &mut errors);
-    let combined_source = remove_comments(combined_source, &mut errors);
-    let combined_source = expand_macros(combined_source, &mut errors);
+    // let combined_source = resolve_includes(file_strings_map, &user_args.src_directory, &mut errors);
+    // let combined_source = remove_comments(combined_source, &mut errors);
+    // let combined_source = expand_macros(combined_source, &mut errors);
+
+    // root_file_vec
+    let combined_source = vec_to_string(combined_source_vec);
+    
+    if !errors.is_empty(){
+        return Err(errors);
+    }
 
     if user_args.user_flags.contains(&UserFlags::DumpPreprocessor){
         if let Err(error) = write_dump_file(combined_source.clone()){
@@ -290,9 +311,6 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
         }
     }
 
-    if !errors.is_empty(){
-        return Err(errors);
-    }
 
     Ok(combined_source)
 }
