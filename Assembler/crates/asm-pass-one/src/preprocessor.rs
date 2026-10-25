@@ -280,6 +280,9 @@ fn write_dump_file(preprocessor_data: String) -> Result<(), AsmError> {
 pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
 
     let mut errors: Vec<AsmError> = Vec::new();
+    /*
+        I want it to go from hashmap, to file individual strings w/ comments -> single string resolved includes -> macros 
+    */
 
     let file_strings_map = source_file_to_string_hashmap(&user_args.src_files, &mut errors);
     let combined_source = resolve_includes(file_strings_map, &user_args.src_directory, &mut errors);
