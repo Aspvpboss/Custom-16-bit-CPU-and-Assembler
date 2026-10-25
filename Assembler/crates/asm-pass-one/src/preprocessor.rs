@@ -10,16 +10,6 @@ pub enum DumpPreprocessor {
 }
 
 
-fn vec_to_string(string_vec: Vec<String>) -> String {
-    
-    let mut new_string = String::from("");
-    for line in string_vec {
-        new_string.push_str(line.as_str());
-    }
-
-    new_string
-}
-
 
 fn open_file(source_file: &str) -> Result<String, AsmError>{
 
@@ -309,7 +299,7 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
     }
 
     // root_file_vec
-    let combined_source = vec_to_string(combined_source_vec);
+    let combined_source = combined_source_vec.join("");
     
     if !errors.is_empty(){
         return Err(errors);
