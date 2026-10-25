@@ -1,4 +1,4 @@
-mod preprocessor;
+pub mod preprocessor;
 
 use asm_core::error::*;
 use asm_cli::user_args::*;
