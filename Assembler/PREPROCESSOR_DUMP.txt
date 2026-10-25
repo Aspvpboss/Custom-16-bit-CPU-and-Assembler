@@ -9,8 +9,22 @@
 8
 9
 @end test/burger.asm
+@include "burger.asm" 
+@include "burger.asm" 
 
-  @macro burger hotdog
+ 
+
+ 
+
+label_A
+
+
+ 
+ 
+add r10  r2
+jmp LABEL_A  B
+
+mov r0 [r2  r2];
 
          
 

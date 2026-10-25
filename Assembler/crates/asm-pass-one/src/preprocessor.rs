@@ -161,22 +161,16 @@ impl Comments {
 }
 
 fn remove_comments(mut line: String, multi_line_comment: &mut bool, _errors: &mut Vec<AsmError>) -> String {
-
-    match Comments::find_single_comment_slice(&line) {
-        Some(comment_portion) => {
+    if let Some((comment_portion, is_multi_line)) = Comments::find_multi_comment_slice(&line, *multi_line_comment){
+        let blank = Comments::mask_comment_with_spaces(comment_portion);
+        line = line.replace(comment_portion, &blank);
+        *multi_line_comment = is_multi_line;
+    } else {
+        if let Some(comment_portion) = Comments::find_single_comment_slice(&line) {
             let blank = Comments::mask_comment_with_spaces(comment_portion);
             line = line.replace(comment_portion, &blank);
         }
-        None => {
-            if let Some((comment_portion, is_multi_line)) = Comments::find_multi_comment_slice(&line, *multi_line_comment){
-                
-                let blank = Comments::mask_comment_with_spaces(comment_portion);
-                line = line.replace(comment_portion, &blank);
-                *multi_line_comment = is_multi_line;
-            }
-
-        }
-    } 
+    }
 
     line
 }
@@ -213,14 +207,25 @@ impl Macro{
 
         let line = line.to_string().replace(",", " ");
         let tokenized_line: Vec<&str> = line.split_whitespace().collect();
+        let cleaned_tokens: Vec<String> = tokenized_line
+            .iter()
+            .map(|token| token.replace("[", "").replace("]", ""))
+            .collect();
         let mut new_line = line.to_string();
+        let mut search_pos = 0;
 
-        for token in tokenized_line {
-            if let Some(macro_content) = macro_table.get(token){
-                new_line = new_line.replace(token, macro_content);
+        for token in cleaned_tokens {
+            if let Some(rel_idx) = new_line[search_pos..].find(&token) {
+                let start = search_pos + rel_idx;
+                let end = start + token.len();
+                if let Some(macro_content) = macro_table.get(&token) {
+                    new_line.replace_range(start..end, macro_content);
+                    search_pos = start + macro_content.len();
+                } else {
+                    search_pos = end;
+                }
             }
         }
-
 
         new_line
     }
@@ -303,6 +308,7 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
         }
     }
 
+    println!("{macro_table:?}");
 
     Ok(combined_source)
 }
