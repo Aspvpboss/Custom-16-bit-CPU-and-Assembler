@@ -120,14 +120,12 @@ struct Comments;
 impl Comments {
     pub fn find_single_comment_slice(line: &str) -> Option<&str> {
 
+
         // Find start of comment
         let start = line.find("//")?;
         let rest = &line[start..];
 
-        // Find the end of line
-        let end = rest.find('\n')?;
-
-        Some(&rest[..end])
+        Some(&line[start..])
     }
 
 
@@ -139,8 +137,7 @@ impl Comments {
             if let Some(end_multi_line) = rest.find("*/"){
                 return Some((&rest[..end_multi_line + 2], false));
             }
-            let end = rest.find('\n')?;
-            return Some((&rest[..end], true));
+            return Some((rest, true));
         }
 
         // end of multi line comment
@@ -173,10 +170,12 @@ fn remove_comments(mut line: String, multi_line_comment: &mut bool, _errors: &mu
         }
         None => {
             if let Some((comment_portion, is_multi_line)) = Comments::find_multi_comment_slice(&line, *multi_line_comment){
+                
                 let blank = Comments::mask_comment_with_spaces(comment_portion);
                 line = line.replace(comment_portion, &blank);
                 *multi_line_comment = is_multi_line;
             }
+
         }
     } 
 
