@@ -301,17 +301,15 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
     // root_file_vec
     let combined_source = combined_source_vec.join("");
     
-    if !errors.is_empty(){
-        return Err(errors);
-    }
-
     if user_args.user_flags.contains(&UserFlags::DumpPreprocessor){
         if let Err(error) = write_dump_file(combined_source.clone()){
             errors.push(error);
         }
     }
-
-    println!("{macro_table:?}");
+    
+    if !errors.is_empty(){
+        return Err(errors);
+    }
 
     Ok(combined_source)
 }
