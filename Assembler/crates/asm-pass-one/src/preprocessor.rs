@@ -86,55 +86,30 @@ impl Include {
 }
 
 
-fn resolve_includes(file_strings_map: HashMap<&str, String>, source_dir: &String, errors: &mut Vec<AsmError>) -> Vec<String> {
+fn resolve_includes(
+    file_vec_map: &HashMap<String, Vec<String>>, line: &mut String, 
+    included_paths: &mut Vec<String>, source_dir: &String, errors: &mut Vec<AsmError>) -> Option<Vec<String>>{
 
-    // includes start from this file
-    let first_file_string = "main.asm"; 
-    let first_file_string = match file_strings_map.get((source_dir.to_string() + first_file_string).as_str()) {
-        Some(string) => {string},
-        None => {
-            errors.push(AsmError::new(AsmErrorType::PREPRO(format!("root file {first_file_string} not found"))));
-            &String::from("")
-        },
-    };
+    let mut new_lines: Vec<String> = Vec::new();
 
-    let mut combined_source: Vec<String> = Vec::new();
-    let mut line_stack: Vec<String> = first_file_string
-        .lines()
-        .map(|s| s.to_string())
-        .collect();
-    line_stack.reverse();
-
-    let mut included_paths: Vec<String> = Vec::new();
-
-    while let Some(line) = line_stack.pop(){
-        if line.contains("@include"){
-            if let Some(path) = Include::extract_include_path(&line){
-                let src_path = source_dir.to_string() + path;
-                if included_paths.contains(&src_path){
-                    continue;
-                }
-                
-                let Some(file_contents) = file_strings_map.get(src_path.as_str()) else {
-                    errors.push(AsmError::new(AsmErrorType::PREPRO(format!("Failed to include {src_path}"))));
-                    continue;
-                };
-                let mut new_file: Vec<String> = file_contents
-                    .lines()
-                    .map(|s| s.to_string())
-                    .collect();
-                new_file.reverse();
-                line_stack.append(&mut new_file);
-                included_paths.push(src_path);
-
-                continue;
+    if line.contains("@include"){
+        if let Some(path) = Include::extract_include_path(&line){
+            let src_path = source_dir.to_string() + path;
+            if included_paths.contains(&src_path){
+                return None
             }
-        }
+            
+            let Some(file_contents) = file_vec_map.get(src_path.as_str()) else {
+                errors.push(AsmError::new(AsmErrorType::PREPRO(format!("Failed to include {src_path}"))));
+                return None                    
+            };
+            new_lines.append(&mut file_contents.clone());
+            included_paths.push(src_path);
 
-        combined_source.push(line + "\n");
+        }
     }
 
-    combined_source   
+    Some(new_lines)
 }
 
 struct Comments;
