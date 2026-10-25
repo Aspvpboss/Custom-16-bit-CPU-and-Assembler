@@ -165,34 +165,22 @@ impl Comments {
         
 }
 
-fn remove_comments(combined_source: Vec<String>, _errors: &mut Vec<AsmError>) -> Vec<String>{
+fn remove_comments(mut line: String, multi_line_comment: &mut bool, _errors: &mut Vec<AsmError>) -> String {
 
-    let mut new_combined_source: Vec<String> = Vec::new();
-    let mut multi_line_comment: bool = false;
-
-    for line in combined_source {
-
-        match Comments::find_single_comment_slice(&line) {
-            Some(comment_portion) => {
-                let comment_removed = line.replace(comment_portion, "");
-                new_combined_source.push(comment_removed);
-                continue;
+    match Comments::find_single_comment_slice(&line) {
+        Some(comment_portion) => {
+            line = line.replace(comment_portion, "");
+        }
+        None => {
+            if let Some((comment_portion, is_multi_line)) = Comments::find_multi_comment_slice(&line, *multi_line_comment){
+                let blank = Comments::mask_comment_with_spaces(comment_portion);
+                line = line.replace(comment_portion, &blank);
+                *multi_line_comment = is_multi_line;
             }
-            None => {
-                if let Some((comment_portion, is_multi_line)) = Comments::find_multi_comment_slice(&line, multi_line_comment){
-                    let blank = Comments::mask_comment_with_spaces(comment_portion);
-                    let comment_removed = line.replace(comment_portion, &blank);
-                    new_combined_source.push(comment_removed);
-                    multi_line_comment = is_multi_line;
-                    continue;
-                }
-            }
-        } 
+        }
+    } 
 
-        new_combined_source.push(line);
-    }
-
-    new_combined_source
+    line
 }
 
 /*
@@ -282,8 +270,11 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
 
     let mut combined_source_vec: Vec<String> = Vec::new(); 
     let mut included_paths: Vec<String> = Vec::new();
+    let mut multi_line_comment = false;
 
     while let Some(line) = root_file_vec.pop() {
+
+        let line = remove_comments(line, &mut multi_line_comment, &mut errors);
 
         if let Some(mut included_file) = resolve_includes(&file_vec_map, &line, &mut included_paths, &user_args.src_directory, &mut errors){
             root_file_vec.append(&mut included_file);
