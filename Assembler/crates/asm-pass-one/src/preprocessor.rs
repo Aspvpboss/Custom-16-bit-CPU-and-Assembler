@@ -120,10 +120,8 @@ struct Comments;
 impl Comments {
     pub fn find_single_comment_slice(line: &str) -> Option<&str> {
 
-
         // Find start of comment
         let start = line.find("//")?;
-        let rest = &line[start..];
 
         Some(&line[start..])
     }
@@ -166,7 +164,8 @@ fn remove_comments(mut line: String, multi_line_comment: &mut bool, _errors: &mu
 
     match Comments::find_single_comment_slice(&line) {
         Some(comment_portion) => {
-            line = line.replace(comment_portion, "");
+            let blank = Comments::mask_comment_with_spaces(comment_portion);
+            line = line.replace(comment_portion, &blank);
         }
         None => {
             if let Some((comment_portion, is_multi_line)) = Comments::find_multi_comment_slice(&line, *multi_line_comment){
@@ -188,14 +187,26 @@ fn remove_comments(mut line: String, multi_line_comment: &mut bool, _errors: &mu
 struct Macro;
 impl Macro{
 
-    pub fn find_and_get_macro_name(line: &str) ->  Option<(&str, &str)>{
+    pub fn find_and_get_macro_name(line: &String, errors: &mut Vec<AsmError>) ->  Option<(String, String, String)>{
+        let mut original_line = line.clone();
         let macro_part = line.split("@macro").nth(1)?;
         let macro_info: Vec<&str> = macro_part.split_whitespace().collect();
 
-        let macro_name = *macro_info.get(0)?;
-        let macro_content = *macro_info.get(1)?;
+        let Some(&macro_name) = macro_info.get(0) else {
+            errors.push(AsmError::new(AsmErrorType::PREPRO("Invalid @macro definition, no macro name given".to_string())));
+            return None;
+        };
+        let Some(&macro_content) = macro_info.get(1) else {
+            errors.push(AsmError::new(AsmErrorType::PREPRO("Invalid @macro definition, no macro content given".to_string())));
+            return None;
+        };
 
-        Some((macro_name, macro_content))
+        let start = original_line.find("@macro")?;
+        let end = original_line.find(macro_content)? + macro_content.len();
+
+        original_line.replace_range(start..end, " ");
+
+        Some((original_line, macro_name.to_owned(), macro_content.to_owned()))
     }
 
     pub fn check_and_expand_macro(line: &str, macro_table: &HashMap<String, String>) -> String{
@@ -216,25 +227,18 @@ impl Macro{
 
 }
 
+// expands macros AND replaces commas w/ spaces
+fn expand_macros(mut line: String, macro_table: &mut HashMap<String, String>, errors: &mut Vec<AsmError>) -> String{
 
-fn expand_macros(combined_source: Vec<String>, _errors: &mut Vec<AsmError>) -> String{
-
-    let mut macro_table: HashMap<String, String> = HashMap::new();
-    let mut new_combined_source: Vec<String> = Vec::new();
-
-    for line in combined_source {
-        if let Some((macro_name, macro_content)) = Macro::find_and_get_macro_name(&line){
-            macro_table.entry(macro_name.to_string()).or_insert(macro_content.to_string());
-            new_combined_source.push("\n".to_string());
-            continue;
-        }
-        let new_line = Macro::check_and_expand_macro(&line, &macro_table);
-        new_combined_source.push(new_line);
+    if let Some((new_line, macro_name, macro_content)) = Macro::find_and_get_macro_name(&line, errors) {
+        macro_table.entry(macro_name.to_string()).or_insert(macro_content.to_string());
+        line = new_line;
     }
 
-    println!("{:?}", macro_table);
 
-    vec_to_string(new_combined_source)
+    let new_line = Macro::check_and_expand_macro(&line, &macro_table);
+
+    new_line
 }
 
 
@@ -270,10 +274,12 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
     let mut combined_source_vec: Vec<String> = Vec::new(); 
     let mut included_paths: Vec<String> = Vec::new();
     let mut multi_line_comment = false;
+    let mut macro_table: HashMap<String, String> = HashMap::new();
 
     while let Some(line) = root_file_vec.pop() {
 
         let line = remove_comments(line, &mut multi_line_comment, &mut errors);
+        let line = expand_macros(line, &mut macro_table, &mut errors);
 
         if let Some(mut included_file) = resolve_includes(&file_vec_map, &line, &mut included_paths, &user_args.src_directory, &mut errors){
             root_file_vec.append(&mut included_file);
@@ -283,10 +289,6 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
 
         combined_source_vec.push(line + "\n");
     }
-
-    // let combined_source = resolve_includes(file_strings_map, &user_args.src_directory, &mut errors);
-    // let combined_source = remove_comments(combined_source, &mut errors);
-    // let combined_source = expand_macros(combined_source, &mut errors);
 
     // root_file_vec
     let combined_source = vec_to_string(combined_source_vec);

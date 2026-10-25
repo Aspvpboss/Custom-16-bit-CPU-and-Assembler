@@ -1,0 +1,30 @@
+@start test/main.asm
+
+  
+       
+  
+
+@start test/burger.asm
+7
+8
+9
+@end test/burger.asm
+
+  @macro burger hotdog
+
+         
+
+  
+      
+
+      
+  
+
+
+3.14
+burger
+
+before
+      
+after
+@end test/main.asm
