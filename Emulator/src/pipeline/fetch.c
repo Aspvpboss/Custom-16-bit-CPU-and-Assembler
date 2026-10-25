@@ -12,7 +12,7 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
         (*program_counter) = 0;
     } 
     
-    u8 extra_bytes = 0;
+    u16 extra_bytes = 0;
 
     if(read_memory(ram, (*program_counter), (u16*)&instruction->raw_instruction, false)) return 1;
 
@@ -55,7 +55,7 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         default:
-            return -1;
+            return 1;
     }
 
 

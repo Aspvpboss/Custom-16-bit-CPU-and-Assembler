@@ -1039,7 +1039,6 @@ static int control_flow_test(Emulator *emu) {
 
 int run_tests(){
 
-
     Emulator *test_emu = init();
     if(!test_emu) return 1;
 
@@ -1050,5 +1049,7 @@ int run_tests(){
     test("--Testing control flow instructions--", control_flow_test(test_emu));
     
     destroy(test_emu); 
+    SDL_FlushEvent(SDL_EVENT_QUIT);
+
     return 0;
 }

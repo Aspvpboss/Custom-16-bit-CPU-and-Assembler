@@ -4,7 +4,7 @@
 #include "pipeline/fetch.h"
 #include "pipeline/decode.h"
 #include "pipeline/mmio.h"
-
+#include "core/test.h"
 
 EMU_Result iterate(Emulator *emu){
 
@@ -30,16 +30,24 @@ EMU_Result iterate(Emulator *emu){
     i8 result = 0;
 
     result = fetch(emu, &instruction);
-    if(result == 1) return EMU_SUCCESS;
-    
+    if(result == 1){
+        SDLite_SetError("fetch() failed to run");
+        return EMU_FAILURE;
+    }     
     result = decode(emu, &instruction);
-    if(result == 1) return EMU_SUCCESS;
-    
+    if(result == 1){
+        SDLite_SetError("decode() failed to run");
+        return EMU_FAILURE;
+    }     
     result = execute(emu, &instruction);
-    if(result == 1) return EMU_SUCCESS;
-
+    if(result == 1){
+        SDLite_SetError("execute() failed to run");
+        return EMU_FAILURE;
+    } 
     result = mmio();
-    if(result == 1) return EMU_SUCCESS; 
-
+    if(result == 1){
+        SDLite_SetError("mmio() failed to run");
+        return EMU_FAILURE; 
+    } 
     return EMU_CONTINUE;
 }

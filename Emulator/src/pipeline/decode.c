@@ -49,6 +49,9 @@ int decode(Emulator *emu, EMU_Decoded_Instruction *instruction){
         case ADDR_IMMEDIATE_SIXTEEN:
             instruction->operands[0] = (raw_instruction >> 8) & 0xffff; 
             break;
+
+        default:
+            return 1;
     }
 
     

@@ -1,5 +1,5 @@
 #include "init.h"
-
+#include "pipeline/instruction.h"
 
 
 Emulator* init(){
@@ -39,6 +39,9 @@ Emulator* init(){
     memset(emu->ram.mmio, 0, sizeof(emu->ram.mmio));
     memset(emu->ram.ram_bank, 0, sizeof(emu->ram.ram_bank));
     emu->ram.vram_selector = false;
+
+    emu->ram.bootloader[0] = 0x6 << 5 | EMU_JMP; 
+    emu->ram.bootloader[1] = 0x0000;
 
     return emu;
 }
