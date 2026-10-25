@@ -135,7 +135,8 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         default:
-            break;
+            SDLite_SetError("execute() was given an invalid opcode: %d", opcode);
+            return 1;
     }
 
     return 0;

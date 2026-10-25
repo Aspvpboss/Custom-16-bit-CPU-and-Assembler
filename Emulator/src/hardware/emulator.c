@@ -11,11 +11,13 @@ int emulator_main(void *ptr){
     SDL_AtomicU32 *emulator_state = (SDL_AtomicU32*)ptr;
 
     if(RUN_TESTS()){
+        SDLite_SetError("emulator_main(): unit tests failed");
         RETURN_THREAD(1);
     }
     
     Emulator *emu = init();
     if(!emu){
+        SDLite_SetError("emulator_main(): init() failed");
         RETURN_THREAD(1);
     }
 
@@ -30,6 +32,7 @@ int emulator_main(void *ptr){
         result = iterate(emu);
         
         if(result == EMU_FAILURE){
+            SDLite_SetError("emulator_main(): iterate() failed");
             destroy(emu);
             RETURN_THREAD(1);
         }

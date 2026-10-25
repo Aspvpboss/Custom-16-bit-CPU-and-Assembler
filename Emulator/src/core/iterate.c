@@ -22,6 +22,7 @@ EMU_Result iterate(Emulator *emu){
     }
    
     if(SDLite_Input_KeyJustPressed(input, SDL_SCANCODE_F)){
+        SDLite_SetError("iterate(): forced failure triggered via F key");
         return EMU_FAILURE;
     }
 

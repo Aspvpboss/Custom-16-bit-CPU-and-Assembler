@@ -5,17 +5,22 @@
 Emulator* init(){
 
     Emulator *emu = t_malloc(sizeof(Emulator));
-    if(!emu) return NULL;
+    if(!emu){
+        SDLite_SetError("init(): failed to allocate Emulator");
+        return NULL;
+    }
 
 
     emu->SDLite_io.input = SDLite_CreateInput();
     if(!emu->SDLite_io.input){
+        SDLite_SetError("init(): failed to create SDLite_Input");
         t_free(emu);
         return NULL;
     }
 
     emu->SDLite_io.display = SDLite_CreateDisplay("EMU", 800, 800, SDL_WINDOW_MAXIMIZED);
     if(!emu->SDLite_io.display){
+        SDLite_SetError("init(): failed to create SDLite_Display");
         SDLite_DestroyInput(emu->SDLite_io.input); 
         t_free(emu);
         return NULL;
@@ -23,6 +28,7 @@ Emulator* init(){
 
     emu->SDLite_io.time = SDLite_CreateTime(1000);
     if(!emu->SDLite_io.time){
+        SDLite_SetError("init(): failed to create SDLite_Time");
         SDLite_DestroyInput(emu->SDLite_io.input); 
         SDLite_DestroyDisplay(emu->SDLite_io.display);
         t_free(emu);

@@ -51,6 +51,8 @@ int decode(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         default:
+            SDLite_SetError("decode(): invalid addressing mode %d (raw: 0x%llX)",
+                            instruction->addressing_mode, (unsigned long long)raw_instruction);
             return 1;
     }
 

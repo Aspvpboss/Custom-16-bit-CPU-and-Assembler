@@ -14,7 +14,10 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
     
     u8 extra_bytes = 0;
 
-    if(read_memory(ram, (*program_counter), (u16*)&instruction->raw_instruction, false)) return 1;
+    if(read_memory(ram, (*program_counter), (u16*)&instruction->raw_instruction, false)){
+        SDLite_SetError("fetch(): failed to read instruction at PC 0x%04X", *program_counter);
+        return 1;
+    }
 
     instruction->opcode = (EMU_Instructions) instruction->raw_instruction & 0x1f;
     instruction->addressing_mode = (EMU_Addressing_Modes)(instruction->raw_instruction >> 5);
@@ -55,6 +58,8 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         default:
+            SDLite_SetError("fetch(): invalid addressing mode %d at PC 0x%04X",
+                            instruction->addressing_mode, *program_counter);
             return 1;
     }
 
@@ -62,7 +67,10 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
     for(u8 i = 1; i <= extra_bytes; i++){
         (*program_counter)++;
         u16 raw_byte;
-        if(read_memory(ram, (*program_counter), (u16*)&raw_byte, false)) return 1;
+        if(read_memory(ram, (*program_counter), (u16*)&raw_byte, false)){
+            SDLite_SetError("fetch(): failed to read extra byte %d at PC 0x%04X", i, *program_counter);
+            return 1;
+        }
         instruction->raw_instruction |= (u64)raw_byte << (8 * i);
         if((*program_counter) == __UINT16_MAX__){
             (*program_counter) = 0;

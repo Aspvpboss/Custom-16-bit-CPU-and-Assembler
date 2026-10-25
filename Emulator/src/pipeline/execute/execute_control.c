@@ -40,7 +40,8 @@ int exe_syscall(Emulator *emu, EMU_Decoded_Instruction *instruction){
     }
     
     if(failure){
-        d_printf("exe_jmp failed\n");
+        SDLite_SetError("exe_syscall failed: invalid addressing mode %d (raw: 0x%llX)",
+                        instruction->addressing_mode, (unsigned long long)instruction->raw_instruction);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -78,7 +79,8 @@ int exe_jmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
     }
 
     if(failure){
-        d_printf("exe_jmp failed\n");
+        SDLite_SetError("exe_jmp failed: invalid addressing mode %d (raw: 0x%llX)",
+                        instruction->addressing_mode, (unsigned long long)instruction->raw_instruction);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -114,7 +116,8 @@ int exe_jif(Emulator *emu, EMU_Decoded_Instruction *instruction){
     }
 
     if(failure){
-        d_printf("exe_jif failed\n");
+        SDLite_SetError("exe_jif failed: invalid addressing mode %d (raw: 0x%llX)",
+                        instruction->addressing_mode, (unsigned long long)instruction->raw_instruction);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -162,7 +165,9 @@ int exe_cal(Emulator *emu, EMU_Decoded_Instruction *instruction){
     }
 
     if(failure){
-        d_printf("exe_cal failed\n");
+        SDLite_SetError("exe_cal failed (addressing mode: %d, SP: 0x%04X, raw: 0x%llX)",
+                        instruction->addressing_mode, emu->alu.registers[ALU_STACK_POINTER],
+                        (unsigned long long)instruction->raw_instruction);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -205,7 +210,9 @@ int exe_cif(Emulator *emu, EMU_Decoded_Instruction *instruction){
     }
 
     if(failure){
-        d_printf("exe_cif failed\n");
+        SDLite_SetError("exe_cif failed (addressing mode: %d, SP: 0x%04X, raw: 0x%llX)",
+                        instruction->addressing_mode, emu->alu.registers[ALU_STACK_POINTER],
+                        (unsigned long long)instruction->raw_instruction);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -235,7 +242,9 @@ int exe_ret(Emulator *emu, EMU_Decoded_Instruction *instruction){
     }
 
     if(failure){
-        d_printf("exe_ret failed\n");
+        SDLite_SetError("exe_ret failed (addressing mode: %d, SP: 0x%04X, raw: 0x%llX)",
+                        instruction->addressing_mode, emu->alu.registers[ALU_STACK_POINTER],
+                        (unsigned long long)instruction->raw_instruction);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }

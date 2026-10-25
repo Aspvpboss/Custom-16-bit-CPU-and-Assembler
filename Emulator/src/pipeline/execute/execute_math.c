@@ -21,7 +21,8 @@ int exe_add(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_add failed to execute instruction: ");
+    SDLite_SetError("exe_add failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -46,7 +47,8 @@ int exe_sub(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_sub failed to execute instruction: ");
+    SDLite_SetError("exe_sub failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -70,7 +72,8 @@ int exe_mul(Emulator *emu, EMU_Decoded_Instruction *instruction){
         return 0;
 
     }
-    d_printf("exe_mul failed to execute instruction: ");
+    SDLite_SetError("exe_mul failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -95,7 +98,8 @@ int exe_div(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_div failed to execute instruction: ");
+    SDLite_SetError("exe_div failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -120,7 +124,8 @@ int exe_mod(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_mod failed to execute instruction: ");
+    SDLite_SetError("exe_mod failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -144,7 +149,8 @@ int exe_cmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
     
-    d_printf("exe_cmp failed to execute instruction: ");
+    SDLite_SetError("exe_cmp failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -169,7 +175,8 @@ int exe_and(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_and failed to execute instruction: ");
+    SDLite_SetError("exe_and failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -194,7 +201,8 @@ int exe_nor(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_nor failed to execute instruction: ");
+    SDLite_SetError("exe_nor failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -219,7 +227,8 @@ int exe_xor(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_xor failed to execute instruction: ");
+    SDLite_SetError("exe_xor failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -244,7 +253,8 @@ int exe_ars(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_ars failed to execute instruction: ");
+    SDLite_SetError("exe_ars failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -269,7 +279,8 @@ int exe_lrs(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_lrs failed to execute instruction: ");
+    SDLite_SetError("exe_lrs failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);   
     return 1;
 }
@@ -294,7 +305,8 @@ int exe_lls(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_lls failed to execute instruction: ");
+    SDLite_SetError("exe_lls failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);       
     return 1;
 }
@@ -318,7 +330,8 @@ int exe_fadd(Emulator *emu, EMU_Decoded_Instruction *instruction){
         return 0;
     }
 
-    d_printf("exe_fadd failed to execute instruction: ");
+    SDLite_SetError("exe_fadd failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -342,7 +355,8 @@ int exe_fsub(Emulator *emu, EMU_Decoded_Instruction *instruction){
         return 0;
     }
 
-    d_printf("exe_fsub failed to execute instruction: ");
+    SDLite_SetError("exe_fsub failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -366,7 +380,8 @@ int exe_fmul(Emulator *emu, EMU_Decoded_Instruction *instruction){
         return 0;
     }
 
-    d_printf("exe_fmul failed to execute instruction: ");
+    SDLite_SetError("exe_fmul failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -390,7 +405,8 @@ int exe_fdiv(Emulator *emu, EMU_Decoded_Instruction *instruction){
         return 0;
     }
 
-    d_printf("exe_fdiv failed to execute instruction: ");
+    SDLite_SetError("exe_fdiv failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -414,7 +430,8 @@ int exe_fsqrt(Emulator *emu, EMU_Decoded_Instruction *instruction){
         return 0;
     }
 
-    d_printf("exe_fsqrt failed to execute instruction: ");
+    SDLite_SetError("exe_fsqrt failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -437,7 +454,8 @@ int exe_fcmp(Emulator *emu, EMU_Decoded_Instruction *instruction){
         return 0;
     }
 
-    d_printf("exe_fcmp failed to execute instruction: ");
+    SDLite_SetError("exe_fcmp failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -458,7 +476,8 @@ int exe_fint(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_fint failed to execute instruction: ");
+    SDLite_SetError("exe_fint failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }
@@ -479,7 +498,8 @@ int exe_iflo(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     }
 
-    d_printf("exe_iflo failed to execute instruction: ");
+    SDLite_SetError("exe_iflo failed to execute instruction (addressing mode: %d, raw: 0x%llX)",
+                    addr_mode, (unsigned long long)instruction->raw_instruction);
     PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
     return 1;
 }

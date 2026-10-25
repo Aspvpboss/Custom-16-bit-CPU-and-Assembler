@@ -12,7 +12,7 @@ int run_tests();
 
 #ifdef NDEBUG
     #define d_printf(fmt, ...) 
-    #define RUN_TESTS()
+    #define RUN_TESTS() false
     #define PRINT_CMP_FLAGS(flags)
     #define PRINT_INDIVIDUAL_BYTES(value)
 #else

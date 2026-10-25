@@ -4,16 +4,25 @@
 
 int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
 
-    if(!ram) return 1;
+    if(!ram){
+        SDLite_SetError("write_memory(): ram pointer is NULL");
+        return 1;
+    }
 
-    if(address < 0x100) return 1;
+    if(address < 0x100){
+        SDLite_SetError("write_memory(): attempted write to read-only bootloader at 0x%04X", address);
+        return 1;
+    }
 
     u8 *active_vram = ram->vram_selector ? ram->vram_two : ram->vram_one;
 
 
     if(address >= 0x0100 && address < 0x6F00){ // RAM
 
-        if(sixteen_bit_write == true && address + 1 >= 0x6F00) return 1;
+        if(sixteen_bit_write == true && address + 1 >= 0x6F00){
+            SDLite_SetError("write_memory(): 16-bit write out of RAM bounds at 0x%04X", address);
+            return 1;
+        }
 
         u16 offset = address - 0x0100;
 
@@ -23,7 +32,10 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
 
     } else if(address >= 0x6F00 && address < 0x7F00){ // VRAM
 
-        if(sixteen_bit_write == true && address + 1 > 0x7EFF) return 1;
+        if(sixteen_bit_write == true && address + 1 > 0x7EFF){
+            SDLite_SetError("write_memory(): 16-bit write out of VRAM bounds at 0x%04X", address);
+            return 1;
+        }
 
         u16 offset = address - 0x6F00; 
 
@@ -34,7 +46,10 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
     
     else if(address >= 0x7F00 && address < 0x8000){ // MMIO
      
-        if(sixteen_bit_write == true && address + 1 > 0x7FFF) return 1;
+        if(sixteen_bit_write == true && address + 1 > 0x7FFF){
+            SDLite_SetError("write_memory(): 16-bit write out of MMIO bounds at 0x%04X", address);
+            return 1;
+        }
 
         u16 offset = address - 0x7F00;
 
@@ -43,7 +58,10 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
 
     } else if (address >= 0x8000){
 
-        if(sixteen_bit_write == true && (u32)(address + 1) > 0xFFFF) return 1;
+        if(sixteen_bit_write == true && (u32)(address + 1) > 0xFFFF){
+            SDLite_SetError("write_memory(): 16-bit write out of RAM bank bounds at 0x%04X", address);
+            return 1;
+        }
         
         u16 offset = address - 0x8000;
 
@@ -59,13 +77,19 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
 
 int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 
-    if(!ram || !value) return 1;
+    if(!ram || !value){
+        SDLite_SetError("read_memory(): NULL pointer argument");
+        return 1;
+    }
 
     u8 *active_vram = ram->vram_selector ? ram->vram_two : ram->vram_one;
 
     if(address < 0x100){ // bootloader
 
-        if(sixteen_bit_read == true && address + 1 > 0x00FF) return 1;
+        if(sixteen_bit_read == true && address + 1 > 0x00FF){
+            SDLite_SetError("read_memory(): 16-bit read out of bootloader bounds at 0x%04X", address);
+            return 1;
+        }
 
         *value = ram->bootloader[address];
         *value |= sixteen_bit_read ? (ram->bootloader[address + 1] << 8) : 0;
@@ -73,7 +97,10 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 
     } else if(address >= 0x0100 && address < 0x6F00){ // RAM
 
-        if(sixteen_bit_read == true && address + 1 > 0x6EFF) return 1;
+        if(sixteen_bit_read == true && address + 1 > 0x6EFF){
+            SDLite_SetError("read_memory(): 16-bit read out of RAM bounds at 0x%04X", address);
+            return 1;
+        }
 
         u16 offset = address - 0x0100;
 
@@ -82,7 +109,10 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
         
     } else if(address >= 0x6F00 && address < 0x7F00){ // VRAM
 
-        if(sixteen_bit_read == true && address + 1 > 0x7EFF) return 1;
+        if(sixteen_bit_read == true && address + 1 > 0x7EFF){
+            SDLite_SetError("read_memory(): 16-bit read out of VRAM bounds at 0x%04X", address);
+            return 1;
+        }
 
         u16 offset = address - 0x6F00; 
 
@@ -91,7 +121,10 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 
     } else if(address >= 0x7F00 && address < 0x8000){ // MMIO
      
-        if(sixteen_bit_read == true && address + 1 > 0x7FFF) return 1;
+        if(sixteen_bit_read == true && address + 1 > 0x7FFF){
+            SDLite_SetError("read_memory(): 16-bit read out of MMIO bounds at 0x%04X", address);
+            return 1;
+        }
 
         u16 offset = address - 0x7F00;
 
@@ -100,7 +133,10 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
     
     } else if(address >= 0x8000){ // RAM bank
 
-        if(sixteen_bit_read == true && address + 1 > 0xFFFF) return 1;
+        if(sixteen_bit_read == true && address + 1 > 0xFFFF){
+            SDLite_SetError("read_memory(): 16-bit read out of RAM bank bounds at 0x%04X", address);
+            return 1;
+        }
 
         u16 offset = address - 0x8000;
 
@@ -118,7 +154,7 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
 int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
    
     if(instruction->addressing_mode != ADDR_IMMEDIATE_EIGHT){
-        d_printf("exe_push was given an invalid addressing mode\n");
+        SDLite_SetError("exe_push was given an invalid addressing mode: %d", instruction->addressing_mode);
         return 1;
     }
 
@@ -127,7 +163,7 @@ int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 memory_value = emu->alu.registers[reg_read_addr];
     if(write_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], memory_value, sixteen_bit_write)){
-        d_printf("exe_push failed to read from memory\n");
+        SDLite_SetError("exe_push failed to write to memory at 0x%04X", emu->alu.registers[ALU_STACK_POINTER]);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -141,7 +177,7 @@ int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
 int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     if(instruction->addressing_mode != ADDR_IMMEDIATE_EIGHT){
-        d_printf("exe_pop was given an invalid addressing mode\n");
+        SDLite_SetError("exe_pop was given an invalid addressing mode: %d", instruction->addressing_mode);
         return 1;
     }
     
@@ -151,7 +187,7 @@ int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction){
     u16 memory_value = 0;
     emu->alu.registers[ALU_STACK_POINTER] += sixteen_bit_read ? 2 : 1;
     if(read_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], &memory_value, sixteen_bit_read)){
-        d_printf("exe_pop failed to read from memory\n");
+        SDLite_SetError("exe_pop failed to read from memory at 0x%04X", emu->alu.registers[ALU_STACK_POINTER]);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -190,13 +226,13 @@ int exe_str(Emulator *emu, EMU_Decoded_Instruction *instruction){
         }
         default:
             write_failed = true;
-            d_printf("exe_str was given an invalid addressing mode\n");
+            SDLite_SetError("exe_str was given an invalid addressing mode: %d", instruction->addressing_mode);
             break;
        
     }
     
     if(write_failed){
-        d_printf("exe_str failed to read from memory\n");
+        SDLite_SetError("exe_str failed to write to memory (raw: 0x%llX)", (unsigned long long)instruction->raw_instruction);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -232,12 +268,12 @@ int exe_load(Emulator *emu, EMU_Decoded_Instruction *instruction){
         }
         default:
             read_failed = true;
-            d_printf("exe_load was given an invalid addressing mode\n");
+            SDLite_SetError("exe_load was given an invalid addressing mode: %d", instruction->addressing_mode);
             break;
     }
 
     if(read_failed){
-        d_printf("exe_load failed to read from memory\n");
+        SDLite_SetError("exe_load failed to read from memory (raw: 0x%llX)", (unsigned long long)instruction->raw_instruction);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
     }
@@ -279,6 +315,6 @@ int exe_mov(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
     } 
 
-    d_printf("exe_mov was given an invalid addressing mode\n");
+    SDLite_SetError("exe_mov was given an invalid move mode: %d", instruction->operands[2]);
     return 1;
 }

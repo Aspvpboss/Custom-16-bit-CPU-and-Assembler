@@ -243,16 +243,16 @@ static int memory_instructions_test(Emulator *emu){
         return 1;
     }
 
-    emu->alu.registers[ALU_EIGHT] = 0;
+    emu->alu.registers[ALU_TWO] = 0;
     instruction.operands[OP_ZERO] = ALU_SIX;           // register holding the address
-    instruction.operands[OP_ONE] = ALU_EIGHT | 0x0010; // 16-bit destination register 8
+    instruction.operands[OP_ONE] = ALU_TWO | 0x0010; // 16-bit destination register 8
 
     if (exe_load(emu, &instruction) != 0) {
         d_printf("exe_load ADDR_REG_INDIRECT failed\n");
         return 1;
     }
-    if (emu->alu.registers[ALU_EIGHT] != 39338) { // Value in base 10
-        d_printf("exe_load indirect value mismatch, expected 39338, got %d\n", emu->alu.registers[ALU_EIGHT]);
+    if (emu->alu.registers[ALU_TWO] != 39338) { // Value in base 10
+        d_printf("exe_load indirect value mismatch, expected 39338, got %d\n", emu->alu.registers[ALU_TWO]);
         return 1;
     }
 
@@ -1032,6 +1032,11 @@ static int control_flow_test(Emulator *emu) {
         if(function){ \
             PRINT_REGISTER_FILES(test_emu); \
             d_printf("--Failed Test--\n\n"); \
+            destroy(test_emu); \
+            const char *err = NULL; \
+            while((err = SDLite_GetError())){ \
+                d_printf("%s\n", err); \
+            } \
             return 1; \
         } else d_printf("--Passed Test--\n\n"); \
     } while (0)
@@ -1040,7 +1045,10 @@ static int control_flow_test(Emulator *emu) {
 int run_tests(){
 
     Emulator *test_emu = init();
-    if(!test_emu) return 1;
+    if(!test_emu){
+        SDLite_SetError("run_tests(): init() failed");
+        return 1;
+    }
 
     test("--Testing memory functionality--", memory_test(&test_emu->ram));
     test("--Testing memory instructions--", memory_instructions_test(test_emu));
@@ -1051,5 +1059,6 @@ int run_tests(){
     destroy(test_emu); 
     SDL_FlushEvent(SDL_EVENT_QUIT);
 
+    while(SDLite_GetError());
     return 0;
 }
