@@ -33,6 +33,7 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         case EMU_SYSCALL:
+            // if(ex)
             break;
 
         case EMU_JMP:

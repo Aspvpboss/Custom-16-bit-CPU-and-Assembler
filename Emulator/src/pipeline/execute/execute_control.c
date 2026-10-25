@@ -17,9 +17,9 @@ static inline int pop_addr(Emulator *emu, u16 *addr) {
 }
 
 static inline int push_addr(Emulator *emu, u16 addr) {
-    emu->alu.registers[ALU_STACK_POINTER] -= 2;
     if(write_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], addr, true))
         return 1;
+    emu->alu.registers[ALU_STACK_POINTER] -= 2;
 
     return 0;
 }
@@ -95,14 +95,14 @@ int exe_jif(Emulator *emu, EMU_Decoded_Instruction *instruction){
     switch(instruction->addressing_mode){
 
         case ADDR_REG_INDIRECT:{
-            if(is_flag_on(current_flags, check_flags)) break;
+            if(!is_flag_on(current_flags, check_flags)) break;
             u16 jmp_addr = emu->alu.registers[instruction->operands[OP_ZERO]];
             emu->alu.registers[ALU_PROGRAM_COUNTER] = jmp_addr;
             break;
         }
         case ADDR_IMMEDIATE_EIGHT_DEST:
         case ADDR_IMMEDIATE_SIXTEEN_DEST:{
-            if(is_flag_on(current_flags, check_flags)) break;
+            if(!is_flag_on(current_flags, check_flags)) break;
             u16 offset_addr = instruction->operands[OP_ZERO];
             emu->alu.registers[ALU_PROGRAM_COUNTER] += offset_addr;
             break;
@@ -179,21 +179,21 @@ int exe_cif(Emulator *emu, EMU_Decoded_Instruction *instruction){
     switch(instruction->addressing_mode){
 
         case ADDR_REG_INDIRECT:{
+            if(!is_flag_on(current_flags, check_flags)) break;
             if(push_addr(emu, emu->alu.registers[ALU_PROGRAM_COUNTER])){
                 failure = true;
                 break;
             } 
-            if(is_flag_on(current_flags, check_flags)) break;
             u16 jmp_addr = emu->alu.registers[instruction->operands[OP_ZERO]];
             emu->alu.registers[ALU_PROGRAM_COUNTER] = jmp_addr;
             break;
         }
         case ADDR_IMMEDIATE_SIXTEEN_DEST:{
+            if(!is_flag_on(current_flags, check_flags)) break;
             if(push_addr(emu, emu->alu.registers[ALU_PROGRAM_COUNTER])){
                 failure = true;
                 break;
             } 
-            if(is_flag_on(current_flags, check_flags)) break;
             u16 offset_addr = instruction->operands[OP_ZERO];
             emu->alu.registers[ALU_PROGRAM_COUNTER] += offset_addr;
             break;

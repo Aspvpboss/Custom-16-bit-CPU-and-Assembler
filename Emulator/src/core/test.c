@@ -4,6 +4,7 @@
 #include "core/test.h"
 #include "pipeline/execute/execute_math.h"
 #include "pipeline/execute/execute_memory.h"
+#include "pipeline/execute/execute_control.h"
 #include "test.h"
 
 void print_cmp_flags(CMP_Flags flags){
@@ -459,8 +460,567 @@ static int fpu_test(Emulator *emu){
 
 
 static int control_flow_test(Emulator *emu) {
+    EMU_Decoded_Instruction instruction = {0};
 
-    
+    // =========================================================================
+    // 1. Test exe_syscall
+    // =========================================================================
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0200;
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    instruction.operands[OP_ZERO] = 0x01;
+    if (exe_syscall(emu, &instruction) != 0) {
+        d_printf("exe_syscall ADDR_IMMEDIATE_EIGHT failed\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0200 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_syscall ADDR_IMMEDIATE_EIGHT unexpectedly modified PC or SP\n");
+        return 1;
+    }
+
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN;
+    instruction.operands[OP_ZERO] = 0x1234;
+    if (exe_syscall(emu, &instruction) != 0) {
+        d_printf("exe_syscall ADDR_IMMEDIATE_SIXTEEN failed\n");
+        return 1;
+    }
+
+    // Invalid addressing modes for exe_syscall
+    EMU_Addressing_Modes invalid_syscall_modes[] = {
+        ADDR_REG,
+        ADDR_REG_INDIRECT,
+        ADDR_REG_IMMEDIATE_EIGHT,
+        ADDR_REG_IMMEDIATE_SIXTEEN,
+        ADDR_IMMEDIATE_EIGHT_DEST,
+        ADDR_IMMEDIATE_SIXTEEN_DEST,
+        (EMU_Addressing_Modes)255
+    };
+    for (size_t i = 0; i < sizeof(invalid_syscall_modes) / sizeof(invalid_syscall_modes[0]); i++) {
+        instruction.addressing_mode = invalid_syscall_modes[i];
+        if (exe_syscall(emu, &instruction) == 0) {
+            d_printf("exe_syscall allowed invalid addressing mode %d\n", invalid_syscall_modes[i]);
+            return 1;
+        }
+    }
+
+    // =========================================================================
+    // 2. Test exe_jmp
+    // =========================================================================
+    // ADDR_REG_INDIRECT: jump to address in register (OP_ZERO)
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0100;
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_THREE] = 0x1234;
+    instruction.addressing_mode = ADDR_REG_INDIRECT;
+    instruction.operands[OP_ZERO] = ALU_THREE;
+    if (exe_jmp(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x1234 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_jmp ADDR_REG_INDIRECT failed, expected PC=0x1234, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+
+    // ADDR_IMMEDIATE_EIGHT_DEST: relative jump (PC += imm8)
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0200;
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT_DEST;
+    instruction.operands[OP_ZERO] = 0x0045;
+    if (exe_jmp(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0245) {
+        d_printf("exe_jmp ADDR_IMMEDIATE_EIGHT_DEST failed, expected PC=0x0245, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+
+    // ADDR_IMMEDIATE_SIXTEEN_DEST: relative jump (PC += imm16), forward and backward (wraparound)
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0300;
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN_DEST;
+    instruction.operands[OP_ZERO] = 0x1122;
+    if (exe_jmp(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x1422) {
+        d_printf("exe_jmp ADDR_IMMEDIATE_SIXTEEN_DEST forward failed, expected PC=0x1422, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+
+    instruction.operands[OP_ZERO] = 0xFF00; // -256 in 16-bit two's complement
+    if (exe_jmp(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x1322) {
+        d_printf("exe_jmp ADDR_IMMEDIATE_SIXTEEN_DEST backward failed, expected PC=0x1322, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+
+    // ADDR_IMMEDIATE_EIGHT: absolute jump (PC = imm8)
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x1322;
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    instruction.operands[OP_ZERO] = 0x00AB;
+    if (exe_jmp(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x00AB) {
+        d_printf("exe_jmp ADDR_IMMEDIATE_EIGHT failed, expected PC=0x00AB, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+
+    // ADDR_IMMEDIATE_SIXTEEN: absolute jump (PC = imm16)
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN;
+    instruction.operands[OP_ZERO] = 0x4567;
+    if (exe_jmp(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x4567) {
+        d_printf("exe_jmp ADDR_IMMEDIATE_SIXTEEN failed, expected PC=0x4567, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+
+    // Invalid addressing modes for exe_jmp
+    EMU_Addressing_Modes invalid_jmp_modes[] = {
+        ADDR_REG,
+        ADDR_REG_IMMEDIATE_EIGHT,
+        ADDR_REG_IMMEDIATE_SIXTEEN,
+        (EMU_Addressing_Modes)255
+    };
+    for (size_t i = 0; i < sizeof(invalid_jmp_modes) / sizeof(invalid_jmp_modes[0]); i++) {
+        instruction.addressing_mode = invalid_jmp_modes[i];
+        if (exe_jmp(emu, &instruction) == 0) {
+            d_printf("exe_jmp allowed invalid addressing mode %d\n", invalid_jmp_modes[i]);
+            return 1;
+        }
+    }
+
+    // =========================================================================
+    // 3. Test exe_jif (Conditional Jump)
+    // =========================================================================
+    // Test all 13 condition selectors (0 = EQU .. 12 = OVER) with ADDR_REG_INDIRECT
+    for (u16 cond_idx = 0; cond_idx <= 12; cond_idx++) {
+        u16 flag_mask = (u16)(1u << cond_idx);
+
+        // Case A: Flag is NOT set (other flags are set) -> should NOT jump
+        emu->flags = (u16)(~flag_mask & 0x1FFF);
+        emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0200;
+        emu->alu.registers[ALU_ONE] = 0x0900;
+        instruction.addressing_mode = ADDR_REG_INDIRECT;
+        instruction.operands[OP_ZERO] = ALU_ONE;
+        instruction.operands[OP_ONE] = cond_idx;
+
+        if (exe_jif(emu, &instruction) != 0) {
+            d_printf("exe_jif ADDR_REG_INDIRECT returned error on cond %d (flag off)\n", cond_idx);
+            return 1;
+        }
+        if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0200) {
+            d_printf("exe_jif ADDR_REG_INDIRECT jumped when flag %d was OFF (PC=0x%X)\n",
+                     cond_idx, emu->alu.registers[ALU_PROGRAM_COUNTER]);
+            return 1;
+        }
+
+        // Case B: Flag IS set -> MUST jump to register value
+        emu->flags = flag_mask;
+        emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0200;
+        if (exe_jif(emu, &instruction) != 0) {
+            d_printf("exe_jif ADDR_REG_INDIRECT returned error on cond %d (flag on)\n", cond_idx);
+            return 1;
+        }
+        if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0900) {
+            d_printf("exe_jif ADDR_REG_INDIRECT did not jump when flag %d was ON (expected 0x0900, got 0x%X)\n",
+                     cond_idx, emu->alu.registers[ALU_PROGRAM_COUNTER]);
+            return 1;
+        }
+    }
+
+    // ADDR_IMMEDIATE_EIGHT_DEST for exe_jif
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT_DEST;
+    instruction.operands[OP_ZERO] = 0x0030;
+    instruction.operands[OP_ONE] = 0; // Equal (bit 0 = CMP_EQU)
+
+    emu->flags = 0; // Flag off -> no jump
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0400;
+    if (exe_jif(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0400) {
+        d_printf("exe_jif ADDR_IMMEDIATE_EIGHT_DEST jumped when flag was OFF\n");
+        return 1;
+    }
+
+    emu->flags = CMP_EQU; // Flag on -> relative jump
+    if (exe_jif(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0430) {
+        d_printf("exe_jif ADDR_IMMEDIATE_EIGHT_DEST failed to jump when flag was ON, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+
+    // ADDR_IMMEDIATE_SIXTEEN_DEST for exe_jif
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN_DEST;
+    instruction.operands[OP_ZERO] = 0x0250;
+    instruction.operands[OP_ONE] = 7; // Signed less than (bit 7 = CMP_SLT)
+
+    emu->flags = CMP_EQU; // SLT is off -> no jump
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0500;
+    if (exe_jif(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0500) {
+        d_printf("exe_jif ADDR_IMMEDIATE_SIXTEEN_DEST jumped when SLT flag was OFF\n");
+        return 1;
+    }
+
+    emu->flags = CMP_SLT; // SLT is on -> relative jump
+    if (exe_jif(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0750) {
+        d_printf("exe_jif ADDR_IMMEDIATE_SIXTEEN_DEST failed to jump when SLT flag was ON, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+
+    // Invalid addressing modes for exe_jif
+    EMU_Addressing_Modes invalid_jif_modes[] = {
+        ADDR_REG,
+        ADDR_REG_IMMEDIATE_EIGHT,
+        ADDR_REG_IMMEDIATE_SIXTEEN,
+        ADDR_IMMEDIATE_EIGHT,
+        ADDR_IMMEDIATE_SIXTEEN,
+        (EMU_Addressing_Modes)255
+    };
+    for (size_t i = 0; i < sizeof(invalid_jif_modes) / sizeof(invalid_jif_modes[0]); i++) {
+        instruction.addressing_mode = invalid_jif_modes[i];
+        if (exe_jif(emu, &instruction) == 0) {
+            d_printf("exe_jif allowed invalid addressing mode %d\n", invalid_jif_modes[i]);
+            return 1;
+        }
+    }
+
+    // =========================================================================
+    // 4. Test exe_cal and exe_ret (Call and Return + Stack Integrity)
+    // =========================================================================
+    // 4a. ADDR_REG_INDIRECT call + ret round-trip
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0204;
+    emu->alu.registers[ALU_TWO] = 0x1500;
+
+    instruction.addressing_mode = ADDR_REG_INDIRECT;
+    instruction.operands[OP_ZERO] = ALU_TWO;
+    if (exe_cal(emu, &instruction) != 0) {
+        d_printf("exe_cal ADDR_REG_INDIRECT failed\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x1500) {
+        d_printf("exe_cal ADDR_REG_INDIRECT PC mismatch, expected 0x1500, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+    if (emu->alu.registers[ALU_STACK_POINTER] != 0x05FE) {
+        d_printf("exe_cal ADDR_REG_INDIRECT SP mismatch, expected 0x05FE, got 0x%X\n",
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // Return from ADDR_REG_INDIRECT call
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    instruction.operands[OP_ZERO] = 0;
+    if (exe_ret(emu, &instruction) != 0) {
+        d_printf("exe_ret after ADDR_REG_INDIRECT call failed\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0204) {
+        d_printf("exe_ret PC restore mismatch, expected 0x0204, got 0x%X\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+    if (emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_ret SP restore mismatch, expected 0x0600, got 0x%X\n",
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // 4b. ADDR_IMMEDIATE_SIXTEEN_DEST (relative call) + ret round-trip
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0300;
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN_DEST;
+    instruction.operands[OP_ZERO] = 0x0450;
+    if (exe_cal(emu, &instruction) != 0) {
+        d_printf("exe_cal ADDR_IMMEDIATE_SIXTEEN_DEST failed\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0750 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x05FE) {
+        d_printf("exe_cal ADDR_IMMEDIATE_SIXTEEN_DEST state mismatch (PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    if (exe_ret(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0300 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_ret after ADDR_IMMEDIATE_SIXTEEN_DEST call failed (PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // 4c. ADDR_IMMEDIATE_SIXTEEN (absolute call) + nested call + double ret
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0400;
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN;
+    instruction.operands[OP_ZERO] = 0x2000;
+    if (exe_cal(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x2000 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x05FE) {
+        d_printf("exe_cal first nested ADDR_IMMEDIATE_SIXTEEN failed\n");
+        return 1;
+    }
+
+    // Simulate advancing PC inside first function and making a second nested call
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x2010;
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN;
+    instruction.operands[OP_ZERO] = 0x3000;
+    if (exe_cal(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x3000 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x05FC) {
+        d_printf("exe_cal second nested ADDR_IMMEDIATE_SIXTEEN failed\n");
+        return 1;
+    }
+
+    // First return -> back to 0x2010, SP = 0x05FE
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    if (exe_ret(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x2010 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x05FE) {
+        d_printf("exe_ret first nested return failed (expected PC=0x2010, SP=0x05FE; got PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // Second return -> back to 0x0400, SP = 0x0600
+    if (exe_ret(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0400 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_ret second nested return failed (expected PC=0x0400, SP=0x0600; got PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // 4d. Interoperability with exe_push / exe_pop on the same stack
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0444;
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN;
+    instruction.operands[OP_ZERO] = 0x1800;
+    if (exe_cal(emu, &instruction) != 0) {
+        d_printf("exe_cal before push/pop interop failed\n");
+        return 1;
+    }
+    // Callee pushes a 16-bit register onto the stack and pops it before returning
+    emu->alu.registers[ALU_FOUR] = 0xBEEF;
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    instruction.operands[OP_ZERO] = ALU_FOUR | 0x0010;
+    if (exe_push(emu, &instruction) != 0) {
+        d_printf("exe_push inside callee failed\n");
+        return 1;
+    }
+    emu->alu.registers[ALU_FIVE] = 0;
+    instruction.operands[OP_ZERO] = ALU_FIVE | 0x0010;
+    if (exe_pop(emu, &instruction) != 0 || emu->alu.registers[ALU_FIVE] != 0xBEEF) {
+        d_printf("exe_pop inside callee failed or corrupted pushed register\n");
+        return 1;
+    }
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    if (exe_ret(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0444 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_ret after callee push/pop corrupted return address (got PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // 4e. Invalid addressing modes for exe_cal (including 8-bit modes)
+    EMU_Addressing_Modes invalid_cal_modes[] = {
+        ADDR_REG,
+        ADDR_REG_IMMEDIATE_EIGHT,
+        ADDR_REG_IMMEDIATE_SIXTEEN,
+        ADDR_IMMEDIATE_EIGHT_DEST,
+        ADDR_IMMEDIATE_EIGHT,
+        (EMU_Addressing_Modes)255
+    };
+    for (size_t i = 0; i < sizeof(invalid_cal_modes) / sizeof(invalid_cal_modes[0]); i++) {
+        instruction.addressing_mode = invalid_cal_modes[i];
+        if (exe_cal(emu, &instruction) == 0) {
+            d_printf("exe_cal allowed invalid addressing mode %d\n", invalid_cal_modes[i]);
+            return 1;
+        }
+    }
+
+    // 4f. Invalid addressing modes for exe_ret
+    EMU_Addressing_Modes invalid_ret_modes[] = {
+        ADDR_REG,
+        ADDR_REG_INDIRECT,
+        ADDR_REG_IMMEDIATE_EIGHT,
+        ADDR_REG_IMMEDIATE_SIXTEEN,
+        ADDR_IMMEDIATE_EIGHT_DEST,
+        ADDR_IMMEDIATE_SIXTEEN_DEST,
+        ADDR_IMMEDIATE_SIXTEEN,
+        (EMU_Addressing_Modes)255
+    };
+    for (size_t i = 0; i < sizeof(invalid_ret_modes) / sizeof(invalid_ret_modes[0]); i++) {
+        instruction.addressing_mode = invalid_ret_modes[i];
+        if (exe_ret(emu, &instruction) == 0) {
+            d_printf("exe_ret allowed invalid addressing mode %d\n", invalid_ret_modes[i]);
+            return 1;
+        }
+    }
+
+    // 4g. Stack write/read failure edge cases for exe_cal and exe_ret
+    // SP in bootloader (0x0050) -> write_memory must fail
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0050;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0200;
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN;
+    instruction.operands[OP_ZERO] = 0x1000;
+    if (exe_cal(emu, &instruction) == 0) {
+        d_printf("exe_cal allowed stack write into read-only bootloader region\n");
+        return 1;
+    }
+
+    // SP at end of memory where 16-bit read overflows (0xFFFD + 2 = 0xFFFF) -> read_memory must fail
+    emu->alu.registers[ALU_STACK_POINTER] = 0xFFFD;
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    if (exe_ret(emu, &instruction) == 0) {
+        d_printf("exe_ret allowed out-of-bounds 16-bit stack read at 0xFFFF\n");
+        return 1;
+    }
+
+    // =========================================================================
+    // 5. Test exe_cif (Conditional Call)
+    // =========================================================================
+    // 5a. ADDR_REG_INDIRECT when condition is FALSE -> must NOT jump and must NOT push to stack
+    emu->flags = 0;
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0350;
+    emu->alu.registers[ALU_SIX] = 0x1A00;
+
+    instruction.addressing_mode = ADDR_REG_INDIRECT;
+    instruction.operands[OP_ZERO] = ALU_SIX;
+    instruction.operands[OP_ONE] = 0; // Equal (bit 0 = CMP_EQU)
+
+    if (exe_cif(emu, &instruction) != 0) {
+        d_printf("exe_cif ADDR_REG_INDIRECT returned error when flag was OFF\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0350) {
+        d_printf("exe_cif ADDR_REG_INDIRECT jumped when condition flag was OFF (PC=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+    if (emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_cif ADDR_REG_INDIRECT modified SP when condition flag was OFF (expected 0x0600, got 0x%X)\n",
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // 5b. ADDR_REG_INDIRECT when condition is TRUE -> must push PC, jump, and return cleanly
+    emu->flags = CMP_EQU;
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0350;
+    if (exe_cif(emu, &instruction) != 0) {
+        d_printf("exe_cif ADDR_REG_INDIRECT returned error when flag was ON\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x1A00) {
+        d_printf("exe_cif ADDR_REG_INDIRECT did not jump when condition flag was ON (expected 0x1A00, got 0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER]);
+        return 1;
+    }
+    if (emu->alu.registers[ALU_STACK_POINTER] != 0x05FE) {
+        d_printf("exe_cif ADDR_REG_INDIRECT did not decrement SP by 2 when flag was ON (got 0x%X)\n",
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    if (exe_ret(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0350 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_ret after exe_cif ADDR_REG_INDIRECT failed to restore PC/SP (PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // 5c. ADDR_IMMEDIATE_SIXTEEN_DEST when condition is FALSE -> must NOT jump and must NOT push
+    emu->flags = CMP_EQU; // bit 0 set, but checking bit 9 (SGR)
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0500;
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN_DEST;
+    instruction.operands[OP_ZERO] = 0x0300;
+    instruction.operands[OP_ONE] = 9; // Signed greater than (bit 9 = CMP_SGR)
+
+    if (exe_cif(emu, &instruction) != 0) {
+        d_printf("exe_cif ADDR_IMMEDIATE_SIXTEEN_DEST returned error when flag was OFF\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0500 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_cif ADDR_IMMEDIATE_SIXTEEN_DEST modified PC or SP when flag was OFF (PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // 5d. ADDR_IMMEDIATE_SIXTEEN_DEST when condition is TRUE -> must push PC, jump relative, and return cleanly
+    emu->flags = CMP_SGR;
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0600;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0500;
+    if (exe_cif(emu, &instruction) != 0) {
+        d_printf("exe_cif ADDR_IMMEDIATE_SIXTEEN_DEST returned error when flag was ON\n");
+        return 1;
+    }
+    if (emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0800 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x05FE) {
+        d_printf("exe_cif ADDR_IMMEDIATE_SIXTEEN_DEST failed when flag was ON (expected PC=0x0800, SP=0x05FE; got PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    instruction.addressing_mode = ADDR_IMMEDIATE_EIGHT;
+    if (exe_ret(emu, &instruction) != 0 ||
+        emu->alu.registers[ALU_PROGRAM_COUNTER] != 0x0500 ||
+        emu->alu.registers[ALU_STACK_POINTER] != 0x0600) {
+        d_printf("exe_ret after exe_cif ADDR_IMMEDIATE_SIXTEEN_DEST failed to restore PC/SP (PC=0x%X, SP=0x%X)\n",
+                 emu->alu.registers[ALU_PROGRAM_COUNTER],
+                 emu->alu.registers[ALU_STACK_POINTER]);
+        return 1;
+    }
+
+    // 5e. Invalid addressing modes for exe_cif
+    EMU_Addressing_Modes invalid_cif_modes[] = {
+        ADDR_REG,
+        ADDR_REG_IMMEDIATE_EIGHT,
+        ADDR_REG_IMMEDIATE_SIXTEEN,
+        ADDR_IMMEDIATE_EIGHT_DEST,
+        ADDR_IMMEDIATE_EIGHT,
+        ADDR_IMMEDIATE_SIXTEEN,
+        (EMU_Addressing_Modes)255
+    };
+    for (size_t i = 0; i < sizeof(invalid_cif_modes) / sizeof(invalid_cif_modes[0]); i++) {
+        instruction.addressing_mode = invalid_cif_modes[i];
+        if (exe_cif(emu, &instruction) == 0) {
+            d_printf("exe_cif allowed invalid addressing mode %d\n", invalid_cif_modes[i]);
+            return 1;
+        }
+    }
+
+    // 5f. Stack write failure in exe_cif when condition is met and SP is in bootloader
+    emu->flags = CMP_EQU;
+    emu->alu.registers[ALU_STACK_POINTER] = 0x0050;
+    emu->alu.registers[ALU_PROGRAM_COUNTER] = 0x0200;
+    instruction.addressing_mode = ADDR_IMMEDIATE_SIXTEEN_DEST;
+    instruction.operands[OP_ZERO] = 0x0100;
+    instruction.operands[OP_ONE] = 0;
+    if (exe_cif(emu, &instruction) == 0) {
+        d_printf("exe_cif allowed stack write into read-only bootloader region\n");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -486,7 +1046,8 @@ int run_tests(){
     test("--Testing memory functionality--", memory_test(&test_emu->ram));
     test("--Testing memory instructions--", memory_instructions_test(test_emu));
     test("--Testing alu instructions--", alu_test(test_emu));
-    test("--Testing fpu instructions--", fpu_test(test_emu));    
+    test("--Testing fpu instructions--", fpu_test(test_emu));
+    test("--Testing control flow instructions--", control_flow_test(test_emu));
     
     destroy(test_emu); 
     return 0;
