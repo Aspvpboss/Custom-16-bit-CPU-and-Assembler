@@ -71,7 +71,7 @@ void print_individual_bytes(u64 value){
 
 
 
-int memory_test(EMU_Ram *ram){
+static int memory_test(EMU_Ram *ram){
 
     u16 destination_value = 0;
    
@@ -142,7 +142,7 @@ int memory_test(EMU_Ram *ram){
     return 0;
 }
 
-int memory_instructions_test(Emulator *emu){
+static int memory_instructions_test(Emulator *emu){
     EMU_Decoded_Instruction instruction;
 
     // 1. Test exe_mov functionality and edge cases
@@ -265,7 +265,7 @@ int memory_instructions_test(Emulator *emu){
     return 0;
 }
 
-int alu_test(Emulator *emu){
+static int alu_test(Emulator *emu){
     u16 result = 0;
     CMP_Flags flags = 0;
 
@@ -372,7 +372,7 @@ int alu_test(Emulator *emu){
     return 0;
 }
 
-int fpu_test(Emulator *emu){
+static int fpu_test(Emulator *emu){
     f16 f_result = 0;
     CMP_Flags flags = 0;
 
@@ -454,6 +454,13 @@ int fpu_test(Emulator *emu){
         }
     }
 
+    return 0;
+}
+
+
+static int control_flow_test(Emulator *emu) {
+
+    
     return 0;
 }
 
