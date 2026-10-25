@@ -102,11 +102,9 @@ int exe_cal(Emulator *emu, EMU_Decoded_Instruction *instruction){
         case ADDR_REG_INDIRECT:{
             break;
         }
-        case ADDR_IMMEDIATE_EIGHT_DEST:
         case ADDR_IMMEDIATE_SIXTEEN_DEST:{
             break;
         }
-        case ADDR_IMMEDIATE_EIGHT:
         case ADDR_IMMEDIATE_SIXTEEN:{
             break;
         }
@@ -134,7 +132,6 @@ int exe_cif(Emulator *emu, EMU_Decoded_Instruction *instruction){
         case ADDR_REG_INDIRECT:{
             break;
         }
-        case ADDR_IMMEDIATE_EIGHT_DEST:
         case ADDR_IMMEDIATE_SIXTEEN_DEST:{
             break;
         }
