@@ -33,10 +33,6 @@ int emulator_main(void *ptr){
             destroy(emu);
             RETURN_THREAD(1);
         }
-        if(SDLite_Input_KeyJustPressed(emu->SDLite_io.input, SDL_SCANCODE_ESCAPE)){
-            destroy(emu);
-            RETURN_THREAD(0);
-        }
 
         if(SDLite_Input_KeyJustPressed(emu->SDLite_io.input, SDL_SCANCODE_T)){
             printf("                                        \r %.2f - dt: %.10f\r", 
