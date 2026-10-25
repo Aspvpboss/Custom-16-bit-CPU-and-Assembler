@@ -14,8 +14,6 @@ int emulator_main(void *ptr){
         RETURN_THREAD(1);
     }
     
-    RETURN_THREAD(0);
-
     Emulator *emu = init();
     if(!emu){
         RETURN_THREAD(1);
@@ -36,6 +34,7 @@ int emulator_main(void *ptr){
             RETURN_THREAD(1);
         }
         if(SDLite_Input_KeyJustPressed(emu->SDLite_io.input, SDL_SCANCODE_ESCAPE)){
+            destroy(emu);
             RETURN_THREAD(0);
         }
 
