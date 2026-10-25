@@ -2,13 +2,11 @@
 #include "pipeline/execute.h"
 #include "execute/execute_math.h"
 #include "execute/execute_memory.h"
-
+#include "execute/execute_control.h"
 
 int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
-    EMU_Instructions opcode = EMU_JMP;
-    // EMU_instruction opcode = instruction->opcode;
-
+    EMU_Instructions opcode = instruction->opcode;
 
     switch(opcode){
 
@@ -33,22 +31,27 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
 
         case EMU_SYSCALL:
-            // if(ex)
+            if(exe_syscall(emu, instruction)) return 1;
             break;
 
         case EMU_JMP:
+            if(exe_jmp(emu, instruction)) return 1;
             break;
 
         case EMU_JIF:
+            if(exe_jif(emu, instruction)) return 1;
             break;
 
         case EMU_CAL:
+            if(exe_cal(emu, instruction)) return 1;
             break;
 
         case EMU_CIF:
+            if(exe_cif(emu, instruction)) return 1;
             break;
 
         case EMU_RET:
+            if(exe_ret(emu, instruction)) return 1;
             break;
 
         case EMU_ADD:
@@ -135,5 +138,5 @@ int execute(Emulator *emu, EMU_Decoded_Instruction *instruction){
             break;
     }
 
-    return 1;
+    return 0;
 }

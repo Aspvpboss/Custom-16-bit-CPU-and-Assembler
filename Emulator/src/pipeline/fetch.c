@@ -16,6 +16,7 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     if(read_memory(ram, (*program_counter), (u16*)&instruction->raw_instruction, false)) return 1;
 
+    instruction->opcode = (EMU_Instructions) instruction->raw_instruction & 0x1f;
     instruction->addressing_mode = (EMU_Addressing_Modes)(instruction->raw_instruction >> 5);
 
     // flag addressing modes
