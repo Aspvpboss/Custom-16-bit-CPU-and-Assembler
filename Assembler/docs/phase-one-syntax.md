@@ -6,7 +6,8 @@ It will also add in @start file_name @end file_name
 
 ### Preprocessor Directives
 ```
-// public 
+// public
+/* only use a @include or @macro once per line, will not work if uses multiple times on one line */ 
 @include file_name
 @macro macro_name macro_value
 

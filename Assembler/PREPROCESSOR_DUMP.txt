@@ -1,0 +1,44 @@
+@start test/main.asm
+
+  
+       
+  
+
+@start test/burger.asm
+7
+8
+9
+@end test/burger.asm
+
+
+
+ 
+
+ 
+
+label_A
+
+
+ 
+ 
+add r10  r2
+jmp LABEL_A  AB
+
+mov r0 [r2  r2];
+
+         
+
+  
+      
+
+      
+  
+
+
+3.14
+burger
+
+before
+      
+after
+@end test/main.asm

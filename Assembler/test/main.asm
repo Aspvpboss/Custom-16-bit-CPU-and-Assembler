@@ -1,25 +1,38 @@
 
-1
-2
-3
-@include     "foo1.asm"
+/*
+    foo
+*/
+
+@include "burger.asm" 
+@include "burger.asm" 
+@include "burger.asm" 
+
+@macro #PI 3.14
+
+@macro A AB
+
+label_A
+
+
+@macro r1 r2
+@macro A B
+add r10, r1
+jmp LABEL_A, A
+
+mov r0 [r1, r2];
+
+/* foo */
+
+/*
+foo */
+
+/* foo
+*/
+
+
+#PI
 burger
 
-
-/* burger
-a
-b
-c
-d
-burger */
-
-burger /* burger */ burger 
-
-@macro REG_POINTER r3
-@macro #PI #3.141528
-
-
-add r0 REG_POINTER, #PI
-
-
-@include "burger.asm"
+before
+// foo
+after
