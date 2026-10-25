@@ -9,7 +9,7 @@
 
 @macro #PI 3.14
 
-@macro A B
+@macro A AB
 
 label_A
 
