@@ -111,11 +111,11 @@ static void alu_cmp(u16 a, u16 b, CMP_Flags *dst){
         t_flags |= CMP_NEQ;
     } 
 
-    if((i16)result < 0){
+    if(a < b){
         t_flags |= CMP_ULT;
         t_flags |= CMP_ULE; 
     }
-    if((i16)result > 0){
+    if(a > b){
         t_flags |= CMP_UGR;
         t_flags |= CMP_UGE; 
     }
@@ -133,7 +133,11 @@ static void alu_cmp(u16 a, u16 b, CMP_Flags *dst){
     if(signed_le)  t_flags |= CMP_SLE;
     if(signed_gt)  t_flags |= CMP_SGR;
     if(signed_ge)  t_flags |= CMP_SGE;
-    (*dst) = t_flags;
+
+    const CMP_Flags alu_cmp_mask = CMP_EQU | CMP_NEQ | CMP_IF0 |
+                                   CMP_ULT | CMP_ULE | CMP_UGR | CMP_UGE |
+                                   CMP_SLT | CMP_SLE | CMP_SGR | CMP_SGE;
+    (*dst) = ((*dst) & ~alu_cmp_mask) | t_flags;
 
 }
 

@@ -84,21 +84,27 @@ static void fpu_sqrt(f16 a, f16 *dst, CMP_Flags *flags){
 
 static void fpu_cmp(f16 a, f16 b, CMP_Flags *flags){
 
+    CMP_Flags t_flags = 0;
+    
     if(a < b){
-        *flags |= (CMP_SLT | CMP_SLE);
+        t_flags |= (CMP_SLT | CMP_SLE);
     }
     if(a > b){
-        *flags |= (CMP_SGR | CMP_SGE);
+        t_flags |= (CMP_SGR | CMP_SGE);
     }
     if(a == b){
-        *flags |= (CMP_SGE | CMP_SLE | CMP_EQU);
+        t_flags |= (CMP_SGE | CMP_SLE | CMP_EQU);
     }
     if(a != b){
-        *flags |= CMP_NEQ;
+        t_flags |= CMP_NEQ;
     }
     if(a == 0.0f){
-        *flags |= CMP_IF0;
+        t_flags |= CMP_IF0;
     }
+
+    const CMP_Flags fpu_cmp_mask = CMP_EQU | CMP_NEQ | CMP_IF0 |
+                                   CMP_SLT | CMP_SLE | CMP_SGR | CMP_SGE;
+    *flags = (*flags & ~fpu_cmp_mask) | t_flags;
 
 }
 
