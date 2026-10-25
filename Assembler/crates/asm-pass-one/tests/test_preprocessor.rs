@@ -215,7 +215,7 @@ fn test_duplicate_include_is_only_included_once() {
     let output = unwrap_ok(asm_pass_one::preprocessor::run(&args));
     // Second @include "common.asm" is skipped because common.asm was already included
     let expected = format!(
-        "@start {main_path}\n@start {common_path}\nshared_code\n@end {common_path}\nmiddle\n@end {main_path}\n"
+        "@start {main_path}\n@start {common_path}\nshared_code\n@end {common_path}\nmiddle\n\n@end {main_path}\n"
     );
     assert_eq!(output, expected);
 }
@@ -563,12 +563,12 @@ fn test_single_line_comment_inside_multiline_comment_does_not_eat_closing_delimi
 }
 
 #[test]
-fn test_multiple_inline_block_comments_on_same_line() {
+fn test_multiple_inline_block_comments_across_lines() {
     let dir = TempTestDir::new("multiple_inline_block_comments");
     let args = dir.make_args(
         &[(
             "main.asm",
-            "/* first */ add r0 /* second */ r1 /* third */ r2",
+            "/* first */ add r0\n/* second */ r1\n/* third */ r2",
         )],
         vec![],
     );

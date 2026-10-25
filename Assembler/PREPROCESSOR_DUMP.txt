@@ -9,8 +9,8 @@
 8
 9
 @end test/burger.asm
-@include "burger.asm" 
-@include "burger.asm" 
+
+
 
  
 

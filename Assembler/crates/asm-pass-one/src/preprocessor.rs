@@ -70,16 +70,23 @@ impl Include {
     }
 
 
-    pub fn extract_include_path(text: &str) -> Option<&str> {
+    pub fn extract_include_path<'a>(text: &'a str, errors: &mut Vec<AsmError>) -> Option<&'a str> {
         // 1. Find where `@include` starts
         let include_part = text.split("@include").nth(1)?;
 
         // 2. Find the opening quote
-        let start = include_part.find('"')? + 1;
+        let Some(mut start) = include_part.find('"') else{
+            errors.push(AsmError::new(AsmErrorType::PREPRO(format!("@include directive doesn't have proper closing quotes"))));
+            return None
+        };
+        start += 1;
         let rest = &include_part[start..];
 
         // 3. Find the closing quote
-        let end = rest.find('"')?;
+        let Some(end) = rest.find('"') else {
+            errors.push(AsmError::new(AsmErrorType::PREPRO(format!("@include directive doesn't have proper closing quotes"))));
+            return None;
+        };
 
         Some(&rest[..end])
     }
@@ -87,26 +94,28 @@ impl Include {
 
 
 fn resolve_includes(
-    file_vec_map: &HashMap<&str, Vec<String>>, line: &String, 
-    included_paths: &mut Vec<String>, source_dir: &String, errors: &mut Vec<AsmError>) -> Option<Vec<String>>{
+    file_vec_map: &HashMap<&str, Vec<String>>, line: &str, 
+    included_paths: &mut Vec<String>, source_dir: &str, errors: &mut Vec<AsmError>) -> Option<Vec<String>>{
 
     let mut new_lines: Vec<String> = Vec::new();
 
-    if line.contains("@include"){
-        if let Some(path) = Include::extract_include_path(&line){
-            let src_path = source_dir.to_string() + path;
-            if included_paths.contains(&src_path){
-                return None
-            }
-            
-            let Some(file_contents) = file_vec_map.get(src_path.as_str()) else {
-                errors.push(AsmError::new(AsmErrorType::PREPRO(format!("Failed to include {src_path}"))));
-                return None                    
-            };
-            new_lines.append(&mut file_contents.clone());
-            included_paths.push(src_path);
+    if !line.contains("@include") {
+        return None;
+    }
 
+    if let Some(path) = Include::extract_include_path(&line, errors){
+        let src_path = source_dir.to_string() + path;
+        if included_paths.contains(&src_path){
+            return Some(vec!["".to_string()]);
         }
+        
+        let Some(file_contents) = file_vec_map.get(src_path.as_str()) else {
+            errors.push(AsmError::new(AsmErrorType::PREPRO(format!("Failed to include {src_path}"))));
+            return None                    
+        };
+        new_lines.append(&mut file_contents.clone());
+        included_paths.push(src_path);
+
     }
 
     if new_lines.is_empty() {
@@ -181,8 +190,8 @@ fn remove_comments(mut line: String, multi_line_comment: &mut bool, _errors: &mu
 struct Macro;
 impl Macro{
 
-    pub fn find_and_get_macro_name(line: &String, errors: &mut Vec<AsmError>) ->  Option<(String, String, String)>{
-        let mut original_line = line.clone();
+    pub fn find_and_get_macro_name(line: &str, errors: &mut Vec<AsmError>) ->  Option<(String, String, String)>{
+        let mut original_line = line.to_string();
         let macro_part = line.split("@macro").nth(1)?;
         let macro_info: Vec<&str> = macro_part.split_whitespace().collect();
 
@@ -293,6 +302,10 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
 
 
         combined_source_vec.push(line + "\n");
+    }
+
+    if multi_line_comment == true {
+        errors.push(AsmError::new(AsmErrorType::PREPRO(format!("opened ended multi-line comment"))));
     }
 
     // root_file_vec
