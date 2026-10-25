@@ -33,8 +33,8 @@ fn open_file(source_file: &str) -> Result<String, AsmError>{
 
 
 
-fn source_file_to_string_hashmap<'a>(source_files: &'a [String], errors: &mut Vec<AsmError>) -> HashMap<&'a str, String>{
-    let mut file_strings_map: HashMap<&str, String> = HashMap::new();
+fn source_file_to_string_hashmap<'a>(source_files: &'a [String], errors: &mut Vec<AsmError>) -> HashMap<&'a str, Vec<String>>{
+    let mut file_strings_map: HashMap<&str, Vec<String>> = HashMap::new();
 
     for source_file in source_files {
         let mut file_string = match open_file(source_file){
@@ -47,10 +47,16 @@ fn source_file_to_string_hashmap<'a>(source_files: &'a [String], errors: &mut Ve
                 continue;
             }
         };
-
+        
         Include::insert_start_end_directives(&mut file_string, source_file);
+        let mut line_stack: Vec<String> = file_string
+            .lines()
+            .map(|s| s.to_string())
+            .collect();
+        line_stack.reverse();
 
-        file_strings_map.entry(source_file).or_insert(file_string);
+
+        file_strings_map.entry(source_file).or_insert(line_stack);
     }
 
     file_strings_map
@@ -281,7 +287,21 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
 
     let mut errors: Vec<AsmError> = Vec::new();
 
-    let file_strings_map = source_file_to_string_hashmap(&user_args.src_files, &mut errors);
+    let file_vec_map = source_file_to_string_hashmap(&user_args.src_files, &mut errors);
+
+    let root_file = "main.asm"; 
+    let root_file_vec = match file_vec_map.get((user_args.src_directory.to_string() + root_file).as_str()) {
+        Some(string_vec) => {string_vec},
+        None => {
+            errors.push(AsmError::new(AsmErrorType::PREPRO(format!("root file {root_file} not found"))));
+            &Vec::new()
+        },
+    };
+
+    for line in root_file_vec {
+        
+    }
+
     let combined_source = resolve_includes(file_strings_map, &user_args.src_directory, &mut errors);
     let combined_source = remove_comments(combined_source, &mut errors);
     let combined_source = expand_macros(combined_source, &mut errors);
