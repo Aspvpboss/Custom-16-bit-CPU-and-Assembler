@@ -10,9 +10,6 @@ Emulator* init(){
         return NULL;
     }
 
-    // emu->SDLite_io.
-
-
     emu->SDLite_io.input = SDLite_CreateInput();
     if(!emu->SDLite_io.input){
         SDLite_SetError("init(): failed to create SDLite_Input");
