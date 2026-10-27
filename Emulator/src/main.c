@@ -17,8 +17,9 @@ int check_version(){
 
 int main(){
 
-    SDL_AtomicU32 emulator_state;
-    SDL_SetAtomicU32(&emulator_state, 0);
+    SharedData shared_data = {0};
+    SDL_SetAtomicU32(&shared_data.signal_emu_active_vram_bank, 0);
+    SDL_SetAtomicU32(&shared_data.signal_emu_done, 0);
 
     if(SDLite_Init(NULL, NULL, false, false))
         return 1;
@@ -32,14 +33,32 @@ int main(){
         return 1;
     }
 
-    SDL_Thread *emulator_thread = SDL_CreateThread(emulator_main, "emulator", &emulator_state);
-    if(!emulator_thread){
+    shared_data.vram_zero_m = SDL_CreateMutex();
+    shared_data.vram_one_m = SDL_CreateMutex();
+    if(!shared_data.vram_zero_m || !shared_data.vram_one_m){
+        SDL_DestroyMutex(shared_data.vram_zero_m);
+        SDL_DestroyMutex(shared_data.vram_one_m);
         SDLite_DestroyDisplay(display);
         SDLite_Quit();
         return 1;
     }
 
-    while(!SDL_GetAtomicU32(&emulator_state)){
+    SDL_Thread *emulator_thread = SDL_CreateThread(emulator_main, "emulator", &shared_data);
+    if(!emulator_thread){
+        SDL_DestroyMutex(shared_data.vram_zero_m);
+        SDL_DestroyMutex(shared_data.vram_one_m);
+        SDLite_DestroyDisplay(display);
+        SDLite_Quit();
+        return 1;
+    }
+
+    while((!SDL_GetAtomicPointer((void**)&shared_data.vram_zero) ||
+           !SDL_GetAtomicPointer((void**)&shared_data.vram_one)) &&
+          !SDL_GetAtomicU32(&shared_data.signal_emu_done)){
+        SDL_Delay(1);
+    }
+
+    while(!SDL_GetAtomicU32(&shared_data.signal_emu_done)){
         // main rendering loop
         SDLite_DisplayClear(display);
         SDLite_DisplayPresent(display);
@@ -48,6 +67,9 @@ int main(){
 
     int emulator_result = 0;
     SDL_WaitThread(emulator_thread, &emulator_result);
+
+    SDL_DestroyMutex(shared_data.vram_zero_m);
+    SDL_DestroyMutex(shared_data.vram_one_m);
 
     if(emulator_result == 0){
         printf("emu sucesss: %d                  \n", emulator_result);

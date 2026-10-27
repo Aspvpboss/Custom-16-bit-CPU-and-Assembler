@@ -4,11 +4,11 @@
 #include "core/test.h"
 #include "hardware/emulator.h"
 
-#define RETURN_THREAD(status) SDL_SetAtomicU32(emulator_state, 1); return status; 
+#define RETURN_THREAD(status) SDL_SetAtomicU32(&shared_data->signal_emu_done, 1); return status; 
 
 int emulator_main(void *ptr){
   
-    SDL_AtomicU32 *emulator_state = (SDL_AtomicU32*)ptr;
+    SharedData *shared_data = (SharedData*)ptr;
 
     if(RUN_TESTS()){
         SDLite_SetError("emulator_main(): unit tests failed");
@@ -20,6 +20,9 @@ int emulator_main(void *ptr){
         SDLite_SetError("emulator_main(): init() failed");
         RETURN_THREAD(1);
     }
+
+    SDL_SetAtomicPointer((void**)&shared_data->vram_zero, emu->ram.vram_zero);
+    SDL_SetAtomicPointer((void**)&shared_data->vram_one, emu->ram.vram_one);
 
 
     EMU_Result result = EMU_CONTINUE;
