@@ -58,9 +58,26 @@ int main(){
     }
 
     while(!SDL_GetAtomicU32(&shared_data.signal_emu_done)){
+
+        int active_vram_bank = SDL_GetAtomicU32(&shared_data.signal_emu_active_vram_bank);
+        if(active_vram_bank == 0){
+            SDL_LockMutex(shared_data.vram_zero_m);
+        } else {
+            SDL_LockMutex(shared_data.vram_one_m);
+        }     
+
         // main rendering loop
         SDLite_DisplayClear(display);
+        
+        
+        
         SDLite_DisplayPresent(display);
+        
+        if(active_vram_bank == 0){
+            SDL_UnlockMutex(shared_data.vram_zero_m);
+        } else {
+            SDL_UnlockMutex(shared_data.vram_one_m);
+        }     
     }
 
 
