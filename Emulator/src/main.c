@@ -52,8 +52,7 @@ int main(){
         return 1;
     }
 
-    while((!SDL_GetAtomicPointer((void**)&shared_data.vram_zero) ||
-           !SDL_GetAtomicPointer((void**)&shared_data.vram_one)) &&
+    while((!SDL_GetAtomicPointer((void**)&shared_data.vram_zero) || !SDL_GetAtomicPointer((void**)&shared_data.vram_one)) &&
           !SDL_GetAtomicU32(&shared_data.signal_emu_done)){
         SDL_Delay(1);
     }
