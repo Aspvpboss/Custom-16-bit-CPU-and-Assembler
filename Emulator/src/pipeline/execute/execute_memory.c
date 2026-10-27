@@ -14,7 +14,7 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
         return 1;
     }
 
-    u8 *active_vram = ram->vram_selector ? ram->vram_two : ram->vram_one;
+    u8 *active_vram = ram->vram_selector ? ram->vram_one : ram->vram_zero;
 
 
     if(address >= 0x0100 && address < 0x6F00){ // RAM
@@ -82,7 +82,7 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
         return 1;
     }
 
-    u8 *active_vram = ram->vram_selector ? ram->vram_two : ram->vram_one;
+    u8 *active_vram = ram->vram_selector ? ram->vram_one : ram->vram_zero;
 
     if(address < 0x100){ // bootloader
 

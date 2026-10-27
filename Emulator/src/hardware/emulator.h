@@ -15,7 +15,7 @@ typedef struct{
 
     SDLite_Time *time;
     SDLite_Input *input;
-    SDLite_Display *display;
+    SDL_AtomicU32 *active_vram_bank;
 
 } SDLite_IO;
 
@@ -24,9 +24,9 @@ typedef struct{
     u8 bootloader[0x100];
     u8 ram[0x6E00];
 
-    bool vram_selector; // false vram_one, true vram_two
+    bool vram_selector; // false vram_zero, true vram_one
+    u8 vram_zero[0x1000];
     u8 vram_one[0x1000];
-    u8 vram_two[0x1000];
     u8 mmio[0x100];
     u8 ram_bank[0x8000];
 

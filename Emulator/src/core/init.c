@@ -10,6 +10,8 @@ Emulator* init(){
         return NULL;
     }
 
+    // emu->SDLite_io.
+
 
     emu->SDLite_io.input = SDLite_CreateInput();
     if(!emu->SDLite_io.input){
@@ -18,19 +20,11 @@ Emulator* init(){
         return NULL;
     }
 
-    emu->SDLite_io.display = SDLite_CreateDisplay("EMU", 800, 800, SDL_WINDOW_MAXIMIZED);
-    if(!emu->SDLite_io.display){
-        SDLite_SetError("init(): failed to create SDLite_Display");
-        SDLite_DestroyInput(emu->SDLite_io.input); 
-        t_free(emu);
-        return NULL;
-    }
 
     emu->SDLite_io.time = SDLite_CreateTime(1000);
     if(!emu->SDLite_io.time){
         SDLite_SetError("init(): failed to create SDLite_Time");
         SDLite_DestroyInput(emu->SDLite_io.input); 
-        SDLite_DestroyDisplay(emu->SDLite_io.display);
         t_free(emu);
         return NULL;
     }
@@ -40,8 +34,8 @@ Emulator* init(){
 
     memset(emu->ram.bootloader, 0, sizeof(emu->ram.bootloader));
     memset(emu->ram.ram, 0, sizeof(emu->ram.ram));
+    memset(emu->ram.vram_zero, 0, sizeof(emu->ram.vram_zero));
     memset(emu->ram.vram_one, 0, sizeof(emu->ram.vram_one));
-    memset(emu->ram.vram_two, 0, sizeof(emu->ram.vram_two));
     memset(emu->ram.mmio, 0, sizeof(emu->ram.mmio));
     memset(emu->ram.ram_bank, 0, sizeof(emu->ram.ram_bank));
     emu->ram.vram_selector = false;
