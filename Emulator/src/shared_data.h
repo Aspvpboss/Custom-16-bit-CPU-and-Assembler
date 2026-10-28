@@ -5,7 +5,8 @@
 #include <SDL3/SDL_atomic.h>
 #include "my_stdtypes.h"
 
-#define VRAM_SIZE 0x1000
+#define EMU_DISPLAY_SIZE 64
+#define VRAM_SIZE EMU_DISPLAY_SIZE * EMU_DISPLAY_SIZE
 
 typedef struct {
 

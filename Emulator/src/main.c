@@ -2,6 +2,9 @@
 #include <SDLite/SDLite.h>
 #include <SDL3/SDL_thread.h>
 
+#define SDL_WHITE (SDL_Color){255, 255, 255, 255}
+#define FONT_PATH "assets/font.tff"
+#define TOP_BAR_TEXT_HEIGHT 20
 
 int check_version(){
 
@@ -115,9 +118,47 @@ int check_version(){
 
 */
 
+typedef struct {
+
+    SDLite_Display *display;
+    SDLite_Text *emu_hz;
+    SDLite_Text_Font *font;
+    u32 width, height;
+    u8 scale;
+
+} RenderData;
+
+int create_render_data(RenderData *render_data) {
+    render_data->scale = 1;
+    render_data->height = EMU_DISPLAY_SIZE + TOP_BAR_TEXT_HEIGHT; 
+    render_data->width = EMU_DISPLAY_SIZE;
+
+    render_data->display = SDLite_CreateDisplay("Rose EMU", render_data->width, render_data->height, SDL_WINDOW_MAXIMIZED);
+    if(!render_data->display) return 1;
+
+    render_data->font = SDLite_Create_Text_Font(FONT_PATH, TOP_BAR_TEXT_HEIGHT);
+    if(!render_data->font) return 1;
+    render_data->emu_hz = SDLite_CreateText(render_data->display, NULL, render_data->font, 0, 0, SDL_WHITE);
+    if(!render_data->emu_hz) return 1;
+
+    return 0;
+}
+
+void destroy_render_data(RenderData *render_data) {
+    if(render_data->emu_hz) SDLite_DestroyText(render_data->emu_hz);
+    if(render_data->font) SDLite_Destroy_Text_Font(&render_data->font);
+    if(render_data->display) SDLite_DestroyDisplay(render_data->display);
+    
+}
+
+void destroy_shared_data(SharedData *shared_data) {
+    if(shared_data->vram_zero_m) SDL_DestroyMutex(shared_data->vram_zero_m);
+    if(shared_data->vram_one_m) SDL_DestroyMutex(shared_data->vram_one_m);
+}
 
 int main(){
 
+    RenderData render = {0};
     SharedData shared_data = {0};
     SDL_SetAtomicU32(&shared_data.signal_emu_active_vram_bank, 0);
     SDL_SetAtomicU32(&shared_data.signal_emu_done, 0);
@@ -128,8 +169,13 @@ int main(){
     if(check_version())
         return 1;
 
-    SDLite_Display *display = SDLite_CreateDisplay("Rose EMU", 400, 400, SDL_WINDOW_MAXIMIZED);
-    if(!display){
+    if(create_render_data(&render)){
+        destroy_render_data(&render);
+        SDLite_Quit();
+        return 1;
+    }
+
+    if(!render.display){
         SDLite_Quit();
         return 1;
     }
@@ -137,18 +183,16 @@ int main(){
     shared_data.vram_zero_m = SDL_CreateMutex();
     shared_data.vram_one_m = SDL_CreateMutex();
     if(!shared_data.vram_zero_m || !shared_data.vram_one_m){
-        SDL_DestroyMutex(shared_data.vram_zero_m);
-        SDL_DestroyMutex(shared_data.vram_one_m);
-        SDLite_DestroyDisplay(display);
+        destroy_shared_data(&shared_data);
+        destroy_render_data(&render);
         SDLite_Quit();
         return 1;
     }
 
     SDL_Thread *emulator_thread = SDL_CreateThread(emulator_main, "emulator", &shared_data);
     if(!emulator_thread){
-        SDL_DestroyMutex(shared_data.vram_zero_m);
-        SDL_DestroyMutex(shared_data.vram_one_m);
-        SDLite_DestroyDisplay(display);
+        destroy_shared_data(&shared_data);
+        destroy_render_data(&render);
         SDLite_Quit();
         return 1;
     }
@@ -168,11 +212,11 @@ int main(){
         }     
 
         // main rendering loop
-        SDLite_DisplayClear(display);
+        SDLite_DisplayClear(render.display);
         
         
         
-        SDLite_DisplayPresent(display);
+        SDLite_DisplayPresent(render.display);
         
         if(active_vram_bank == 0){
             SDL_UnlockMutex(shared_data.vram_zero_m);
@@ -185,8 +229,8 @@ int main(){
     int emulator_result = 0;
     SDL_WaitThread(emulator_thread, &emulator_result);
 
-    SDL_DestroyMutex(shared_data.vram_zero_m);
-    SDL_DestroyMutex(shared_data.vram_one_m);
+    destroy_shared_data(&shared_data);
+    destroy_render_data(&render);
 
     if(emulator_result == 0){
         printf("emu sucesss: %d                  \n", emulator_result);
