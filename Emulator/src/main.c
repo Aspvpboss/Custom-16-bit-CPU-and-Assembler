@@ -3,8 +3,9 @@
 #include <SDL3/SDL_thread.h>
 
 #define SDL_WHITE (SDL_Color){255, 255, 255, 255}
-#define FONT_PATH "assets/font.tff"
+#define FONT_PATH "assets/font.ttf"
 #define TOP_BAR_TEXT_HEIGHT 20
+#define RENDER_SCALE 8
 
 int check_version(){
 
@@ -129,9 +130,9 @@ typedef struct {
 } RenderData;
 
 int create_render_data(RenderData *render_data) {
-    render_data->scale = 1;
-    render_data->height = EMU_DISPLAY_SIZE + TOP_BAR_TEXT_HEIGHT; 
-    render_data->width = EMU_DISPLAY_SIZE;
+    render_data->scale = RENDER_SCALE;
+    render_data->height = EMU_DISPLAY_SIZE * RENDER_SCALE + TOP_BAR_TEXT_HEIGHT; 
+    render_data->width = EMU_DISPLAY_SIZE * RENDER_SCALE;
 
     render_data->display = SDLite_CreateDisplay("Rose EMU", render_data->width, render_data->height, SDL_WINDOW_MAXIMIZED);
     if(!render_data->display) return 1;
@@ -148,7 +149,13 @@ void destroy_render_data(RenderData *render_data) {
     if(render_data->emu_hz) SDLite_DestroyText(render_data->emu_hz);
     if(render_data->font) SDLite_Destroy_Text_Font(&render_data->font);
     if(render_data->display) SDLite_DestroyDisplay(render_data->display);
-    
+
+    const char *err = NULL;
+
+    while((err = SDLite_GetError())){
+        fprintf(stderr, "%s\n", err);
+    }
+
 }
 
 void destroy_shared_data(SharedData *shared_data) {
@@ -158,8 +165,16 @@ void destroy_shared_data(SharedData *shared_data) {
 
 
 void update_emu_hz_text(SDLite_Text *hz_text, u32 hz) {
+    u64 current_ms = SDL_GetTicks();
+    static u64 last_remainder = 1000;
+    u64 current_remainder = current_ms % 1000;
+    u64 temp = last_remainder;
+    last_remainder = current_remainder;
+    if (current_remainder >= temp)
+        return;
+
     char buf[32];
-    snprintf(buf, sizeof(buf), "EMU hertz: %u", hz);
+    snprintf(buf, sizeof(buf), "EMU khz: %.4f", (f32)(hz) / 1000);
 
     SDLite_Text_SetString(hz_text, buf);
 }
@@ -213,12 +228,10 @@ int main(){
     }
 
 
-    u32 prev_hertz = 0;
     while(!SDL_GetAtomicU32(&shared_data.signal_emu_done)){
 
         u32 current_hertz = SDL_GetAtomicU32(&shared_data.emu_hertz);
-        if(current_hertz != prev_hertz)
-            update_emu_hz_text(render.emu_hz, current_hertz);
+        update_emu_hz_text(render.emu_hz, current_hertz);
 
         int active_vram_bank = SDL_GetAtomicU32(&shared_data.signal_emu_active_vram_bank);
         if(active_vram_bank == 0){
@@ -230,7 +243,7 @@ int main(){
         // main rendering loop
         SDLite_DisplayClear(render.display);
         
-        
+        SDLite_Render_Text(render.emu_hz);
         
         SDLite_DisplayPresent(render.display);
         
