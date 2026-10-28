@@ -242,6 +242,12 @@ int main(){
 
     while(!SDL_GetAtomicU32(&shared_data.signal_emu_done)){
 
+        static SDL_Event e;
+
+        while(SDL_PollEvent(&e)){
+            // nothing
+        }
+
         u32 current_hertz = SDL_GetAtomicU32(&shared_data.emu_hertz);
         update_emu_hz_text(render.emu_hz, current_hertz);
 

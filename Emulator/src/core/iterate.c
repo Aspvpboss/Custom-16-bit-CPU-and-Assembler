@@ -8,14 +8,6 @@
 
 EMU_Result iterate(Emulator *emu){
 
-    static SDL_Event e;
-
-    while(SDL_PollEvent(&e)){
-        if(e.type == SDL_EVENT_QUIT){
-            return EMU_SUCCESS;
-        }            
-    }
-
     SDLite_Input *input = emu->SDLite_io.input;
     if(SDLite_Input_KeyPressed(input, SDL_SCANCODE_Q) && SDLite_Input_KeyPressed(input, SDL_SCANCODE_LSHIFT)){
         return EMU_SUCCESS;
