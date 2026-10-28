@@ -6,7 +6,11 @@
 #define FONT_PATH "assets/font.ttf"
 #define TOP_BAR_TEXT_HEIGHT 20
 #define RENDER_SCALE 8
-
+const SDL_Color colors[] = {
+    {0, 0, 0, 0,},
+    {255, 0, 0, 255},
+    {0, 255, 0, 255}
+};
 int check_version(){
 
     int macro, minor, micro;
@@ -121,6 +125,8 @@ int check_version(){
 
 typedef struct {
 
+    SDL_Texture *emu_texture;
+    SDL_Palette *palette;
     SDLite_Display *display;
     SDLite_Text *emu_hz;
     SDLite_Text_Font *font;
@@ -136,6 +142,17 @@ int create_render_data(RenderData *render_data) {
 
     render_data->display = SDLite_CreateDisplay("Rose EMU", render_data->width, render_data->height, SDL_WINDOW_MAXIMIZED);
     if(!render_data->display) return 1;
+    SDL_Renderer *renderer = SDLite_Display_GetSDLRenderer(render_data->display);
+
+    render_data->emu_texture = SDL_CreateTexture(
+        renderer, SDL_PIXELFORMAT_INDEX8, SDL_TEXTUREACCESS_STREAMING, 
+        EMU_DISPLAY_SIZE * RENDER_SCALE, EMU_DISPLAY_SIZE * RENDER_SCALE);
+    if(!render_data->emu_texture) return 1;
+    render_data->palette = SDL_CreatePalette(sizeof(colors) / sizeof(SDL_Color));
+    if(!render_data->palette) return 1;
+
+    SDL_SetPaletteColors(render_data->palette, colors, 0, sizeof(colors) / sizeof(SDL_Color));
+    SDL_SetTexturePalette(render_data->emu_texture, render_data->palette);
 
     render_data->font = SDLite_Create_Text_Font(FONT_PATH, TOP_BAR_TEXT_HEIGHT);
     if(!render_data->font) return 1;
@@ -146,16 +163,11 @@ int create_render_data(RenderData *render_data) {
 }
 
 void destroy_render_data(RenderData *render_data) {
+    if(render_data->emu_texture) SDL_DestroyTexture(render_data->emu_texture);
+    if(render_data->palette) SDL_DestroyPalette(render_data->palette);
     if(render_data->emu_hz) SDLite_DestroyText(render_data->emu_hz);
     if(render_data->font) SDLite_Destroy_Text_Font(&render_data->font);
     if(render_data->display) SDLite_DestroyDisplay(render_data->display);
-
-    const char *err = NULL;
-
-    while((err = SDLite_GetError())){
-        fprintf(stderr, "%s\n", err);
-    }
-
 }
 
 void destroy_shared_data(SharedData *shared_data) {
