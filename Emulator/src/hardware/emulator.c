@@ -50,7 +50,7 @@ int emulator_main(void *ptr){
             double new_fps = limit_fps ? -1 : 1000;
             SDLite_Time_Set_FPSLimit(sdlite->time, new_fps);
         }
-
+        SDL_SetAtomicU32(&shared_data->emu_hertz, (u32)SDLite_Time_GetFPS(sdlite->time));
 
         SDLite_Input_UpdateAllPrev(emu->SDLite_io.input);
         SDLite_TimeFunctions(sdlite->time);

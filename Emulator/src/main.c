@@ -156,12 +156,22 @@ void destroy_shared_data(SharedData *shared_data) {
     if(shared_data->vram_one_m) SDL_DestroyMutex(shared_data->vram_one_m);
 }
 
+
+void update_emu_hz_text(SDLite_Text *hz_text, u32 hz) {
+    char buf[32];
+    snprintf(buf, sizeof(buf), "EMU hertz: %u", hz);
+
+    SDLite_Text_SetString(hz_text, buf);
+}
+
+
 int main(){
 
     RenderData render = {0};
     SharedData shared_data = {0};
     SDL_SetAtomicU32(&shared_data.signal_emu_active_vram_bank, 0);
     SDL_SetAtomicU32(&shared_data.signal_emu_done, 0);
+    SDL_SetAtomicU32(&shared_data.emu_hertz, 0);
 
     if(SDLite_Init(NULL, NULL, false, false))
         return 1;
@@ -202,7 +212,13 @@ int main(){
         SDL_Delay(1);
     }
 
+
+    u32 prev_hertz = 0;
     while(!SDL_GetAtomicU32(&shared_data.signal_emu_done)){
+
+        u32 current_hertz = SDL_GetAtomicU32(&shared_data.emu_hertz);
+        if(current_hertz != prev_hertz)
+            update_emu_hz_text(render.emu_hz, current_hertz);
 
         int active_vram_bank = SDL_GetAtomicU32(&shared_data.signal_emu_active_vram_bank);
         if(active_vram_bank == 0){
