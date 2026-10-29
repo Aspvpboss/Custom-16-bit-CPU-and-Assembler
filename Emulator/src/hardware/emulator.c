@@ -69,7 +69,8 @@ int emulator_main(void *ptr){
         double current_hz = SDLite_Time_GetFPS(sdlite->time) * BATCH_SIZE;
 
         if(SDLite_Input_KeyJustPressed(sdlite->input, SDL_SCANCODE_T)){
-            printf("                                        \r %.2f\r", current_hz);
+            emu->ram.vram_selector = !emu->ram.vram_selector;
+            SDL_SetAtomicU32(&shared_data->signal_emu_active_vram_bank, emu->ram.vram_selector); 
         }
 
         if(SDLite_Input_KeyJustPressed(sdlite->input, SDL_SCANCODE_SPACE)){
