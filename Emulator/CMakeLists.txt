@@ -13,6 +13,7 @@ add_executable(rose_emu
     src/core/init.c
     src/core/iterate.c
     src/core/destroy.c 
+    src/core/render_update.c
     src/hardware/emulator.c 
     src/hardware/alu.c 
     src/hardware/fpu.c

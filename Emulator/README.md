@@ -270,10 +270,26 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 
 # Memory Mapped IO
 
+0x7F00 - 0x7FFF: MMIO (256B)
+
+## Features
+* Inputs
+    * Time value since emulator started (u16 for seconds, u16 for milliseconds)
+    * Current & Previous keyboard key pressed
+    * Mouse position (relative to the screen)
+    * Mouse buttons
+* Outputs
+    * Active VRAM buffer (either zero or one)
+    * Numerical display config (either float, u16, or i16)
+    * Display 2-bytes as configured
+* Misc
+    * uart (built into memory_read and memory_write)
+
+
 ### The Screen
 - Emulator thread & Render Thread
 
 - Emulator frame buffer -(memcpy)> back buffer
 - Emulator frame ready -(atomic int)> swap buffers for render thread
 
-- This means no thread stalling for rendering
+- This means very little thread stalling for rendering
