@@ -14,14 +14,14 @@ static inline int is_flag_on(u16 alu_flags, CMP_Flags flag_to_check) {
 static inline int pop_addr(Emulator *emu, u16 *addr) {
     emu->alu.registers[ALU_STACK_POINTER] += 2;
     
-    if(read_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], addr, true)) 
+    if(read_memory(emu, emu->alu.registers[ALU_STACK_POINTER], addr, true)) 
         return 1;
     
     return 0;
 }
 
 static inline int push_addr(Emulator *emu, u16 addr) {
-    if(write_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], addr, true))
+    if(write_memory(emu, emu->alu.registers[ALU_STACK_POINTER], addr, true))
         return 1;
     emu->alu.registers[ALU_STACK_POINTER] -= 2;
 

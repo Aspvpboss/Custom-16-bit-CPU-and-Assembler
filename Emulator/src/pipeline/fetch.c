@@ -5,7 +5,6 @@
 
 int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
-    EMU_Ram *ram = &emu->ram;
     u16 *program_counter = &emu->alu.registers[ALU_PROGRAM_COUNTER];
 
     if((*program_counter) == __UINT16_MAX__){
@@ -14,7 +13,7 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
     
     u8 extra_bytes = 0;
 
-    if(read_memory(ram, (*program_counter), (u16*)&instruction->raw_instruction, false)){
+    if(read_memory(emu, (*program_counter), (u16*)&instruction->raw_instruction, false)){
         SDLite_SetError("fetch(): failed to read instruction at PC 0x%04X", *program_counter);
         return 1;
     }
@@ -67,7 +66,7 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
     for(u8 i = 1; i <= extra_bytes; i++){
         (*program_counter)++;
         u16 raw_byte;
-        if(read_memory(ram, (*program_counter), (u16*)&raw_byte, false)){
+        if(read_memory(emu, (*program_counter), (u16*)&raw_byte, false)){
             SDLite_SetError("fetch(): failed to read extra byte %d at PC 0x%04X", i, *program_counter);
             return 1;
         }

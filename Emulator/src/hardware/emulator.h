@@ -48,6 +48,16 @@ typedef struct{
 #define IS_SIXTEEN_BIT_REG(reg) (reg & 0x0010) >> 4
 #define STRIP_FIFTH_BIT(reg) (reg & 0b1111)
 
+static inline void emu_lock_mutex(Emulator *emu, bool vram_mutex) {
+    if (!emu->shared_data) return;
+    vram_mutex ? SDL_LockMutex(emu->shared_data->vram_one_m) : SDL_LockMutex(emu->shared_data->vram_zero_m);
+}
+
+static inline void emu_unlock_mutex(Emulator *emu, bool vram_mutex) {
+    if (!emu->shared_data) return;
+    vram_mutex ? SDL_UnlockMutex(emu->shared_data->vram_one_m) : SDL_UnlockMutex(emu->shared_data->vram_zero_m);
+}
+
 int emulator_main(void *ptr);
 
 

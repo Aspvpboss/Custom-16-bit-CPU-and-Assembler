@@ -16,8 +16,8 @@ enum Move_Opcodes{
 };
 
 
-int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read);
-int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write);
+int read_memory(Emulator *emu, u16 address, u16 *value, bool sixteen_bit_read);
+int write_memory(Emulator *emu, u16 address, u16 value, bool sixteen_bit_write);
 
 static inline int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
    
@@ -30,7 +30,7 @@ static inline int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
     u8 reg_read_addr = STRIP_FIFTH_BIT(instruction->operands[0]);
 
     u16 memory_value = emu->alu.registers[reg_read_addr];
-    if(write_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], memory_value, sixteen_bit_write)){
+    if(write_memory(emu, emu->alu.registers[ALU_STACK_POINTER], memory_value, sixteen_bit_write)){
         SDLite_SetError("exe_push failed to write to memory at 0x%04X", emu->alu.registers[ALU_STACK_POINTER]);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
@@ -54,7 +54,7 @@ static inline int exe_pop(Emulator *emu, EMU_Decoded_Instruction *instruction){
 
     u16 memory_value = 0;
     emu->alu.registers[ALU_STACK_POINTER] += sixteen_bit_read ? 2 : 1;
-    if(read_memory(&emu->ram, emu->alu.registers[ALU_STACK_POINTER], &memory_value, sixteen_bit_read)){
+    if(read_memory(emu, emu->alu.registers[ALU_STACK_POINTER], &memory_value, sixteen_bit_read)){
         SDLite_SetError("exe_pop failed to read from memory at 0x%04X", emu->alu.registers[ALU_STACK_POINTER]);
         PRINT_INDIVIDUAL_BYTES(instruction->raw_instruction);
         return 1;
@@ -76,20 +76,20 @@ static inline int exe_str(Emulator *emu, EMU_Decoded_Instruction *instruction){
     switch(instruction->addressing_mode){
          case ADDR_REG_INDIRECT:{
             u16 write_addr = emu->alu.registers[instruction->operands[0]];
-            write_failed = write_memory(&emu->ram, write_addr, reg_value, sixteen_bit_write);
+            write_failed = write_memory(emu, write_addr, reg_value, sixteen_bit_write);
             break;
         }
         case ADDR_REG_IMMEDIATE_EIGHT:
         case ADDR_REG_IMMEDIATE_SIXTEEN: {
             u16 write_addr = emu->alu.registers[instruction->operands[0]] + instruction->operands[2];
-            write_failed = write_memory(&emu->ram, write_addr, reg_value, sixteen_bit_write);
+            write_failed = write_memory(emu, write_addr, reg_value, sixteen_bit_write);
             break;
         }
 
         case ADDR_IMMEDIATE_EIGHT_DEST:
         case ADDR_IMMEDIATE_SIXTEEN_DEST: {
             u16 write_addr = instruction->operands[0];
-            write_failed = write_memory(&emu->ram, write_addr, reg_value, sixteen_bit_write);
+            write_failed = write_memory(emu, write_addr, reg_value, sixteen_bit_write);
             break;
         }
         default:
@@ -118,20 +118,20 @@ static inline int exe_load(Emulator *emu, EMU_Decoded_Instruction *instruction){
     switch(instruction->addressing_mode){
         case ADDR_REG_INDIRECT:{
             u16 read_addr = emu->alu.registers[instruction->operands[0]];
-            read_failed = read_memory(&emu->ram, read_addr, &memory_read_value, sixteen_bit_read);
+            read_failed = read_memory(emu, read_addr, &memory_read_value, sixteen_bit_read);
             break;
         }
         case ADDR_REG_IMMEDIATE_EIGHT:
         case ADDR_REG_IMMEDIATE_SIXTEEN: {
             u16 read_addr = emu->alu.registers[instruction->operands[0]] + instruction->operands[2];
-            read_failed = read_memory(&emu->ram, read_addr, &memory_read_value, sixteen_bit_read);
+            read_failed = read_memory(emu, read_addr, &memory_read_value, sixteen_bit_read);
             break;
         }
 
         case ADDR_IMMEDIATE_EIGHT_DEST:
         case ADDR_IMMEDIATE_SIXTEEN_DEST: {
             u16 read_addr = instruction->operands[0];
-            read_failed = read_memory(&emu->ram, read_addr, &memory_read_value, sixteen_bit_read);
+            read_failed = read_memory(emu, read_addr, &memory_read_value, sixteen_bit_read);
             break;
         }
         default:

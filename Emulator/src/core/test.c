@@ -72,24 +72,24 @@ void print_individual_bytes(u64 value){
 
 
 
-static int memory_test(EMU_Ram *ram){
+static int memory_test(Emulator *emu){
 
     u16 destination_value = 0;
    
-    if(write_memory(ram, 0x0101, 0xffff, true)){
+    if(write_memory(emu, 0x0101, 0xffff, true)){
         d_printf("simple write_memory failed\n");
         return 1;
     }
-    if(read_memory(ram, 0x0101, &destination_value, true)){
+    if(read_memory(emu, 0x0101, &destination_value, true)){
         d_printf("simple read_memory failed\n");
         return 1;
     }
 
-    if(write_memory(ram, 0x6F01, 0xffff, false)){
+    if(write_memory(emu, 0x6F01, 0xffff, false)){
         d_printf("vram write_memory failed\n");
         return 1;
     }
-    if(read_memory(ram, 0x6F01, &destination_value, true)){
+    if(read_memory(emu, 0x6F01, &destination_value, true)){
         d_printf("vram read_memory failed\n");
         return 1;
     }
@@ -98,11 +98,11 @@ static int memory_test(EMU_Ram *ram){
         return 1;
     }
 
-    if(write_memory(ram, 0x7F01, 0xffff, false)){
+    if(write_memory(emu, 0x7F01, 0xffff, false)){
         d_printf("mmio write_memory failed\n");
         return 1;
     }
-    if(read_memory(ram, 0x7F01, &destination_value, true)){
+    if(read_memory(emu, 0x7F01, &destination_value, true)){
         d_printf("mmio read_memory failed\n");
         return 1;
     }
@@ -111,31 +111,31 @@ static int memory_test(EMU_Ram *ram){
         return 1;
     }
 
-    if(write_memory(ram, 0xffff, 0x00ff, false)){
+    if(write_memory(emu, 0xffff, 0x00ff, false)){
         d_printf("write_memory failed, tried to write to ram failed\n");
         return 1;
     }
-    if(!write_memory(ram, 0x0000, 0x00ff, false)){
+    if(!write_memory(emu, 0x0000, 0x00ff, false)){
         d_printf("write_memory failed, tried to write to bootloader failed\n");
         return 1;
     }
 
-    if(!read_memory(ram, 0xffff, &destination_value, true)){
+    if(!read_memory(emu, 0xffff, &destination_value, true)){
         d_printf("read_memory failed, tried to read from outside memory\n");
         return 1;
     }
-    if(read_memory(ram, 0x0000, &destination_value, false)){
+    if(read_memory(emu, 0x0000, &destination_value, false)){
         d_printf("read_memory failed, failed to read from bootloader\n");
         return 1;
     }
 
-    if(!write_memory(ram, 0x6EFF, 0xffff, true)){
+    if(!write_memory(emu, 0x6EFF, 0xffff, true)){
         d_printf("write_memory failed, tried to write outside of ram\n");
         return 1;
     }
 
-    ram->vram_selector = true;
-    if(!write_memory(ram, 0x7EFF, 0xffff, true)){
+    emu->ram.vram_selector = true;
+    if(!write_memory(emu, 0x7EFF, 0xffff, true)){
         d_printf("write_memory failed, tried to write outside of vram\n");
         return 1;
     }
@@ -1050,7 +1050,7 @@ int run_tests(){
         return 1;
     }
 
-    test("--Testing memory functionality--", memory_test(&test_emu->ram));
+    test("--Testing memory functionality--", memory_test(test_emu));
     test("--Testing memory instructions--", memory_instructions_test(test_emu));
     test("--Testing alu instructions--", alu_test(test_emu));
     test("--Testing fpu instructions--", fpu_test(test_emu));
