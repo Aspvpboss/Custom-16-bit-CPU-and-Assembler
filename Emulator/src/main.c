@@ -136,7 +136,14 @@ void update_emu_hz_text(SDLite_Text *hz_text, u32 hz) {
         return;
 
     char buf[32];
-    snprintf(buf, sizeof(buf), "EMU khz: %.4f", (f32)(hz) / 1000);
+
+    if(hz < 1000){
+        snprintf(buf, sizeof(buf), "EMU hz: %u", hz);
+    } else if(hz < 1000000) {
+        snprintf(buf, sizeof(buf), "EMU khz: %.4f", (f32)(hz) / 1000);
+    } else {
+        snprintf(buf, sizeof(buf), "EMU mhz: %.4f", (f32)(hz) / 1000000);
+    }
 
     SDLite_Text_SetString(hz_text, buf);
 }
