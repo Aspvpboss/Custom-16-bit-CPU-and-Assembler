@@ -1,9 +1,8 @@
 # Current goals
 
 ```
-Complete control flow instructions
-Finish Unit tests for each instruction
 Start work on MMIO
+* add and document mmio addresses and what they do
 ```
 
 

@@ -2,7 +2,15 @@
 #include <SDLite/SDLite.h>
 #include <SDL3/SDL_thread.h>
 
-
+#define SDL_WHITE (SDL_Color){255, 255, 255, 255}
+#define FONT_PATH "assets/font.ttf"
+#define TOP_BAR_TEXT_HEIGHT 20
+#define RENDER_SCALE 8
+const SDL_Color colors[] = {
+    {0, 0, 0, 0,},
+    {255, 0, 0, 255},
+    {0, 255, 0, 255}
+};
 int check_version(){
 
     int macro, minor, micro;
@@ -15,10 +23,132 @@ int check_version(){
     return 0;
 }
 
+
+
+typedef struct {
+
+    SDL_FRect render_rect;
+    SDL_Texture *emu_texture;
+    SDL_Palette *palette;
+    SDLite_Display *display;
+    SDLite_Text *emu_hz;
+    SDLite_Text_Font *font;
+    u32 width, height;
+    u8 scale;
+
+} RenderData;
+
+int create_render_data(RenderData *render_data) {
+    render_data->scale = RENDER_SCALE;
+    render_data->height = EMU_DISPLAY_SIZE * RENDER_SCALE + TOP_BAR_TEXT_HEIGHT; 
+    render_data->width = EMU_DISPLAY_SIZE * RENDER_SCALE;
+
+    render_data->display = SDLite_CreateDisplay("Rose EMU", render_data->width, render_data->height, SDL_WINDOW_MAXIMIZED);
+    if(!render_data->display) return 1;
+    SDL_Renderer *renderer = SDLite_Display_GetSDLRenderer(render_data->display);
+
+    render_data->emu_texture = SDL_CreateTexture(
+        renderer, SDL_PIXELFORMAT_INDEX8, SDL_TEXTUREACCESS_STREAMING, 
+        EMU_DISPLAY_SIZE * RENDER_SCALE, EMU_DISPLAY_SIZE * RENDER_SCALE);
+    if(!render_data->emu_texture) return 1;
+    render_data->palette = SDL_CreatePalette(sizeof(colors) / sizeof(SDL_Color));
+    if(!render_data->palette) return 1;
+    render_data->render_rect.x = 0.0f;
+    render_data->render_rect.y = TOP_BAR_TEXT_HEIGHT;
+    render_data->render_rect.w = EMU_DISPLAY_SIZE * RENDER_SCALE;
+    render_data->render_rect.h = EMU_DISPLAY_SIZE * RENDER_SCALE;
+
+    SDL_SetPaletteColors(render_data->palette, colors, 0, sizeof(colors) / sizeof(SDL_Color));
+    SDL_SetTexturePalette(render_data->emu_texture, render_data->palette);
+
+    render_data->font = SDLite_Create_Text_Font(FONT_PATH, TOP_BAR_TEXT_HEIGHT);
+    if(!render_data->font) return 1;
+    render_data->emu_hz = SDLite_CreateText(render_data->display, NULL, render_data->font, 0, 0, SDL_WHITE);
+    if(!render_data->emu_hz) return 1;
+
+    return 0;
+}
+
+void destroy_render_data(RenderData *render_data) {
+    if(render_data->emu_texture) SDL_DestroyTexture(render_data->emu_texture);
+    if(render_data->palette) SDL_DestroyPalette(render_data->palette);
+    if(render_data->emu_hz) SDLite_DestroyText(render_data->emu_hz);
+    if(render_data->font) SDLite_Destroy_Text_Font(&render_data->font);
+    if(render_data->display) SDLite_DestroyDisplay(render_data->display);
+}
+
+void destroy_shared_data(SharedData *shared_data) {
+    if(shared_data->vram_zero_m) SDL_DestroyMutex(shared_data->vram_zero_m);
+    if(shared_data->vram_one_m) SDL_DestroyMutex(shared_data->vram_one_m);
+}
+
+
+void update_render_texture(SharedData *shared_data, RenderData *render){
+    int active_vram_bank = SDL_GetAtomicU32(&shared_data->signal_emu_active_vram_bank);
+    if(active_vram_bank == 0){
+        SDL_LockMutex(shared_data->vram_zero_m);
+    } else {
+        SDL_LockMutex(shared_data->vram_one_m);
+    }     
+
+    u8 *src = active_vram_bank ? shared_data->vram_one : shared_data->vram_zero;
+
+    i32 pitch = 0; 
+    void *dst = NULL;
+    if(!SDL_LockTexture(render->emu_texture, NULL, &dst, &pitch)){
+        if(active_vram_bank == 0){
+            SDL_UnlockMutex(shared_data->vram_zero_m);
+        } else {
+            SDL_UnlockMutex(shared_data->vram_one_m);
+        }     
+        return;
+    }
+
+    u8 scale = render->scale;
+    u8 *dst_pixels = (u8 *)dst;
+    for (int y = 0; y < EMU_DISPLAY_SIZE; y++) {
+        u8 *first_scaled_row = dst_pixels + (y * scale) * pitch;
+        for (int x = 0; x < EMU_DISPLAY_SIZE; x++) {
+            memset(first_scaled_row + x * scale, src[y * EMU_DISPLAY_SIZE + x], scale);
+        }
+        for (int sy = 1; sy < scale; sy++) {
+            memcpy(dst_pixels + (y * scale + sy) * pitch, first_scaled_row, EMU_DISPLAY_SIZE * scale);
+        }
+    }
+
+    SDL_UnlockTexture(render->emu_texture);
+
+    if(active_vram_bank == 0){
+        SDL_UnlockMutex(shared_data->vram_zero_m);
+    } else {
+        SDL_UnlockMutex(shared_data->vram_one_m);
+    }     
+}
+
+
+void update_emu_hz_text(SDLite_Text *hz_text, u32 hz) {
+    u64 current_ms = SDL_GetTicks();
+    static u64 last_remainder = 1000;
+    u64 current_remainder = current_ms % 1000;
+    u64 temp = last_remainder;
+    last_remainder = current_remainder;
+    if (current_remainder >= temp)
+        return;
+
+    char buf[32];
+    snprintf(buf, sizeof(buf), "EMU khz: %.4f", (f32)(hz) / 1000);
+
+    SDLite_Text_SetString(hz_text, buf);
+}
+
+
 int main(){
 
-    SDL_AtomicU32 emulator_state;
-    SDL_SetAtomicU32(&emulator_state, 0);
+    RenderData render = {0};
+    SharedData shared_data = {0};
+    SDL_SetAtomicU32(&shared_data.signal_emu_active_vram_bank, 0);
+    SDL_SetAtomicU32(&shared_data.signal_emu_done, 0);
+    SDL_SetAtomicU32(&shared_data.emu_hertz, 0);
 
     if(SDLite_Init(NULL, NULL, false, false))
         return 1;
@@ -26,28 +156,69 @@ int main(){
     if(check_version())
         return 1;
 
-    SDLite_Display *display = SDLite_CreateDisplay("Rose EMU", 400, 400, SDL_WINDOW_MAXIMIZED);
-    if(!display){
+    if(create_render_data(&render)){
+        destroy_render_data(&render);
         SDLite_Quit();
         return 1;
     }
 
-    SDL_Thread *emulator_thread = SDL_CreateThread(emulator_main, "emulator", &emulator_state);
+    if(!render.display){
+        SDLite_Quit();
+        return 1;
+    }
+
+    shared_data.vram_zero_m = SDL_CreateMutex();
+    shared_data.vram_one_m = SDL_CreateMutex();
+    if(!shared_data.vram_zero_m || !shared_data.vram_one_m){
+        destroy_shared_data(&shared_data);
+        destroy_render_data(&render);
+        SDLite_Quit();
+        return 1;
+    }
+
+    SDL_Thread *emulator_thread = SDL_CreateThread(emulator_main, "emulator", &shared_data);
     if(!emulator_thread){
-        SDLite_DestroyDisplay(display);
+        destroy_shared_data(&shared_data);
+        destroy_render_data(&render);
         SDLite_Quit();
         return 1;
     }
 
-    while(!SDL_GetAtomicU32(&emulator_state)){
+    while((!SDL_GetAtomicPointer((void**)&shared_data.vram_zero) || !SDL_GetAtomicPointer((void**)&shared_data.vram_one)) &&
+          !SDL_GetAtomicU32(&shared_data.signal_emu_done)){
+        SDL_Delay(1);
+    }
+
+
+    SDL_Renderer *sdl_renderer = SDLite_Display_GetSDLRenderer(render.display);
+    while(!SDL_GetAtomicU32(&shared_data.signal_emu_done)){
+
+        static SDL_Event e;
+
+        while(SDL_PollEvent(&e)){
+            // nothing
+        }
+
+        u32 current_hertz = SDL_GetAtomicU32(&shared_data.emu_hertz);
+        update_emu_hz_text(render.emu_hz, current_hertz);
+        update_render_texture(&shared_data, &render);
+
         // main rendering loop
-        SDLite_DisplayClear(display);
-        SDLite_DisplayPresent(display);
+        SDLite_DisplayClear(render.display);
+        
+        SDLite_Render_Text(render.emu_hz);
+        SDL_RenderTexture(sdl_renderer, render.emu_texture, NULL, &render.render_rect);
+        
+        SDLite_DisplayPresent(render.display);
+        
     }
 
 
     int emulator_result = 0;
     SDL_WaitThread(emulator_thread, &emulator_result);
+
+    destroy_shared_data(&shared_data);
+    destroy_render_data(&render);
 
     if(emulator_result == 0){
         printf("emu sucesss: %d                  \n", emulator_result);

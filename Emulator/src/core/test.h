@@ -15,6 +15,7 @@ int run_tests();
     #define RUN_TESTS() false
     #define PRINT_CMP_FLAGS(flags)
     #define PRINT_INDIVIDUAL_BYTES(value)
+    #define PRINT_REGISTER_FILES(emu) 
 #else
     #define d_printf(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
     #define RUN_TESTS() run_tests()
