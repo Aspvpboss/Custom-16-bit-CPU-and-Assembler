@@ -12,7 +12,6 @@ typedef struct {
 
     SDL_FRect render_rect;
     SDL_Texture *emu_texture;
-    SDL_Palette *palette;
     SDLite_Display *display;
     SDLite_Text *emu_hz;
     SDLite_Text_Font *font;
