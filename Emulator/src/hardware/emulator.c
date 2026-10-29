@@ -7,6 +7,15 @@
 #define RETURN_THREAD(status) SDL_SetAtomicU32(&shared_data->signal_emu_done, 1); return status; 
 #define BATCH_SIZE 100
 #define DEFAULT_HZ_LIMIT 1000.0
+// #define LOCK_MUTEX(vram_bank) vram_bank ? SDL_LockMutex(emu->shared_data->vram_one_m) ? SDL_LockMutex(emu->shared_data->vram_zero_m)
+// #define UNLOCK_MUTEX(vram_bank) vram_bank ? SDL_UnlockMutex(emu->shared_data->vram_one_m) ? SDL_UnlockMutex(emu->shared_data->vram_zero_m)
+
+inline static void emu_lock_mutex(Emulator *emu) {
+    emu->ram.vram_selector ? SDL_LockMutex(emu->shared_data->vram_one_m) : SDL_LockMutex(emu->shared_data->vram_zero_m);
+}
+inline static void emu_unlock_mutex(Emulator *emu) {
+    emu->ram.vram_selector ? SDL_UnlockMutex(emu->shared_data->vram_one_m) : SDL_UnlockMutex(emu->shared_data->vram_zero_m);
+}
 
 int emulator_main(void *ptr){
   
@@ -22,6 +31,7 @@ int emulator_main(void *ptr){
         SDLite_SetError("emulator_main(): init() failed");
         RETURN_THREAD(1);
     }
+    emu->shared_data = shared_data;
 
     SDL_SetAtomicPointer((void**)&shared_data->vram_zero, emu->ram.vram_zero);
     SDL_SetAtomicPointer((void**)&shared_data->vram_one, emu->ram.vram_one);
