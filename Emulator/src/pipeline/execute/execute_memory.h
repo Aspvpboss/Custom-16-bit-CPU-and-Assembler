@@ -16,8 +16,8 @@ enum Move_Opcodes{
 };
 
 
-int read_memory(Emulator *emu, u16 address, u16 *value, bool sixteen_bit_read);
-int write_memory(Emulator *emu, u16 address, u16 value, bool sixteen_bit_write);
+int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read);
+int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write);
 
 static inline int exe_push(Emulator *emu, EMU_Decoded_Instruction *instruction){
    
