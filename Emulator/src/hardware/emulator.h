@@ -41,7 +41,6 @@ typedef struct{
     EMU_Alu alu;
     EMU_Fpu fpu;
     CMP_Flags flags;
-    SharedData *shared_data; // set after emulator creation
 
 } Emulator;
 
