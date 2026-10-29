@@ -2,12 +2,13 @@
 
 
 
-int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
+int write_memory(Emulator *emu, u16 address, u16 value, bool sixteen_bit_write){
 
-    if(!ram){
-        SDLite_SetError("write_memory(): ram pointer is NULL");
+    if(!emu){
+        SDLite_SetError("write_memory(): emu pointer is NULL");
         return 1;
     }
+    EMU_Ram *ram = &emu->ram;
 
     if(address < 0x100){
         SDLite_SetError("write_memory(): attempted write to read-only bootloader at 0x%04X", address);
@@ -38,9 +39,12 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
         }
         u16 offset = address - 0x6F00; 
 
+        ram->vram_selector ? SDL_LockMutex(emu->shared_data->vram_one_m) : SDL_LockMutex(emu->shared_data->vram_one_m);
+
         active_vram[offset] = (value & 0x00ff);
         if(sixteen_bit_write) active_vram[offset + 1] = (value & 0xff00) >> 8;
 
+        ram->vram_selector ? SDL_UnlockMutex(emu->shared_data->vram_one_m) : SDL_UnlockMutex(emu->shared_data->vram_one_m);
     } 
     
     else if(address >= 0x7F00 && address < 0x8000){ // MMIO
@@ -74,13 +78,15 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
 }
 
 
-int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
+int read_memory(Emulator *emu, u16 address, u16 *value, bool sixteen_bit_read){
 
-    if(!ram || !value){
+    if(!emu || !value){
         SDLite_SetError("read_memory(): NULL pointer argument");
         return 1;
     }
 
+    EMU_Ram *ram = &emu->ram;
+    
     u8 *active_vram = ram->vram_selector ? ram->vram_one : ram->vram_zero;
 
     if(address < 0x100){ // bootloader
@@ -114,9 +120,13 @@ int read_memory(EMU_Ram *ram, u16 address, u16 *value, bool sixteen_bit_read){
         }
 
         u16 offset = address - 0x6F00; 
+        
+        ram->vram_selector ? SDL_LockMutex(emu->shared_data->vram_one_m) : SDL_LockMutex(emu->shared_data->vram_one_m);
 
         *value = active_vram[offset];
         *value |= sixteen_bit_read ? (active_vram[offset + 1] << 8) : 0;
+        
+        ram->vram_selector ? SDL_UnlockMutex(emu->shared_data->vram_one_m) : SDL_UnlockMutex(emu->shared_data->vram_one_m);
 
     } else if(address >= 0x7F00 && address < 0x8000){ // MMIO
      
