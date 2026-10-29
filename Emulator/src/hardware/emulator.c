@@ -25,6 +25,7 @@ void flush_vram_buffer(Emulator *emu, u8 flush_val) {
             write_memory(ram, vram_start + (y * EMU_DISPLAY_SIZE + x), flush_val, false);
         }
     }
+    write_memory(ram, vram_start + 1, 0, false);
     
     emu_unlock_mutex(emu, emu->ram.vram_selector);
 }
