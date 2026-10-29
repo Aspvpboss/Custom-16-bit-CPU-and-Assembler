@@ -16,7 +16,6 @@ void flush_vram_buffer(Emulator *emu, u8 flush_val) {
             write_memory(emu, vram_start + (y * EMU_DISPLAY_SIZE + x), flush_val, false);
         }
     }
-    write_memory(emu, vram_start + 1, 0, false);
 }
 
 int emulator_main(void *ptr){
