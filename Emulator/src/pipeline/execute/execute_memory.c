@@ -36,7 +36,6 @@ int write_memory(EMU_Ram *ram, u16 address, u16 value, bool sixteen_bit_write){
             SDLite_SetError("write_memory(): 16-bit write out of VRAM bounds at 0x%04X", address);
             return 1;
         }
-
         u16 offset = address - 0x6F00; 
 
         active_vram[offset] = (value & 0x00ff);

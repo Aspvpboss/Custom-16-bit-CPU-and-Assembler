@@ -3,10 +3,21 @@
 #include "core/destroy.h"
 #include "core/test.h"
 #include "hardware/emulator.h"
+#include "pipeline/execute/execute_memory.h"
 
 #define RETURN_THREAD(status) SDL_SetAtomicU32(&shared_data->signal_emu_done, 1); return status; 
 #define BATCH_SIZE 100
 #define DEFAULT_HZ_LIMIT 1000.0
+
+
+void flush_buffer(Emulator *emu, u8 value) {
+    for(u16 y_idx; y_idx < EMU_DISPLAY_SIZE; y_idx++){
+        for(u16 x_idx; x_idx < EMU_DISPLAY_SIZE; x_idx++){
+
+        }
+    }
+}
+
 
 int emulator_main(void *ptr){
   
@@ -23,6 +34,7 @@ int emulator_main(void *ptr){
         RETURN_THREAD(1);
     }
 
+    emu->shared_data = shared_data; // needed for internal functions
     SDL_SetAtomicPointer((void**)&shared_data->vram_zero, emu->ram.vram_zero);
     SDL_SetAtomicPointer((void**)&shared_data->vram_one, emu->ram.vram_one);
 

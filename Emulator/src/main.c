@@ -104,8 +104,16 @@ void update_render_texture(SharedData *shared_data, RenderData *render){
         return;
     }
 
+    u8 scale = render->scale;
+    u8 *dst_pixels = (u8 *)dst;
     for (int y = 0; y < EMU_DISPLAY_SIZE; y++) {
-        memcpy(dst + y * pitch, src + y * EMU_DISPLAY_SIZE, EMU_DISPLAY_SIZE);
+        u8 *first_scaled_row = dst_pixels + (y * scale) * pitch;
+        for (int x = 0; x < EMU_DISPLAY_SIZE; x++) {
+            memset(first_scaled_row + x * scale, src[y * EMU_DISPLAY_SIZE + x], scale);
+        }
+        for (int sy = 1; sy < scale; sy++) {
+            memcpy(dst_pixels + (y * scale + sy) * pitch, first_scaled_row, EMU_DISPLAY_SIZE * scale);
+        }
     }
 
     SDL_UnlockTexture(render->emu_texture);
