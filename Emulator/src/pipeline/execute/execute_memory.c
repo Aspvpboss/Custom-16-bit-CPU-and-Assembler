@@ -1,5 +1,5 @@
 #include "pipeline/execute/execute_memory.h"
-
+#include "pipeline/mmio.h"
 
 
 int write_memory(Emulator *emu, u16 address, u16 value, bool sixteen_bit_write){

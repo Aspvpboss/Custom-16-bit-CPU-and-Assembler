@@ -21,11 +21,6 @@ int check_version(){
 
 
 
-
-
-
-
-
 int main(){
 
     RenderData render = {0};
