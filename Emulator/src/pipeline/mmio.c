@@ -1,6 +1,8 @@
+#include <time.h>
 #include "pipeline/mmio.h"
 #include "pipeline/execute/execute_memory.h"
 
+static struct timespec base_time = {0};
 const u16 TIME_SEC = 0x7F00; // u16 R
 const u16 TIME_MS = 0x7F02; // u16 R
 const u16 KEY_CURR = 0x7F04; // u8 R
@@ -31,9 +33,33 @@ int update_vram_buf(Emulator *emu) {
 
 }
 
-int mmio(Emulator *emu){
+int update_time(Emulator *emu) {
 
+    if(base_time.tv_sec == 0 && base_time.tv_nsec == 0){
+        clock_gettime(CLOCK_MONOTONIC, &base_time);
+    } 
+    struct timespec current_time;
+    clock_gettime(CLOCK_MONOTONIC, &current_time);
+    i64 sec_uptime = current_time.tv_sec - base_time.tv_sec;
+    i64 nsec_uptime = current_time.tv_nsec - base_time.tv_nsec;
+    if(nsec_uptime < 0){
+        sec_uptime -= 1;
+        nsec_uptime += 1000000000;
+    } 
+
+    i64 milli_uptime = (i64)(nsec_uptime / 1000000);
+   
+    if(write_memory(emu, TIME_SEC, (u16)sec_uptime, true))
+        return 1;
+    if(write_memory(emu, TIME_MS, (u16)milli_uptime, true))
+        return 1;
+    
+    return 0;
+}
+
+int mmio(Emulator *emu){
     if(update_vram_buf(emu)) return 1;
+    if(update_time(emu)) return 1;
 
     return 0;
 }
