@@ -1,4 +1,5 @@
 #include "pipeline/mmio.h"
+#include "pipeline/execute/execute_memory.h"
 
 const u16 TIME_SEC = 0x7F00; // u16 R
 const u16 TIME_MS = 0x7F02; // u16 R
@@ -24,8 +25,9 @@ u8 uart_in() {
 
 int update_vram_buf(Emulator *emu) {
     u8 current_vram_bank = 0;
+    if(read_memory(emu, VRAM_BUF, &current_vram_bank, false)) return 1; 
+    emu->ram.vram_selector = current_vram_bank;
     SDL_SetAtomicU32(&emu->shared_data->signal_emu_active_vram_bank, emu->ram.vram_selector); 
-
 
 }
 
