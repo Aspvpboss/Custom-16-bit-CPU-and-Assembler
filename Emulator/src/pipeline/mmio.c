@@ -26,11 +26,14 @@ u8 uart_in() {
 }
 
 int update_vram_buf(Emulator *emu) {
-    u8 current_vram_bank = 0;
-    if(read_memory(emu, VRAM_BUF, &current_vram_bank, false)) return 1; 
+    u16 current_vram_bank = 0;
+    if(read_memory(emu, VRAM_BUF, &current_vram_bank, false)){
+        return 1;
+    } 
     emu->ram.vram_selector = current_vram_bank;
     SDL_SetAtomicU32(&emu->shared_data->signal_emu_active_vram_bank, emu->ram.vram_selector); 
 
+    return 0;
 }
 
 int update_time(Emulator *emu) {
@@ -48,7 +51,6 @@ int update_time(Emulator *emu) {
     } 
 
     i64 milli_uptime = (i64)(nsec_uptime / 1000000);
-   
     if(write_memory(emu, TIME_SEC, (u16)sec_uptime, true))
         return 1;
     if(write_memory(emu, TIME_MS, (u16)milli_uptime, true))
