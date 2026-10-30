@@ -1,5 +1,19 @@
 #include "pipeline/mmio.h"
 
+const u16 TIME_SEC = 0x7F00; // u16 R
+const u16 TIME_MS = 0x7F02; // u16 R
+const u8 KEY_CURR = 0x7F04; // u8 R
+const u8 KEY_PREV = 0x7F05; // u8 R
+const u8 MOUSE_X = 0x7F06; // u8 R
+const u8 MOUSE_Y = 0x7F07; // u8 R
+const u8 VRAM_BUF = 0x7F09; // u8 W/R
+const u8 DISP_CFG = 0x7F0A; // u8 W/R
+const u8 DISP_VAL = 0x7F0B; // u16 W/R
+const u8 UART_DATA = 0x7F0D; // u8 W/R
+const u8 UART_STATUS = 0x7F0E; // u8 W/R
+
+
+
 void uart_out(u8 byte) {
     putchar(byte);
 }
@@ -10,7 +24,7 @@ u8 uart_in() {
 int update_vram_buf(Emulator *emu) {
     u8 current_vram_bank = 0;
     SDL_SetAtomicU32(&emu->shared_data->signal_emu_active_vram_bank, emu->ram.vram_selector); 
-    
+
 
 }
 
