@@ -267,29 +267,34 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 
 
 
+# Memory-Mapped I/O (MMIO)
 
-# Memory Mapped IO
+**Address Range:** `0x7F00` – `0x7FFF` (256 Bytes)
 
-0x7F00 - 0x7FFF: MMIO (256B)
+## MMIO Feature Overview
 
-## Features
-* Inputs
-    * Time value since emulator started (u16 for seconds, u16 for milliseconds)
-    * Current & Previous keyboard key pressed
-    * Mouse position (relative to the screen)
-    * Mouse buttons
-* Outputs
-    * Active VRAM buffer (either zero or one)
-    * Numerical display config (either float, u16, or i16)
-    * Display 2-bytes as configured
-* Misc
-    * uart (built into memory_read and memory_write)
+| Address | Name | Width | R/W | Description |
+| :---: | :--- | :---: | :---: | :--- |
+| `0x7F00` | `TIME_SEC` | 16-bit | R | Seconds since emulator started (`u16`) |
+| `0x7F02` | `TIME_MS` | 16-bit | R | Milliseconds since last second (`u16`, `0`–`999`) |
+| `0x7F04` | `KEY_CURR` | 8-bit | R | Currently pressed keyboard keycode |
+| `0x7F05` | `KEY_PREV` | 8-bit | R | Previously pressed keyboard keycode |
+| `0x7F06` | `MOUSE_X` | 8-bit | R | Mouse X coordinate relative to screen (`0`–`63`) |
+| `0x7F07` | `MOUSE_Y` | 8-bit | R | Mouse Y coordinate relative to screen (`0`–`63`) |
+| `0x7F08` | `MOUSE_BTN` | 8-bit | R | Mouse button bitmask (`Bit 0`: Left, `Bit 1`: Right, `Bit 2`: Middle) |
+| `0x7F09` | `VRAM_BUF` | 8-bit | R/W | Active VRAM buffer toggle (`0` or `1`) |
+| `0x7F0A` | `DISP_CFG` | 8-bit | R/W | Numeric display mode (`0x00`: `u16`, `0x01`: `i16`, `0x02`: `f16`) |
+| `0x7F0C` | `DISP_VAL` | 16-bit | R/W | 2-byte payload to show on the numeric display |
+| `0x7F0E` | `UART_DATA` | 8-bit | R/W | Read/write byte stream (intercepted in `memory_read` / `memory_write`) |
+| `0x7F0F` | `UART_STATUS` | 8-bit | R | UART status flags (`Bit 0`: RX Ready, `Bit 1`: TX Ready) |
+| `0x7F10–0x7FFF` | *Reserved* | — | — | Unassigned MMIO space (240 Bytes) |
 
+---
 
-### The Screen
-- Emulator thread & Render Thread
+## Screen & Render Architecture
 
-- Emulator frame buffer -(memcpy)> back buffer
-- Emulator frame ready -(atomic int)> swap buffers for render thread
+The display subsystem separates emulation from host rendering using two threads to minimize frame stalling:
 
-- This means very little thread stalling for rendering
+```text
+[ Emulator Thread ]                          [ Render Thread ]
+VRAM Framebuffer ──(memcpy)──> Back Buffer ──(atomic swap)──> Front Buffer (Screen)
