@@ -284,10 +284,10 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 | `0x7F08` | `MOUSE_BTN` | 8-bit | R | Mouse button bitmask (`Bit 0`: Left, `Bit 1`: Right, `Bit 2`: Middle) |
 | `0x7F09` | `VRAM_BUF` | 8-bit | R/W | Active VRAM buffer toggle (`0` or `1`) |
 | `0x7F0A` | `DISP_CFG` | 8-bit | R/W | Numeric display mode (`0x00`: `u16`, `0x01`: `i16`, `0x02`: `f16`) |
-| `0x7F0C` | `DISP_VAL` | 16-bit | R/W | 2-byte payload to show on the numeric display |
-| `0x7F0E` | `UART_DATA` | 8-bit | R/W | Read/write byte stream (intercepted in `memory_read` / `memory_write`) |
-| `0x7F0F` | `UART_STATUS` | 8-bit | R | UART status flags (`Bit 0`: RX Ready, `Bit 1`: TX Ready) |
-| `0x7F10–0x7FFF` | *Reserved* | — | — | Unassigned MMIO space (240 Bytes) |
+| `0x7F0B` | `DISP_VAL` | 16-bit | R/W | 2-byte payload to show on the numeric display |
+| `0x7F0D` | `UART_DATA` | 8-bit | R/W | Read/write byte stream (intercepted in `memory_read` / `memory_write`) |
+| `0x7F0E` | `UART_STATUS` | 8-bit | R | UART status flags (`Bit 0`: RX Ready, `Bit 1`: TX Ready) |
+| `0x7F0F–0x7FFF` | *Reserved* | — | — | Unassigned MMIO space (241 Bytes) |
 
 ---
 
