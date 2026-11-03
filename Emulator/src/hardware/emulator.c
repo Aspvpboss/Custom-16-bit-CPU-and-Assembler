@@ -62,21 +62,19 @@ int emulator_main(void *ptr){
 
             if(result != EMU_CONTINUE){
                 break;
+            }        
+        
+            if(SDLite_Input_KeyJustPressed(sdlite->input, SDL_SCANCODE_SPACE)){
+                limit_fps = !limit_fps;
+                double new_fps = limit_fps ? -1 : (DEFAULT_HZ_LIMIT / BATCH_SIZE);
+                SDLite_Time_Set_FPSLimit(sdlite->time, new_fps);
+                SDLite_Input_UpdateAllPrev(sdlite->input);
             }
         }
 
         double current_hz = SDLite_Time_GetFPS(sdlite->time) * BATCH_SIZE;
 
-        if(SDLite_Input_KeyJustPressed(sdlite->input, SDL_SCANCODE_T)){
-            emu->ram.vram_selector = !emu->ram.vram_selector;
-            SDL_SetAtomicU32(&shared_data->signal_emu_active_vram_bank, emu->ram.vram_selector); 
-        }
 
-        if(SDLite_Input_KeyJustPressed(sdlite->input, SDL_SCANCODE_SPACE)){
-            limit_fps = !limit_fps;
-            double new_fps = limit_fps ? -1 : (DEFAULT_HZ_LIMIT / BATCH_SIZE);
-            SDLite_Time_Set_FPSLimit(sdlite->time, new_fps);
-        }
 
         SDL_SetAtomicU32(&shared_data->emu_hertz, (u32)current_hz);
 

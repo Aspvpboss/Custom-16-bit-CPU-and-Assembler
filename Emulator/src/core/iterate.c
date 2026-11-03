@@ -18,6 +18,10 @@ EMU_Result iterate(Emulator *emu){
         return EMU_FAILURE;
     }
 
+    if(SDLite_Input_KeyJustPressed(input, SDL_SCANCODE_T)){
+        write_mmio(emu, 0x7F09, 0, false);
+    }
+    
     EMU_Decoded_Instruction instruction = {0};
 
     i8 result = 0;
