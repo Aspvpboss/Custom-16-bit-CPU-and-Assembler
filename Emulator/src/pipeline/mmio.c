@@ -14,7 +14,7 @@ const u16 DISP_VAL = 0x7F0B; // u16 W/R
 const u16 UART_DATA = 0x7F0D; // u8 W/R
 const u16 UART_STATUS = 0x7F0E; // u8 W/R
 
-
+#define trunc_value(value, cond) cond ? value : value & 255 
 
 void uart_out(u8 byte) {
     putchar(byte);
@@ -56,8 +56,22 @@ u16 get_current_uptime(Emulator *emu, bool get_millis) {
 }
 
 int read_mmio(Emulator *emu, u16 address, u16 *read_value, bool sixteen_bit_read){
-    // if(update_time(emu)) return 1;
+    switch(address){
+        
+        case TIME_SEC: {
+            u16 secs = get_current_uptime(emu, false);
+            *read_value = trunc_value(secs, sixteen_bit_read);
+            break;
+        }
+        case TIME_MS: {
+            u16 m_secs = get_current_uptime(emu, true);
+            *read_value = trunc_value(m_secs, sixteen_bit_read);
+            break;
+        }
 
+        default:
+            break;
+    }
 
     return 0;
 }
