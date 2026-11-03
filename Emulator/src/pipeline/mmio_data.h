@@ -6,7 +6,7 @@
 
 typedef struct {
     bool vram_buf_swap_signal;
-    struct timespec base_time, current_time;
+    struct timespec base_time;
 } EMU_mmio;
 
 #endif

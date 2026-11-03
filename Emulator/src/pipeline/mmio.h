@@ -6,8 +6,8 @@
 #include "hardware/emulator.h"
 
 
-int write_mmio(Emulator *emu, u16 address, u16 write_value);
-int read_mmio(Emulator *emu, u16 address, u16 *read_value);
+int write_mmio(Emulator *emu, u16 address, u16 write_value, bool sixteen_bit_write);
+int read_mmio(Emulator *emu, u16 address, u16 *read_value, bool sixteen_bit_read);
 int mmio(Emulator *emu);
 
 #endif

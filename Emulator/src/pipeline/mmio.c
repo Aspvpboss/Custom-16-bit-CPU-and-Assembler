@@ -37,39 +37,32 @@ int update_vram_buf(Emulator *emu) {
     return 0;
 }
 
-int update_time(Emulator *emu) {
+u16 get_current_uptime(Emulator *emu, bool get_millis) {
 
-    static struct timespec base_time = {0};
-
-    if(base_time.tv_sec == 0 && base_time.tv_nsec == 0){
-        clock_gettime(CLOCK_MONOTONIC, &base_time);
-    } 
     struct timespec current_time;
-    clock_gettime(CLOCK_MONOTONIC, &current_time);
-    i64 sec_uptime = current_time.tv_sec - base_time.tv_sec;
-    i64 nsec_uptime = current_time.tv_nsec - base_time.tv_nsec;
+    if(clock_gettime(CLOCK_MONOTONIC, &current_time))
+        return 0;
+    i64 sec_uptime = current_time.tv_sec - emu->mmio.base_time.tv_sec;
+    i64 nsec_uptime = current_time.tv_nsec - emu->mmio.base_time.tv_nsec;
     if(nsec_uptime < 0){
         sec_uptime -= 1;
         nsec_uptime += 1000000000;
     } 
-
-    i64 milli_uptime = (i64)(nsec_uptime / 1000000);
-    if(write_memory(emu, TIME_SEC, (u16)sec_uptime, true))
-        return 1;
-    if(write_memory(emu, TIME_MS, (u16)milli_uptime, true))
-        return 1;
     
+    if(get_millis)
+        return (u16)(nsec_uptime / 1000000);
+    else
+        return (u16)sec_uptime;
+}
+
+int read_mmio(Emulator *emu, u16 address, u16 *read_value, bool sixteen_bit_read){
+    // if(update_time(emu)) return 1;
+
+
     return 0;
 }
 
-int read_mmio(Emulator *emu, u16 address, u16 *read_value){
-    if(update_vram_buf(emu)) return 1;
-    if(update_time(emu)) return 1;
-
-    return 0;
-}
-
-int write_mmio(Emulator *emu, u16 address, u16 write_value) {
+int write_mmio(Emulator *emu, u16 address, u16 write_value, bool sixteen_bit_write) {
 
 
     return 0;
@@ -77,6 +70,12 @@ int write_mmio(Emulator *emu, u16 address, u16 write_value) {
 
 
 int mmio(Emulator *emu) {
+    EMU_mmio *mmio = &emu->mmio; 
+
+    if(mmio->vram_buf_swap_signal){
+        mmio->vram_buf_swap_signal = false;
+        if(update_vram_buf(emu)) return 1;
+    }
 
 
     return 0;
