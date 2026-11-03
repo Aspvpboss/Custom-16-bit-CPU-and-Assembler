@@ -85,9 +85,12 @@ int write_mmio(Emulator *emu, u16 address, u16 write_value, bool sixteen_bit_wri
         
         case UART_DATA: {
             uart_out(write_value);
+            break;
         }
         case VRAM_BUF_SIGNAL: {
             emu->mmio.vram_buf_swap_signal = true;
+            if(update_vram_buf(emu)) return 1;
+            break;
         }
 
         default:

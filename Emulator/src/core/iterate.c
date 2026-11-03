@@ -21,7 +21,7 @@ EMU_Result iterate(Emulator *emu){
     if(SDLite_Input_KeyJustPressed(input, SDL_SCANCODE_T)){
         write_mmio(emu, 0x7F09, 0, false);
     }
-    
+
     EMU_Decoded_Instruction instruction = {0};
 
     i8 result = 0;
@@ -41,10 +41,10 @@ EMU_Result iterate(Emulator *emu){
         SDLite_SetError("execute() failed to run");
         return EMU_FAILURE;
     } 
-    result = mmio(emu);
-    if(result == 1){
-        SDLite_SetError("mmio() failed to run");
-        return EMU_FAILURE; 
-    } 
+    // result = mmio(emu);
+    // if(result == 1){
+    //     SDLite_SetError("mmio() failed to run");
+    //     return EMU_FAILURE; 
+    // } 
     return EMU_CONTINUE;
 }
