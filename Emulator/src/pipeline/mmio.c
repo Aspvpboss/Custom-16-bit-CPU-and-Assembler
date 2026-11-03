@@ -78,4 +78,6 @@ int write_mmio(Emulator *emu, u16 address, u16 write_value) {
 
 int mmio(Emulator *emu) {
 
+
+    return 0;
 }
