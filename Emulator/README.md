@@ -282,7 +282,7 @@ FPU and ALU operations only use 4-bit addresses for registers; however, for memo
 | `0x7F06` | `MOUSE_X` | 8-bit | R | Mouse X coordinate relative to screen (`0`–`63`) |
 | `0x7F07` | `MOUSE_Y` | 8-bit | R | Mouse Y coordinate relative to screen (`0`–`63`) |
 | `0x7F08` | `MOUSE_BTN` | 8-bit | R | Mouse button bitmask (`Bit 0`: Left, `Bit 1`: Right, `Bit 2`: Middle) |
-| `0x7F09` | `VRAM_BUF` | 8-bit | R/W | Active VRAM buffer toggle (`0` or `1`) |
+| `0x7F09` | `VRAM_BUF_SIGNAL` | 8-bit | R/W | Signal to swap active vram_buffer (Writing any value will signal) |
 | `0x7F0A` | `DISP_CFG` | 8-bit | R/W | Numeric display mode (`0x00`: `u16`, `0x01`: `i16`, `0x02`: `f16`) |
 | `0x7F0B` | `DISP_VAL` | 16-bit | R/W | 2-byte payload to show on the numeric display |
 | `0x7F0D` | `UART_DATA` | 8-bit | R/W | Read/write byte stream (intercepted in `memory_read` / `memory_write`) |
