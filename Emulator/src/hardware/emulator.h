@@ -1,5 +1,5 @@
-#ifndef EMULATOR_H
-#define EMULATOR_H
+#ifndef EMU_EMULATOR_H
+#define EMU_EMULATOR_H
 
 #include <SDLite/SDLite.h>
 #include <SDL3/SDL_thread.h>
@@ -10,7 +10,7 @@
 #include "hardware/flags.h"
 #include "hardware/alu.h"
 #include "hardware/fpu.h"
-#include "pipeline/mmio.h"
+#include "pipeline/mmio_data.h"
 #include "shared_data.h"
 
 
@@ -38,10 +38,11 @@ typedef struct{
 typedef struct{
 
     EMU_Ram ram;
-    SDLite_IO SDLite_io;
     EMU_Alu alu;
     EMU_Fpu fpu;
+    EMU_mmio mmio;
     CMP_Flags flags;
+    SDLite_IO SDLite_io;
     SharedData *shared_data;
 
 } Emulator;

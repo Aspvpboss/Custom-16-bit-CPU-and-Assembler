@@ -6,9 +6,15 @@
 
 Emulator* init(){
 
-    Emulator *emu = t_malloc(sizeof(Emulator));
+    Emulator *emu = t_calloc(1, sizeof(Emulator));
     if(!emu){
         SDLite_SetError("init(): failed to allocate Emulator");
+        return NULL;
+    }
+    
+    if(clock_gettime(CLOCK_MONOTONIC, &emu->mmio.base_time)){
+        SDLite_SetError("init(): failed to get base startup time");
+        t_free(emu);
         return NULL;
     }
 
