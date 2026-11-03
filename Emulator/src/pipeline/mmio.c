@@ -73,7 +73,7 @@ int read_mmio(Emulator *emu, u16 address, u16 *read_value, bool sixteen_bit_read
         }
 
         default:
-            break;
+            return 1;
     }
 
     return 0;
@@ -91,7 +91,7 @@ int write_mmio(Emulator *emu, u16 address, u16 write_value, bool sixteen_bit_wri
         }
 
         default:
-            break;
+            return 1;
     }
 
     return 0;

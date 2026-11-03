@@ -56,8 +56,10 @@ int write_memory(Emulator *emu, u16 address, u16 value, bool sixteen_bit_write){
             return 1;
         }
 
-        u16 offset = address - 0x7F00;
 
+        if(!write_mmio(emu, address, value, sixteen_bit_write)) return 0; 
+
+        u16 offset = address - 0x7F00;
         ram->mmio[offset] = value & 0x00ff;
         if(sixteen_bit_write) ram->mmio[offset + 1] = (value & 0xff00) >> 8;
 
@@ -135,8 +137,9 @@ int read_memory(Emulator *emu, u16 address, u16 *value, bool sixteen_bit_read){
             return 1;
         }
 
-        u16 offset = address - 0x7F00;
+        if(!read_mmio(emu, address, value, sixteen_bit_read)) return 0;
 
+        u16 offset = address - 0x7F00;
         *value = ram->mmio[offset];
         *value |= sixteen_bit_read ? (ram->mmio[offset + 1] << 8) : 0;
     
