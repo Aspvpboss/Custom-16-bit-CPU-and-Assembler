@@ -1,18 +1,18 @@
 #include "pipeline/mmio.h"
 #include "pipeline/execute/execute_memory.h"
 
-const u16 TIME_SEC = 0x7F00; // u16 R
-const u16 TIME_MS = 0x7F02; // u16 R
-const u16 KEY_CURR = 0x7F04; // u8 R
-const u16 KEY_PREV = 0x7F05; // u8 R
-const u16 MOUSE_X = 0x7F06; // u8 R
-const u16 MOUSE_Y = 0x7F07; // u8 R
-const u16 MOUSE_BTN = 0x7F08; // u8 R
-const u16 VRAM_BUF_SIGNAL = 0x7F09; // u8 W/R
-const u16 DISP_CFG = 0x7F0A; // u8 W/R
-const u16 DISP_VAL = 0x7F0B; // u16 W/R
-const u16 UART_DATA = 0x7F0D; // u8 W/R
-const u16 UART_STATUS = 0x7F0E; // u8 W/R
+#define TIME_SEC 0x7F00 // u16 R
+#define TIME_MS 0x7F02 // u16 R
+#define KEY_CURR 0x7F04 // u8 R
+#define KEY_PREV 0x7F05 // u8 R
+#define MOUSE_X 0x7F06 // u8 R
+#define MOUSE_Y 0x7F07 // u8 R
+#define MOUSE_BTN 0x7F08 // u8 R
+#define VRAM_BUF_SIGNAL 0x7F09 // u8 W/R
+#define DISP_CFG 0x7F0A // u8 W/R
+#define DISP_VAL 0x7F0B // u16 W/R
+#define UART_DATA 0x7F0D // u8 W/R
+#define UART_STATUS 0x7F0E // u8 W/R
 
 #define trunc_value(value, cond) cond ? value : value & 255 
 
@@ -26,13 +26,12 @@ u8 uart_in() {
 int update_vram_buf(Emulator *emu) {
 
     if(!emu->mmio.vram_buf_swap_signal) return 0;
-    u16 current_vram_bank = 0;
-    // if(read_memory(emu, VRAM_BUF, &current_vram_bank, false)){
-    //     return 1;
-    // }
-        
-    emu->ram.vram_selector = current_vram_bank;
+    u16 current_vram_bank = SDL_GetAtomicU32(&emu->shared_data->signal_emu_active_vram_bank);
+
+    emu->ram.vram_selector = !current_vram_bank;
     SDL_SetAtomicU32(&emu->shared_data->signal_emu_active_vram_bank, emu->ram.vram_selector); 
+
+    emu->mmio.vram_buf_swap_signal = false;
 
     return 0;
 }
@@ -102,10 +101,7 @@ int write_mmio(Emulator *emu, u16 address, u16 write_value, bool sixteen_bit_wri
 int mmio(Emulator *emu) {
     EMU_mmio *mmio = &emu->mmio; 
 
-    if(mmio->vram_buf_swap_signal){
-        mmio->vram_buf_swap_signal = false;
-        if(update_vram_buf(emu)) return 1;
-    }
+    if(update_vram_buf(emu)) return 1;
 
 
     return 0;
