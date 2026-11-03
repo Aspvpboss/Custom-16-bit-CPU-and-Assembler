@@ -39,7 +39,7 @@ Emulator* init(){
     memset(emu->ram.ram_bank, 0, sizeof(emu->ram.ram_bank));
     emu->ram.vram_selector = false;
 
-    emu->ram.bootloader[0] = 0x6 << 5 | EMU_JMP; 
+    emu->ram.bootloader[0] = ADDR_IMMEDIATE_EIGHT << 5 | EMU_JMP; 
     emu->ram.bootloader[1] = 0x0000;
 
     return emu;
