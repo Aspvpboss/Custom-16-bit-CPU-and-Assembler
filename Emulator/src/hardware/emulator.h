@@ -10,6 +10,7 @@
 #include "hardware/flags.h"
 #include "hardware/alu.h"
 #include "hardware/fpu.h"
+#include "pipeline/mmio.h"
 #include "shared_data.h"
 
 

@@ -37,7 +37,7 @@ EMU_Result iterate(Emulator *emu){
         SDLite_SetError("execute() failed to run");
         return EMU_FAILURE;
     } 
-    result = mmio();
+    result = mmio(emu);
     if(result == 1){
         SDLite_SetError("mmio() failed to run");
         return EMU_FAILURE; 

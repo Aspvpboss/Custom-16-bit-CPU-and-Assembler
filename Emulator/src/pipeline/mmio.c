@@ -1,4 +1,3 @@
-#include <time.h>
 #include "pipeline/mmio.h"
 #include "pipeline/execute/execute_memory.h"
 
@@ -63,9 +62,20 @@ int update_time(Emulator *emu) {
     return 0;
 }
 
-int mmio(Emulator *emu){
+int read_mmio(Emulator *emu, u16 address, u16 *read_value){
     if(update_vram_buf(emu)) return 1;
     if(update_time(emu)) return 1;
 
     return 0;
+}
+
+int write_mmio(Emulator *emu, u16 address, u16 write_value) {
+
+
+    return 0;
+}
+
+
+int mmio(Emulator *emu) {
+
 }
