@@ -10,6 +10,15 @@
 
 typedef struct {
 
+    SDL_AtomicU32 signal_safe_quit, signal_fail_quit, signal_test, signal_change_hz;
+    SDL_AtomicU32 hz_setpoint; 
+
+} UserInput;
+
+
+typedef struct {
+
+    UserInput input;
     u8 *vram_zero;
     u8 *vram_one;
     SDL_Mutex *vram_zero_m;
