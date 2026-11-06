@@ -8,6 +8,17 @@
 #define EMU_DISPLAY_SIZE 64
 #define VRAM_SIZE EMU_DISPLAY_SIZE * EMU_DISPLAY_SIZE
 
+
+typedef enum {
+
+    DSPCFG_NONE,
+    DSPCFG_UNSIGNED_WORD,
+    DSPCFG_SIGNED_WORD,
+    DSPCFG_FLOAT,
+
+} NumDisplayConfig;
+
+
 typedef struct {
 
     SDL_AtomicU32 signal_safe_quit, signal_fail_quit, signal_test, signal_change_hz;

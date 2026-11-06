@@ -72,7 +72,7 @@ int emulator_main(void *ptr){
             double new_fps;
             if(limit_fps){
                 new_fps = -1;
-                batch_size = 500;
+                batch_size = 2000;
             } else {
                 batch_size = DEFAULT_HZ_LIMIT / 1000;
                 new_fps = (DEFAULT_HZ_LIMIT / batch_size);

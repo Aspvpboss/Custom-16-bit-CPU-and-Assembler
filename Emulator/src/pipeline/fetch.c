@@ -63,14 +63,14 @@ int fetch(Emulator *emu, EMU_Decoded_Instruction *instruction){
     }
 
 
+    u16 raw_byte;
     for(u8 i = 1; i <= extra_bytes; i++){
         (*program_counter)++;
-        u16 raw_byte;
         if(read_memory(emu, (*program_counter), (u16*)&raw_byte, false)){
             SDLite_SetError("fetch(): failed to read extra byte %d at PC 0x%04X", i, *program_counter);
             return 1;
         }
-        instruction->raw_instruction |= (u64)raw_byte << (8 * i);
+        instruction->raw_instruction |= (u64)raw_byte << (i << 3);
         if((*program_counter) == __UINT16_MAX__){
             (*program_counter) = 0;
         } 
