@@ -6,6 +6,7 @@
 
 Emulator* init();
 int create_render_data(RenderData *render_data);
+int create_shared_data(SharedData *shared_data);
 
 
 #endif

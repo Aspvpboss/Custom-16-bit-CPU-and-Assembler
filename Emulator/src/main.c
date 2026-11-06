@@ -30,8 +30,12 @@ int render_loop(SharedData *shared_data, RenderData *render_data) {
             // nothing
         }
 
+        if(SDLite_Input_KeyJustPressed(render_data->input, SDL_SCANCODE_SPACE)){
+            SDL_SetAtomicU32(&shared_data->input.signal_change_hz, 1);
+        }
+
         u32 current_hertz = SDL_GetAtomicU32(&shared_data->emu_hertz);
-        update_emu_hz_text(render_data->emu_hz, current_hertz);
+        update_emu_hz_text(render_data->emu_hz, current_hertz + 1);
         update_render_texture(shared_data, render_data);
 
         // main rendering loop
@@ -41,7 +45,8 @@ int render_loop(SharedData *shared_data, RenderData *render_data) {
         SDL_RenderTexture(sdl_renderer, render_data->emu_texture, NULL, &render_data->render_rect);
         
         SDLite_DisplayPresent(render_data->display);
-       
+   
+        SDLite_Input_UpdateAllPrev(render_data->input);
         SDLite_TimeFunctions(render_data->time);
     }
     
@@ -61,6 +66,12 @@ int main(){
         return 1;
 
     if(create_render_data(&render)){
+        destroy_render_data(&render);
+        SDLite_Quit();
+        return 1;
+    }
+
+    if(create_shared_data(&shared_data)){
         destroy_render_data(&render);
         SDLite_Quit();
         return 1;
