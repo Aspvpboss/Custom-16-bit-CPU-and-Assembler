@@ -38,7 +38,6 @@ int render_loop(SharedData *shared_data, RenderData *render_data) {
         }
        
         if(SDLite_Input_KeyJustPressed(render_data->input, SDL_SCANCODE_F)){
-            SDLite_SetError("iterate(): forced failure triggered via F key");
             SDL_SetAtomicU32(&shared_data->input.signal_fail_quit, 1);
             return 1;
         }

@@ -9,17 +9,18 @@
 EMU_Result iterate(Emulator *emu){
 
     SDLite_Input *input = emu->SDLite_io.input;
-    if(SDLite_Input_KeyPressed(input, SDL_SCANCODE_Q) && SDLite_Input_KeyPressed(input, SDL_SCANCODE_LSHIFT)){
+    if(SDL_GetAtomicU32(&emu->shared_data->input.signal_safe_quit)){
         return EMU_SUCCESS;
     }
    
-    if(SDLite_Input_KeyJustPressed(input, SDL_SCANCODE_F)){
+    if(SDL_GetAtomicU32(&emu->shared_data->input.signal_fail_quit)){
         SDLite_SetError("iterate(): forced failure triggered via F key");
         return EMU_FAILURE;
     }
 
-    if(SDLite_Input_KeyJustPressed(input, SDL_SCANCODE_T)){
+    if(SDL_GetAtomicU32(&emu->shared_data->input.signal_test)){
         write_mmio(emu, 0x7F09, 0, false);
+        SDL_SetAtomicU32(&emu->shared_data->input.signal_test, 0);
     }
 
     EMU_Decoded_Instruction instruction = {0};
