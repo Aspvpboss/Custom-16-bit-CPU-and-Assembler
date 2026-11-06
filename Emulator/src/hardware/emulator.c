@@ -42,7 +42,7 @@ int emulator_main(void *ptr){
     SDL_SetAtomicPointer((void**)&shared_data->vram_zero, emu->ram.vram_zero);
     SDL_SetAtomicPointer((void**)&shared_data->vram_one, emu->ram.vram_one);
 
-    f16 value = 3.14;
+    f16 value = 3.141528;
     u32 cool_value = 0;
     memcpy(&cool_value, &value, sizeof(value)); 
     write_memory(emu, 0x7F0A, 2, false);
