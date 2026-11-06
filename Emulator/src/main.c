@@ -27,7 +27,24 @@ int render_loop(SharedData *shared_data, RenderData *render_data) {
         static SDL_Event e;
 
         while(SDL_PollEvent(&e)){
-            // nothing
+            if(e.type == SDL_EVENT_QUIT){
+                SDL_SetAtomicU32(&shared_data->input.signal_safe_quit, 1);
+                return 0;
+            }
+        }
+        if(SDLite_Input_KeyPressed(render_data->input, SDL_SCANCODE_Q) && SDLite_Input_KeyPressed(render_data->input, SDL_SCANCODE_LSHIFT)){
+            SDL_SetAtomicU32(&shared_data->input.signal_safe_quit, 1);
+            return 0;
+        }
+       
+        if(SDLite_Input_KeyJustPressed(render_data->input, SDL_SCANCODE_F)){
+            SDLite_SetError("iterate(): forced failure triggered via F key");
+            SDL_SetAtomicU32(&shared_data->input.signal_fail_quit, 1);
+            return 1;
+        }
+
+        if(SDLite_Input_KeyJustPressed(render_data->input, SDL_SCANCODE_T)){
+            SDL_SetAtomicU32(&shared_data->input.signal_test, 1);
         }
 
         if(SDLite_Input_KeyJustPressed(render_data->input, SDL_SCANCODE_SPACE)){
