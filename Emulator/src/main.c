@@ -19,6 +19,33 @@ int check_version(){
 }
 
 
+int render_loop(SharedData *shared_data, RenderData *render_data) {
+
+    SDL_Renderer *sdl_renderer = SDLite_Display_GetSDLRenderer(render_data->display);
+    while(!SDL_GetAtomicU32(&shared_data->signal_emu_done)){
+
+        static SDL_Event e;
+
+        while(SDL_PollEvent(&e)){
+            // nothing
+        }
+
+        u32 current_hertz = SDL_GetAtomicU32(&shared_data->emu_hertz);
+        update_emu_hz_text(render_data->emu_hz, current_hertz);
+        update_render_texture(shared_data, render_data);
+
+        // main rendering loop
+        SDLite_DisplayClear(render_data->display);
+        
+        SDLite_Render_Text(render_data->emu_hz);
+        SDL_RenderTexture(sdl_renderer, render_data->emu_texture, NULL, &render_data->render_rect);
+        
+        SDLite_DisplayPresent(render_data->display);
+        
+    }
+    
+    return 0;
+}
 
 
 int main(){
@@ -69,42 +96,15 @@ int main(){
     }
 
 
-    SDL_Renderer *sdl_renderer = SDLite_Display_GetSDLRenderer(render.display);
-    while(!SDL_GetAtomicU32(&shared_data.signal_emu_done)){
-
-        static SDL_Event e;
-
-        while(SDL_PollEvent(&e)){
-            // nothing
-        }
-
-        u32 current_hertz = SDL_GetAtomicU32(&shared_data.emu_hertz);
-        update_emu_hz_text(render.emu_hz, current_hertz);
-        update_render_texture(&shared_data, &render);
-
-        // main rendering loop
-        SDLite_DisplayClear(render.display);
-        
-        SDLite_Render_Text(render.emu_hz);
-        SDL_RenderTexture(sdl_renderer, render.emu_texture, NULL, &render.render_rect);
-        
-        SDLite_DisplayPresent(render.display);
-        
-    }
-
+    if(render_loop(&shared_data, &render)){
+        // fail stuff
+    };
 
     int emulator_result = 0;
     SDL_WaitThread(emulator_thread, &emulator_result);
 
     destroy_shared_data(&shared_data);
     destroy_render_data(&render);
-
-    if(emulator_result == 0){
-        printf("emu sucesss: %d                  \n", emulator_result);
-    } else{
-        printf("emu failure %d                  \n", emulator_result);
-    }
-
 
     const char *err = NULL;
 
