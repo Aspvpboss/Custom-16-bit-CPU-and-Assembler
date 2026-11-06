@@ -17,7 +17,6 @@
 typedef struct{
 
     SDLite_Time *time;
-    SDLite_Input *input;
 
 } SDLite_IO;
 

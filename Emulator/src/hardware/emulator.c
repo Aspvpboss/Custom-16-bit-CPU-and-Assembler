@@ -84,7 +84,6 @@ int emulator_main(void *ptr){
         double current_hz = SDLite_Time_GetFPS(sdlite->time) * batch_size;
         SDL_SetAtomicU32(&shared_data->emu_hertz, (u32)current_hz);
 
-        SDLite_Input_UpdateAllPrev(sdlite->input);
         SDLite_TimeFunctions(sdlite->time);
     }
 

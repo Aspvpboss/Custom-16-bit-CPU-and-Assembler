@@ -8,7 +8,6 @@
 
 EMU_Result iterate(Emulator *emu){
 
-    SDLite_Input *input = emu->SDLite_io.input;
     if(SDL_GetAtomicU32(&emu->shared_data->input.signal_safe_quit)){
         return EMU_SUCCESS;
     }

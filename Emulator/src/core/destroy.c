@@ -1,7 +1,6 @@
 #include "destroy.h"
 
 void destroy(Emulator *emu){
-    SDLite_DestroyInput(emu->SDLite_io.input);
     SDLite_DestroyTime(emu->SDLite_io.time);
     t_free(emu);
 }
