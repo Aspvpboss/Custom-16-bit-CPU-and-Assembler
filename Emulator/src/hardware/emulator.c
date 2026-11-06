@@ -46,13 +46,13 @@ int emulator_main(void *ptr){
     EMU_Result result = EMU_CONTINUE;
     SDLite_IO *sdlite = &emu->SDLite_io;
 
+    u64 batch_size = DEFAULT_HZ_LIMIT / 1000;
     bool limit_fps = false;
-    SDLite_Time_Set_FPSLimit(sdlite->time, DEFAULT_HZ_LIMIT / BATCH_SIZE);
+    SDLite_Time_Set_FPSLimit(sdlite->time, DEFAULT_HZ_LIMIT / batch_size);
 
-    u64 batch_size = 1;
     while(result == EMU_CONTINUE){
 
-        for(u32 i = 0; i < BATCH_SIZE; i++){
+        for(u32 i = 0; i < batch_size; i++){
             result = iterate(emu);
 
             if(result == EMU_FAILURE){
@@ -69,10 +69,11 @@ int emulator_main(void *ptr){
 
         if(SDLite_Input_KeyJustPressed(sdlite->input, SDL_SCANCODE_SPACE)){
             limit_fps = !limit_fps;
-            double new_fps = limit_fps ? -1 : (DEFAULT_HZ_LIMIT / BATCH_SIZE);
+            double new_fps = limit_fps ? -1 : (DEFAULT_HZ_LIMIT / batch_size);
+            batch_size = new_fps == -1 ? 500 : new_fps / 1000;
             SDLite_Time_Set_FPSLimit(sdlite->time, new_fps);
         }
-        double current_hz = SDLite_Time_GetFPS(sdlite->time) * BATCH_SIZE;
+        double current_hz = SDLite_Time_GetFPS(sdlite->time) * batch_size;
 
         SDL_SetAtomicU32(&shared_data->emu_hertz, (u32)current_hz);
 
