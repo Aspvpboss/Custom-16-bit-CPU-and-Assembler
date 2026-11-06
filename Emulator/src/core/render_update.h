@@ -16,6 +16,7 @@ typedef struct {
     SDLite_Input *input;
     SDLite_Time *time;
     SDLite_Text *emu_hz;
+    SDLite_Text *emu_num_display;
     SDLite_Text_Font *font;
     u32 width, height;
     u8 scale;

@@ -36,7 +36,10 @@ typedef struct {
     SDL_AtomicU32 emu_hertz;
     SDL_AtomicU32 signal_emu_active_vram_bank;
     SDL_AtomicU32 signal_emu_done;
+    SDL_AtomicU32 num_display_config;
+    SDL_AtomicU32 num_display_value;
     
 } SharedData;
+
 
 #endif
