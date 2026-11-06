@@ -70,6 +70,8 @@ int create_render_data(RenderData *render_data) {
     render_data->emu_num_display = SDLite_CreateText(render_data->display, NULL, render_data->font, 0, 0, SDL_WHITE);
     if(!render_data->emu_num_display) return 1;
 
+    SDLite_Text_SetPosition(render_data->emu_num_display, render_data->width - TOP_BAR_TEXT_HEIGHT * 10, 0);
+
     render_data->input = SDLite_CreateInput();
     if(!render_data->input) return 1;
     

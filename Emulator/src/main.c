@@ -52,12 +52,14 @@ int render_loop(SharedData *shared_data, RenderData *render_data) {
 
         u32 current_hertz = SDL_GetAtomicU32(&shared_data->emu_hertz);
         update_emu_hz_text(render_data->emu_hz, current_hertz + 1);
+        update_emu_num_display_text(shared_data, render_data->emu_num_display);
         update_render_texture(shared_data, render_data);
 
         // main rendering loop
         SDLite_DisplayClear(render_data->display);
         
         SDLite_Render_Text(render_data->emu_hz);
+        SDLite_Render_Text(render_data->emu_num_display);
         SDL_RenderTexture(sdl_renderer, render_data->emu_texture, NULL, &render_data->render_rect);
         
         SDLite_DisplayPresent(render_data->display);

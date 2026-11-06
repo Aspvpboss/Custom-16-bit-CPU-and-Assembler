@@ -65,3 +65,34 @@ void update_emu_hz_text(SDLite_Text *hz_text, u32 hz) {
 
     SDLite_Text_SetString(hz_text, buf);
 }
+
+
+void update_emu_num_display_text(SharedData *shared_data, SDLite_Text *num_text) {
+
+    NumDisplayConfig config = (NumDisplayConfig)SDL_GetAtomicU32(&shared_data->num_display_config);
+    char buf[32];
+    switch(config) {
+        
+        case DSPCFG_UNSIGNED_WORD: {
+            u32 unsigned_value = (u32)SDL_GetAtomicU32(&shared_data->num_display_value);
+            snprintf(buf, sizeof(buf), "u16: %u", unsigned_value);
+            break;
+        }
+        case DSPCFG_SIGNED_WORD: {
+            i32 signed_value = (i32)SDL_GetAtomicU32(&shared_data->num_display_value);
+            snprintf(buf, sizeof(buf), "i16: %d", signed_value);
+            break;
+        }
+        case DSPCFG_FLOAT: {
+            float float_value = (float)SDL_GetAtomicU32(&shared_data->num_display_value);
+            snprintf(buf, sizeof(buf), "f16: %.4f", float_value);
+            break;
+        }
+
+        default: 
+            break;
+    }
+
+    SDLite_Text_SetString(num_text, buf);
+
+}

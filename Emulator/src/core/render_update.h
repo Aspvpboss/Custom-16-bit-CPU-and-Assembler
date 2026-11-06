@@ -26,5 +26,6 @@ typedef struct {
 
 void update_render_texture(SharedData *shared_data, RenderData *render);
 void update_emu_hz_text(SDLite_Text *hz_text, u32 hz);
+void update_emu_num_display_text(SharedData *shared_data, SDLite_Text *num_text);
 
 #endif
