@@ -74,17 +74,19 @@ void update_emu_num_display_text(SharedData *shared_data, SDLite_Text *num_text)
     switch(config) {
         
         case DSPCFG_UNSIGNED_WORD: {
-            u32 unsigned_value = (u32)SDL_GetAtomicU32(&shared_data->num_display_value);
+            u16 unsigned_value = (u16)SDL_GetAtomicU32(&shared_data->num_display_value);
             snprintf(buf, sizeof(buf), "u16: %u", unsigned_value);
             break;
         }
         case DSPCFG_SIGNED_WORD: {
-            i32 signed_value = (i32)SDL_GetAtomicU32(&shared_data->num_display_value);
-            snprintf(buf, sizeof(buf), "i16: %d", signed_value);
+            u16 signed_value = (u16)SDL_GetAtomicU32(&shared_data->num_display_value);
+            snprintf(buf, sizeof(buf), "i16: %hd", signed_value);
             break;
         }
         case DSPCFG_FLOAT: {
-            float float_value = (float)SDL_GetAtomicU32(&shared_data->num_display_value);
+            u16 float_value = (u16)SDL_GetAtomicU32(&shared_data->num_display_value);
+            f16 casted_value = 0.0f;
+            memcpy(&casted_value, &float_value, sizeof(casted_value)); 
             snprintf(buf, sizeof(buf), "f16: %.4f", float_value);
             break;
         }
