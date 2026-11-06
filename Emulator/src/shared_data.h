@@ -11,7 +11,6 @@
 
 typedef enum {
 
-    DSPCFG_NONE,
     DSPCFG_UNSIGNED_WORD,
     DSPCFG_SIGNED_WORD,
     DSPCFG_FLOAT,
