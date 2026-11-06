@@ -11,6 +11,8 @@ void destroy_render_data(RenderData *render_data) {
     if(render_data->emu_hz) SDLite_DestroyText(render_data->emu_hz);
     if(render_data->font) SDLite_Destroy_Text_Font(&render_data->font);
     if(render_data->display) SDLite_DestroyDisplay(render_data->display);
+    if(render_data->time) SDLite_DestroyTime(render_data->time);
+    if(render_data->input) SDLite_DestroyInput(render_data->input);
 }
 
 void destroy_shared_data(SharedData *shared_data) {

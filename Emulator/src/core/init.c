@@ -76,5 +76,11 @@ int create_render_data(RenderData *render_data) {
     render_data->emu_hz = SDLite_CreateText(render_data->display, NULL, render_data->font, 0, 0, SDL_WHITE);
     if(!render_data->emu_hz) return 1;
 
+    render_data->input = SDLite_CreateInput();
+    if(!render_data->input) return 1;
+    
+    render_data->time = SDLite_CreateTime(30.0f);
+    if(!render_data->time) return 1;
+
     return 0;
 }

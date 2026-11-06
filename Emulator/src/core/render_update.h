@@ -13,6 +13,8 @@ typedef struct {
     SDL_FRect render_rect;
     SDL_Texture *emu_texture;
     SDLite_Display *display;
+    SDLite_Input *input;
+    SDLite_Time *time;
     SDLite_Text *emu_hz;
     SDLite_Text_Font *font;
     u32 width, height;
