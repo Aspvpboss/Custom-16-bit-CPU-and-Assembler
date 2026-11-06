@@ -84,3 +84,12 @@ int create_render_data(RenderData *render_data) {
 
     return 0;
 }
+
+int create_shared_data(SharedData *shared_data) {
+   
+    SDL_SetAtomicU32(&shared_data->signal_emu_active_vram_bank, 0);
+    SDL_SetAtomicU32(&shared_data->signal_emu_done, 0);
+    SDL_SetAtomicU32(&shared_data->emu_hertz, 0);
+    
+    return 0;
+}

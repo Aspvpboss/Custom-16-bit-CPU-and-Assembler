@@ -41,7 +41,8 @@ int render_loop(SharedData *shared_data, RenderData *render_data) {
         SDL_RenderTexture(sdl_renderer, render_data->emu_texture, NULL, &render_data->render_rect);
         
         SDLite_DisplayPresent(render_data->display);
-        
+       
+        SDLite_TimeFunctions(render_data->time);
     }
     
     return 0;
@@ -52,9 +53,6 @@ int main(){
 
     RenderData render = {0};
     SharedData shared_data = {0};
-    SDL_SetAtomicU32(&shared_data.signal_emu_active_vram_bank, 0);
-    SDL_SetAtomicU32(&shared_data.signal_emu_done, 0);
-    SDL_SetAtomicU32(&shared_data.emu_hertz, 0);
 
     if(SDLite_Init(NULL, NULL, false, false))
         return 1;
