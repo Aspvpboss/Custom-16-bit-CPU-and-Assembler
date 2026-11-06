@@ -92,6 +92,14 @@ int write_mmio(Emulator *emu, u16 address, u16 write_value, bool sixteen_bit_wri
             if(update_vram_buf(emu)) return 1;
             break;
         }
+        case DISP_CFG: {
+            SDL_SetAtomicU32(&emu->shared_data->num_display_config, (u32)write_value); 
+            break;
+        }
+        case DISP_VAL: {
+            SDL_SetAtomicU32(&emu->shared_data->num_display_value, (u32)write_value); 
+            break;
+        }
 
         default:
             return 1;
