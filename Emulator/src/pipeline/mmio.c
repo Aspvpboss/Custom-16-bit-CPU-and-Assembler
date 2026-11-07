@@ -68,7 +68,27 @@ int read_mmio(Emulator *emu, u16 address, u16 *read_value, bool sixteen_bit_read
             break;
         }
         case UART_DATA: {
+            if(sixteen_bit_read) return 1;
             *read_value = (u16)uart_in(); 
+            break;
+        }
+        case KEY_CURR: {
+            if(sixteen_bit_read) return 1;
+            u16 key_state = 0;
+            emu->mmio.num_prev = emu->mmio.num_curr;
+            for(int i = 0; i < emu->mmio.num_keys; i++){
+                if(emu->mmio.key_buf[i]){
+                    key_state = i;
+                    break;
+                }
+            }
+            emu->mmio.num_curr = key_state;
+            *read_value = key_state; 
+            break;
+        }
+        case KEY_PREV: {
+            if(sixteen_bit_read) return 1;
+            *read_value = emu->mmio.num_prev; 
             break;
         }
 

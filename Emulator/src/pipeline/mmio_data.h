@@ -5,8 +5,11 @@
 #include "my_stdtypes.h"
 
 typedef struct {
-    bool vram_buf_swap_signal;
     struct timespec base_time;
+    bool *key_buf;
+    u16 num_keys;
+    u16 num_curr, num_prev;
+    bool vram_buf_swap_signal;
 } EMU_mmio;
 
 #endif

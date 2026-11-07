@@ -29,6 +29,14 @@ Emulator* init(){
     EMU_init_alu(&emu->alu);
     EMU_init_fpu(&emu->fpu);
 
+    emu->mmio.key_buf = SDL_GetKeyboardState(&emu->mmio.num_keys);
+    if(!emu->mmio.key_buf){
+        SDLite_SetError("init(): failed to get SDL keyboard array");
+        SDLite_DestroyTime(emu->SDLite_io.time);
+        t_free(emu);
+        return NULL;
+    }
+
     memset(emu->ram.bootloader, 0, sizeof(emu->ram.bootloader));
     memset(emu->ram.ram, 0, sizeof(emu->ram.ram));
     memset(emu->ram.vram_zero, 0, sizeof(emu->ram.vram_zero));

@@ -7,7 +7,7 @@
 
 #define RETURN_THREAD(status) SDL_SetAtomicU32(&shared_data->signal_emu_done, 1); return status; 
 #define BATCH_SIZE 100
-#define DEFAULT_HZ_LIMIT 1000.0
+#define DEFAULT_HZ_LIMIT 1.0
 
 void flush_vram_buffer(Emulator *emu, u8 flush_val) {
     const u16 vram_start = 0x6F00;
@@ -47,6 +47,7 @@ int emulator_main(void *ptr){
     SDLite_IO *sdlite = &emu->SDLite_io;
 
     u64 batch_size = DEFAULT_HZ_LIMIT / 1000;
+    if(batch_size == 0) batch_size = 1;
     bool limit_fps = false;
     SDLite_Time_Set_FPSLimit(sdlite->time, DEFAULT_HZ_LIMIT / batch_size);
 
@@ -75,6 +76,7 @@ int emulator_main(void *ptr){
                 batch_size = 2000;
             } else {
                 batch_size = DEFAULT_HZ_LIMIT / 1000;
+                if(batch_size == 0) batch_size = 1;
                 new_fps = (DEFAULT_HZ_LIMIT / batch_size);
             }
             SDLite_Time_Set_FPSLimit(sdlite->time, new_fps);
