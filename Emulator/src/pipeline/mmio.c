@@ -104,19 +104,23 @@ int write_mmio(Emulator *emu, u16 address, u16 write_value, bool sixteen_bit_wri
     switch(address) {
         
         case UART_DATA: {
+            if(sixteen_bit_write) return 1;
             uart_out(write_value);
             break;
         }
         case VRAM_BUF_SIGNAL: {
+            if(sixteen_bit_write) return 1;
             emu->mmio.vram_buf_swap_signal = true;
             if(update_vram_buf(emu)) return 1;
             break;
         }
         case DISP_CFG: {
+            if(sixteen_bit_write) return 1;
             SDL_SetAtomicU32(&emu->shared_data->num_display_config, (u32)write_value); 
             break;
         }
         case DISP_VAL: {
+            if(!sixteen_bit_write) return 1;
             SDL_SetAtomicU32(&emu->shared_data->num_display_value, (u32)write_value); 
             break;
         }
