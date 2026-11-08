@@ -9,7 +9,7 @@ use crate::lexical_analysis::tokenizer;
 pub fn run(user_args: &UserArgs) -> Result<(), Vec<AsmError>>{
 
     let preprocessed_string = preprocessor::run(user_args)?;
-    lexical_analysis::run(preprocessed_string);
+    lexical_analysis::run(preprocessed_string, user_args);
 
     Ok(())
 }

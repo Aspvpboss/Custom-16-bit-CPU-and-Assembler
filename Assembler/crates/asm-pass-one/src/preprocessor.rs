@@ -246,18 +246,6 @@ fn expand_macros(mut line: String, macro_table: &mut HashMap<String, String>, er
 }
 
 
-fn write_dump_file(preprocessor_data: String) -> Result<(), AsmError> {
-    if let Err(_) = fs::create_dir_all("debug"){
-        return Err(AsmError::new(AsmErrorType::PREPRO("failed to create directory 'debug'".to_string())));
-    };
-
-    if let Err(_) = fs::write("debug/PREPROCESSOR_DUMP.txt", preprocessor_data){
-        return Err(AsmError::new(AsmErrorType::PREPRO("failed to open PREPROCESSOR_DUMP.txt".to_string())));
-    };
-
-    Ok(())
-}
-
 
 
 pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
@@ -305,7 +293,7 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
     let combined_source = combined_source_vec.join("");
     
     if user_args.user_flags.contains(&UserFlags::DumpPreprocessor){
-        if let Err(error) = write_dump_file(combined_source.clone()){
+        if let Err(error) = asm_core::debug::write_dump_file("PREPROCESSOR_DUMP", combined_source.clone()){
             errors.push(error);
         }
     }

@@ -8,4 +8,5 @@ pub struct UserArgs{
 #[derive(PartialEq)]
 pub enum UserFlags {
     DumpPreprocessor,
+    DumpTokens,
 }

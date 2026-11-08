@@ -4,6 +4,7 @@ use std::fmt;
 
 
 pub enum AsmErrorType {
+    DEBUG(String),
     CLI(String),
     PREPRO(String),
 }
@@ -35,6 +36,7 @@ impl AsmError {
 impl fmt::Display for AsmErrorType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            AsmErrorType::DEBUG(s) => write!(f, "Debug Error: {s}"), 
             AsmErrorType::CLI(s) => write!(f, "CLI Error: {s}"), 
             AsmErrorType::PREPRO(s) => write!(f, "Preprocessor Error: {s}"), 
         }

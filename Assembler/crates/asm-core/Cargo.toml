@@ -2,4 +2,3 @@
 name = "asm-core"
 version.workspace = true
 edition.workspace = true
-
