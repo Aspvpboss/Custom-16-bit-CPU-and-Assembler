@@ -1,5 +1,8 @@
 use asm_cli::user_args::{UserArgs, UserFlags};
 use asm_core::error::*;
+pub mod tokenizer;
+
+
 
 /*
     Desired pipeline
@@ -8,6 +11,6 @@ use asm_core::error::*;
     Symbol Table -> Symbol (if applicable)
 */
 
-pub fn run() {
+pub fn run(preprocessed_src: String) {
 
 }
