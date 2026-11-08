@@ -18,9 +18,7 @@ fn tokenize_test() {
 
 
 fn is_special_char(c: char) -> bool {
-    
     match c {
-        
         '{' => {
             return true;
         }
@@ -58,14 +56,18 @@ pub fn next_token(source_file: String) -> Option<(String, String)>{
         if start_index.is_none() {
             start_index = Some(index);
         }
-        if char.is_alphanumeric() && token_start_index.is_some(){
+        if is_special_char(prev_char) && token_start_index.is_some() {
+            if let Some(start_index) = token_start_index {
+                return Some((source_file[start_index..index].to_string(), source_file[index..].trim_start().to_string()))
+            }
+        } else if char.is_alphanumeric() && token_start_index.is_some(){
             // nothing
         } else if char.is_whitespace(){
             if let Some(start_index) = token_start_index {
                 return Some((source_file[start_index..index].to_string(), source_file[index..].trim_start().to_string()))
             }
 
-        } else if char.is_alphanumeric() && token_start_index.is_none() {
+        } else if (char.is_alphanumeric() || is_special_char(char)) && token_start_index.is_none() {
             token_start_index = Some(index);
         }
         prev_char = char;
