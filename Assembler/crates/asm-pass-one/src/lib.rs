@@ -1,4 +1,5 @@
 pub mod preprocessor;
+pub mod lexical_analysis;
 
 use asm_core::error::*;
 use asm_cli::user_args::*;
