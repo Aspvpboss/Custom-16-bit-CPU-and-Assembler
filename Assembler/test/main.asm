@@ -1,6 +1,7 @@
 
 /*
     foo
+    cargo run -- -S test main.asm foo1.asm burger.asm -o a.bin -D PREPROCESSOR
 */
 /*
 @include "burger.asm" 
