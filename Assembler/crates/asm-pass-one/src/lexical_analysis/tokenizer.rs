@@ -39,8 +39,21 @@ pub fn next_token(source_file: String) -> Option<(String, String)>{
 
     let mut token_start_index: Option<usize> = None;
     let mut prev_char: char = ' ';
+    let mut in_string = false;
     let mut iter = source_file.char_indices();
     while let Some((index, char)) = iter.next() {
+
+        if in_string {
+            if char == '\"' {
+                if let Some((new_index, _)) = iter.next() {
+                    if let Some(start_index) = token_start_index {
+                        return Some((source_file[start_index..new_index].to_string(), source_file[new_index..].trim_start().to_string()))
+                    }
+                };
+            }
+            prev_char = char;
+            continue;
+        }
 
         if is_special_char(prev_char) && token_start_index.is_some() {
             if let Some(start_index) = token_start_index {
@@ -56,10 +69,13 @@ pub fn next_token(source_file: String) -> Option<(String, String)>{
             if let Some(start_index) = token_start_index {
                 return Some((source_file[start_index..index].to_string(), source_file[index..].trim_start().to_string()))
             }
-
+        } else if char == '\"' && token_start_index.is_none() {
+            token_start_index = Some(index);
+            in_string = true;
+            
         } else if (is_normal_char(char) || is_special_char(char)) && token_start_index.is_none() {
             token_start_index = Some(index);
-        }
+        } 
         prev_char = char;
     }
 
