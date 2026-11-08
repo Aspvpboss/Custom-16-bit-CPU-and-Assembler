@@ -247,8 +247,11 @@ fn expand_macros(mut line: String, macro_table: &mut HashMap<String, String>, er
 
 
 fn write_dump_file(preprocessor_data: String) -> Result<(), AsmError> {
+    if let Err(_) = fs::create_dir_all("debug"){
+        return Err(AsmError::new(AsmErrorType::PREPRO("failed to create directory 'debug'".to_string())));
+    };
 
-    if let Err(_) = fs::write("PREPROCESSOR_DUMP.txt", preprocessor_data){
+    if let Err(_) = fs::write("debug/PREPROCESSOR_DUMP.txt", preprocessor_data){
         return Err(AsmError::new(AsmErrorType::PREPRO("failed to open PREPROCESSOR_DUMP.txt".to_string())));
     };
 
