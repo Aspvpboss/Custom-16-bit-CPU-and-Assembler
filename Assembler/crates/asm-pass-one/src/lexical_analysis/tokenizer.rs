@@ -1,22 +1,4 @@
 
-#[test]
-fn tokenize_test() {
-    println!("-------------Test---------------");
-
-    let mut source = String::from("Yo Gurt    "); 
-    println!("The source string: '{}'", source);
-    
-    while let Some((token, remaining)) = next_token(source) {
-
-        println!("token '{}' : left '{}'", token, remaining);
-        source = remaining;
-    }
-
-    println!("All gone");
-}
-
-
-
 fn is_special_char(c: char) -> bool {
     match c {
         '{' => {
