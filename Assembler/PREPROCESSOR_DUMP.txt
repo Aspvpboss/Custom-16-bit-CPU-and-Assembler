@@ -2,15 +2,13 @@
 
   
        
+                                                                              
   
-
-@start test/burger.asm
-7
-8
-9
-@end test/burger.asm
-
-
+  
+                      
+                      
+                      
+  
 
  
 

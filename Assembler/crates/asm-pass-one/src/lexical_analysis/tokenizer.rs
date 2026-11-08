@@ -4,6 +4,8 @@ fn tokenize_test() {
     println!("-------------Test---------------");
 
     let mut source = String::from("Yo Gurt    "); 
+    println!("The source string: '{}'", source);
+    
     while let Some((token, remaining)) = next_token(source) {
 
         println!("token '{}' : left '{}'", token, remaining);
@@ -12,6 +14,8 @@ fn tokenize_test() {
 
     println!("All gone");
 }
+
+
 
 
 pub fn next_token(source_file: String) -> Option<(String, String)>{
@@ -47,3 +51,4 @@ pub fn next_token(source_file: String) -> Option<(String, String)>{
 
     None
 }
+

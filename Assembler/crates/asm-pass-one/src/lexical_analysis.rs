@@ -11,6 +11,12 @@ pub mod tokenizer;
     Symbol Table -> Symbol (if applicable)
 */
 
-pub fn run(preprocessed_src: String) {
+pub fn run(mut preprocessed_src: String) {
+
+    while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src) {
+
+        println!("{}", token);        
+        preprocessed_src = remaining;
+    }
 
 }
