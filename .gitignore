@@ -24,3 +24,4 @@ target
 rustc-ice-*.txt
 
 build/
+debug/
