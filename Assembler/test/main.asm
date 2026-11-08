@@ -34,11 +34,14 @@ foo */
 
 #PI
 burger
+/*
 
+
+*/
 before
 // foo
 after
 
 
-
+" /**/"
 "Hello World! "

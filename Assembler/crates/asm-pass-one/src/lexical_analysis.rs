@@ -12,7 +12,7 @@ pub mod tokenizer;
 */
 
 pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec<AsmError>> {
-
+    let mut preprocessed_src = preprocessed_src.as_str();
     let mut errors: Vec<AsmError> = Vec::new();
     let mut token_dump: Vec<String> = Vec::new();
     let is_token_dump = user_args.user_flags.contains(&UserFlags::DumpPreprocessor);
@@ -20,7 +20,7 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
     while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src) {
 
         if is_token_dump {
-            token_dump.push(token.clone());
+            token_dump.push(token.to_string());
         }
 
         preprocessed_src = remaining;

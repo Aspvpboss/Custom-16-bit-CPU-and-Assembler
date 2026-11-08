@@ -1,9 +1,10 @@
 use asm_pass_one::lexical_analysis::tokenizer::{self, next_token};
 
 fn collect_tokens(mut source: String) -> Vec<String> {
+    let mut source = source.as_str();
     let mut tokens = Vec::new();
     while let Some((token, remaining)) = next_token(source) {
-        tokens.push(token);
+        tokens.push(token.to_string());
         source = remaining;
     }
     tokens
@@ -11,7 +12,7 @@ fn collect_tokens(mut source: String) -> Vec<String> {
 
 #[test]
 fn basic_test() {
-    let source = String::from("Test Test Test");
+    let source = "Test Test Test";
 
     let (token, source) = next_token(source).unwrap();
     assert_eq!(token, "Test");
@@ -28,7 +29,7 @@ fn basic_test() {
 
 #[test]
 fn special_characters() {
-    let source = String::from(";[r1];[r2];");
+    let source = ";[r1];[r2];";
 
     let (token, source) = next_token(source).unwrap();
     assert_eq!(token, ";");
@@ -64,9 +65,9 @@ fn special_characters() {
 
 #[test]
 fn empty_and_whitespace_only() {
-    assert_eq!(next_token(String::from("")), None);
+    assert_eq!(next_token(""), None);
     // Whitespace-only input should return None (or no tokens)
-    assert_eq!(next_token(String::from("   \n\t  ")), None);
+    assert_eq!(next_token("   \n\t  "), None);
 }
 
 #[test]
