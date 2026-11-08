@@ -293,7 +293,7 @@ pub fn run(user_args: &UserArgs) -> Result<String, Vec<AsmError>>{
     let combined_source = combined_source_vec.join("");
     
     if user_args.user_flags.contains(&UserFlags::DumpPreprocessor){
-        if let Err(error) = asm_core::debug::write_dump_file("PREPROCESSOR_DUMP", combined_source.clone()){
+        if let Err(error) = asm_core::debug::write_dump_file("PREPROCESSOR_DUMP.txt", combined_source.clone()){
             errors.push(error);
         }
     }

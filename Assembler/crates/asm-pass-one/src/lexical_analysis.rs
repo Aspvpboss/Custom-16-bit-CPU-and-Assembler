@@ -23,12 +23,11 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
             token_dump.push(token.clone());
         }
 
-        println!("{}", token);        
         preprocessed_src = remaining;
     }
 
     if is_token_dump {
-        if let Err(error) = asm_core::debug::write_dump_file("TOKEN_DUMP", token_dump.join("\n")){
+        if let Err(error) = asm_core::debug::write_dump_file("TOKEN_DUMP.txt", token_dump.join("\n")){
             errors.push(error);
         };
     }
