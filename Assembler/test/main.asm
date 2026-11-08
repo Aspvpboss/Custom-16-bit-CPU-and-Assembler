@@ -13,7 +13,7 @@
 
 @macro A AB
 
-label_A
+label_A:
 
 
 @macro r1 r2

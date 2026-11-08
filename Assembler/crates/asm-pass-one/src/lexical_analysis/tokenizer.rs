@@ -34,6 +34,9 @@ fn is_special_char(c: char) -> bool {
         ';' => {
             return true;
         }
+        ':' => {
+            return true;
+        }
         _ => {
             return false;    
         }
@@ -57,6 +60,10 @@ pub fn next_token(source_file: String) -> Option<(String, String)>{
             start_index = Some(index);
         }
         if is_special_char(prev_char) && token_start_index.is_some() {
+            if let Some(start_index) = token_start_index {
+                return Some((source_file[start_index..index].to_string(), source_file[index..].trim_start().to_string()))
+            }
+        } else if is_special_char(char) && token_start_index.is_some() {
             if let Some(start_index) = token_start_index {
                 return Some((source_file[start_index..index].to_string(), source_file[index..].trim_start().to_string()))
             }
