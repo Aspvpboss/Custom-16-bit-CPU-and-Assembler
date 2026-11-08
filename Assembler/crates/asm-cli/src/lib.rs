@@ -36,8 +36,12 @@ fn valid_file_extension(arg: &String, file_extensions : &[&str]) -> Result<(), A
     Ok(())
 }
 
+fn enable_all_debug_flags(user_flags: &mut Vec<UserFlags>) {
+    user_flags.push(UserFlags::DumpPreprocessor);    
+    user_flags.push(UserFlags::DumpTokens);    
+}
 
-fn process_debug_flags(args: &mut impl Iterator<Item = String>) -> Result<UserFlags, AsmError> {
+fn process_debug_flags(args: &mut impl Iterator<Item = String>, user_flags: &mut Vec<UserFlags>) -> Result<UserFlags, AsmError> {
 
     let Some(next_arg) = args.next() else{
         return Err(AsmError::new(AsmErrorType::CLI(format!("opened ended sub-command"))));
@@ -45,6 +49,8 @@ fn process_debug_flags(args: &mut impl Iterator<Item = String>) -> Result<UserFl
 
     let flag = match next_arg.as_str() {
         "PREPROCESSOR" => {UserFlags::DumpPreprocessor},
+        "TOKEN_DUMP" => {UserFlags::DumpTokens},
+        "DEBUG_ALL" => {enable_all_debug_flags(user_flags); UserFlags::DebugALL}
         _ => {
             return Err(AsmError::new(AsmErrorType::CLI(format!("invalid debug flag given"))));
         }
@@ -52,6 +58,7 @@ fn process_debug_flags(args: &mut impl Iterator<Item = String>) -> Result<UserFl
 
     Ok(flag)
 }
+
 
 
 fn append_source_directory(src_files: &mut Vec<String>, source_directory: &String) {
@@ -89,7 +96,7 @@ pub fn run() -> Result<UserArgs, Vec<AsmError>>{
 
             "-D" => {
 
-                match process_debug_flags(&mut args){
+                match process_debug_flags(&mut args, &mut user_flags){
                     Ok(flag) => {
                         user_flags.push(flag);
                     },

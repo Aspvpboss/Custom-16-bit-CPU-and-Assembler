@@ -9,4 +9,5 @@ pub struct UserArgs{
 pub enum UserFlags {
     DumpPreprocessor,
     DumpTokens,
+    DebugALL,
 }
