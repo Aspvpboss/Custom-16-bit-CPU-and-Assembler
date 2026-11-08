@@ -17,6 +17,32 @@ fn tokenize_test() {
 
 
 
+fn is_special_char(c: char) -> bool {
+    
+    match c {
+        
+        '{' => {
+            return true;
+        }
+        '}' => {
+            return true;
+        }
+        '[' => {
+            return true;
+        }
+        ']' => {
+            return true;
+        }
+        ';' => {
+            return true;
+        }
+        _ => {
+            return false;    
+        }
+    }
+}
+
+
 
 pub fn next_token(source_file: String) -> Option<(String, String)>{
 
