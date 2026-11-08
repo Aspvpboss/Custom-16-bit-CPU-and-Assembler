@@ -376,7 +376,7 @@ fn test_macro_not_expanded_before_definition() {
 #[test]
 fn test_dump_preprocessor_flag_writes_file() {
     let _guard = DUMP_FILE_LOCK.lock().expect("failed to lock dump mutex");
-    let dump_path = PathBuf::from("PREPROCESSOR_DUMP.txt");
+    let dump_path = PathBuf::from("debug/PREPROCESSOR_DUMP.txt");
     let _ = fs::remove_file(&dump_path);
 
     let dir = TempTestDir::new("dump_flag");

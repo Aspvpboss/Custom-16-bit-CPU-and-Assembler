@@ -26,6 +26,10 @@ fn is_special_char(c: char) -> bool {
 }
 
 
+fn is_normal_char(c: char) -> bool {
+    return c.is_alphanumeric() || c == '_' || c == '#'
+}
+
 
 pub fn next_token(source_file: String) -> Option<(String, String)>{
 
@@ -49,14 +53,14 @@ pub fn next_token(source_file: String) -> Option<(String, String)>{
             if let Some(start_index) = token_start_index {
                 return Some((source_file[start_index..index].to_string(), source_file[index..].trim_start().to_string()))
             }
-        } else if char.is_alphanumeric() && token_start_index.is_some(){
+        } else if is_normal_char(char) && token_start_index.is_some(){
             // nothing
         } else if char.is_whitespace(){
             if let Some(start_index) = token_start_index {
                 return Some((source_file[start_index..index].to_string(), source_file[index..].trim_start().to_string()))
             }
 
-        } else if (char.is_alphanumeric() || is_special_char(char)) && token_start_index.is_none() {
+        } else if (is_normal_char(char) || is_special_char(char)) && token_start_index.is_none() {
             token_start_index = Some(index);
         }
         prev_char = char;
