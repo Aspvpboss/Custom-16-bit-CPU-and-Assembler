@@ -31,7 +31,7 @@ fn is_normal_char(c: char) -> bool {
 }
 
 
-pub fn next_token<'a>(source_file: &'a str) -> Option<(&'a str, &'a str)>{
+pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize) -> Option<(&'a str, &'a str)>{
 
     if source_file.is_empty() {
         return None
@@ -54,19 +54,23 @@ pub fn next_token<'a>(source_file: &'a str) -> Option<(&'a str, &'a str)>{
             continue;
         }
 
+        if char == '\n' {
+            *token_line_location += 1;
+        }
+
         if is_special_char(prev_char) && token_start_index.is_some() { // handles grabbing single characters
             if let Some(start_index) = token_start_index {
-                return Some((&source_file[start_index..index], source_file[index..].trim_start()))
+                return Some((&source_file[start_index..index], &source_file[index..]))
             }
         } else if is_special_char(char) && token_start_index.is_some() { // handles grabbing token if single character is present
             if let Some(start_index) = token_start_index {
-                return Some((&source_file[start_index..index], source_file[index..].trim_start()))
+                return Some((&source_file[start_index..index], &source_file[index..]))
             }
         } else if is_normal_char(char) && token_start_index.is_some(){ // iterates if in token
             // nothing
         } else if char.is_whitespace(){ // handles grabbing token if whitespace
             if let Some(start_index) = token_start_index {
-                return Some((&source_file[start_index..index], source_file[index..].trim_start()))
+                return Some((&source_file[start_index..index], &source_file[index..]))
             }
         } else if char == '\"' && token_start_index.is_none() { // handles start of strings
             token_start_index = Some(index);
