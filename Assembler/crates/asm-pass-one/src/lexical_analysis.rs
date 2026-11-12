@@ -26,8 +26,9 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
     let mut prev_token = "";
     let mut token_location_stack: Vec<TokenLocation> = Vec::new();
     let mut current_location = TokenLocation {line: 0, name: ""};
-    
-    while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.line) {
+    let mut inc_next_token = false;
+
+    while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.line, &mut inc_next_token) {
         if is_token_dump {
             token_dump.push(format!("{}: {}: {}", current_location.name, current_location.line, token.to_string()));
         }

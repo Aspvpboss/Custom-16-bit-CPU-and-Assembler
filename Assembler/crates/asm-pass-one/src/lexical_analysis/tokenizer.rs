@@ -31,7 +31,7 @@ fn is_normal_char(c: char) -> bool {
 }
 
 
-pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize) -> Option<(&'a str, &'a str)>{
+pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc_next_token: &mut bool) -> Option<(&'a str, &'a str)>{
 
     if source_file.is_empty() {
         return None
@@ -54,8 +54,12 @@ pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize) -> 
             continue;
         }
 
-        if char == '\n' {
+        if *inc_next_token {
             *token_line_location += 1;
+            *inc_next_token = false;
+        }
+        if char == '\n' {
+            *inc_next_token = true;
         }
 
         if is_special_char(prev_char) && token_start_index.is_some() { // handles grabbing single characters
