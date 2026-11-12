@@ -2,7 +2,7 @@
 
 /*
     foo
-    cargo run -- -S test main.asm foo1.asm burger.asm -o a.bin -D PREPROCESSOR
+    cargo run -- -S test main.asm foo1.asm burger.asm -o a.bin -D DEBUG_ALL
 */
 @include "burger.asm" 
 @include "burger.asm" 
