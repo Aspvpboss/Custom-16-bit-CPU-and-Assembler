@@ -53,7 +53,7 @@ pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc
             if char == '\"' {
                 if let Some(start_index) = token_start_index {
                     let new_index = index + 1;
-                    return Some((&source_file[start_index..new_index], source_file[new_index..].trim_start()))
+                    return Some(drop_token(source_file, start_index, new_index));
                 }
             }
             prev_char = char;
