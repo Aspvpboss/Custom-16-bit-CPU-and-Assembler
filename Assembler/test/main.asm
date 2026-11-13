@@ -1,12 +1,10 @@
 
 
-/*
-    foo
-    cargo run -- -S test main.asm foo1.asm burger.asm -o a.bin -D PREPROCESSOR
-*/
+//    foo
+//    cargo run -- -S test main.asm foo1.asm burger.asm -o a.bin -D DEBUG_ALL
 @include "burger.asm" 
-@include "burger.asm" 
-@include "burger.asm" 
+//@include "burger.asm" 
+//@include "burger.asm" 
 
 @macro #PI 3.14
 
@@ -15,9 +13,10 @@
 label_A:
 
 
-
+/*
 @macro r1 r2
 @macro A B
+*/
 add r10, r1
 jmp LABEL_A, A
 
@@ -36,12 +35,14 @@ foo */
 burger
 /*
 
-
 */
+"Yo"
 before
 // foo
 after
 
+"Hello World 
+boi"
 
-" /**/"
-"Hello World! "
+A
+aa

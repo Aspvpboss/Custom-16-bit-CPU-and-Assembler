@@ -11,19 +11,57 @@ pub mod tokenizer;
     Symbol Table -> Symbol (if applicable)
 */
 
+#[derive(Clone)]
+struct TokenLocation<'a> {
+    line: usize,
+    name: &'a str,
+}
+
+
 pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec<AsmError>> {
     let mut preprocessed_src = preprocessed_src.as_str();
     let mut errors: Vec<AsmError> = Vec::new();
     let mut token_dump: Vec<String> = Vec::new();
     let is_token_dump = user_args.user_flags.contains(&UserFlags::DumpPreprocessor);
+    let mut prev_token = "";
+    let mut token_location_stack: Vec<TokenLocation> = Vec::new();
+    let mut current_location = TokenLocation {line: 0, name: ""};
+    let mut inc_next_token = false;
 
-    while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src) {
+    println!("{:?}", preprocessed_src);
 
-        if is_token_dump {
-            token_dump.push(token.to_string());
+    while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.line, &mut inc_next_token) {
+
+        if token == "@start" || token == "@end" {
+            prev_token = token;
+            preprocessed_src = remaining;
+            continue;
         }
 
+        if prev_token == "@start" {
+            token_location_stack.push(current_location.clone());
+            current_location = TokenLocation { line: 0, name: token };
+            prev_token = token;
+            preprocessed_src = remaining;
+            continue;
+        }
+
+        if prev_token == "@end" {
+            if let Some(prev_location) = token_location_stack.pop() {
+                current_location = prev_location;
+            };
+            prev_token = token;
+            preprocessed_src = remaining;
+            continue;
+        }
+
+        if is_token_dump {
+            token_dump.push(format!("{}: {}: {}", current_location.name, current_location.line, token.to_string()));
+        }
+
+        prev_token = token;
         preprocessed_src = remaining;
+        
     }
 
     if is_token_dump {
