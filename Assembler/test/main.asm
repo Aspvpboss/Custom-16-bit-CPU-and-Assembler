@@ -1,12 +1,10 @@
 
 
-/*
-    foo
-    cargo run -- -S test main.asm foo1.asm burger.asm -o a.bin -D DEBUG_ALL
+//    foo
+//    cargo run -- -S test main.asm foo1.asm burger.asm -o a.bin -D DEBUG_ALL
 @include "burger.asm" 
-@include "burger.asm" 
-@include "burger.asm" 
-*/
+//@include "burger.asm" 
+//@include "burger.asm" 
 
 @macro #PI 3.14
 

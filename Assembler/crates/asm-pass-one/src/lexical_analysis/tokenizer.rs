@@ -56,6 +56,9 @@ pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc
                     return Some(drop_token(source_file, start_index, new_index));
                 }
             }
+            if char == '\n' {
+                *token_line_location += 1;
+            }
             prev_char = char;
             continue;
         }
