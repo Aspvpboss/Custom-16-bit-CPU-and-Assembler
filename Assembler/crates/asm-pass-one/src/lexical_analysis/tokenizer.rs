@@ -31,16 +31,8 @@ fn is_normal_char(c: char) -> bool {
 }
 
 fn drop_token<'a>(
-    source_file: &'a str, start_index: usize, index: usize, 
-    char: char, token_line_location: &mut usize, inc_next_token: &mut bool) -> (&'a str, &'a str) {
+    source_file: &'a str, start_index: usize, index: usize) -> (&'a str, &'a str) {
 
-    if *inc_next_token {
-        *token_line_location += 1;
-        *inc_next_token = false;
-    }
-    if char == '\n' {
-        *inc_next_token = true;
-    }
     return (&source_file[start_index..index], &source_file[index..])
 }
 
@@ -70,17 +62,17 @@ pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc
 
         if is_special_char(prev_char) && token_start_index.is_some() { // handles grabbing single characters
             if let Some(start_index) = token_start_index {
-                return Some(drop_token(source_file, start_index, index, char, token_line_location, inc_next_token))
+                return Some(drop_token(source_file, start_index, index))
             }
         } else if is_special_char(char) && token_start_index.is_some() { // handles grabbing token if single character is present
             if let Some(start_index) = token_start_index {
-                return Some(drop_token(source_file, start_index, index, char, token_line_location, inc_next_token))
+                return Some(drop_token(source_file, start_index, index))
             }
         } else if is_normal_char(char) && token_start_index.is_some(){ // iterates if in token
             // nothing
         } else if char.is_whitespace(){ // handles grabbing token if whitespace
             if let Some(start_index) = token_start_index {
-                return Some(drop_token(source_file, start_index, index, char, token_line_location, inc_next_token))
+                return Some(drop_token(source_file, start_index, index))
             }
         } else if char == '\"' && token_start_index.is_none() { // handles start of strings
             token_start_index = Some(index);

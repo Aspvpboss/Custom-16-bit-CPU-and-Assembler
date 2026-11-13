@@ -34,6 +34,7 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
 
         if token == "@start" || token == "@end" {
             prev_token = token;
+            preprocessed_src = remaining;
             continue;
         }
 
@@ -41,6 +42,7 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
             token_location_stack.push(current_location.clone());
             current_location = TokenLocation { line: 0, name: token };
             prev_token = token;
+            preprocessed_src = remaining;
             continue;
         }
 
@@ -49,6 +51,7 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
                 current_location = prev_location;
             };
             prev_token = token;
+            preprocessed_src = remaining;
             continue;
         }
 

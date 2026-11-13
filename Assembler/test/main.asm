@@ -37,12 +37,10 @@ foo */
 burger
 /*
 
-
 */
+// "Yo"
 before
 // foo
 after
 
-
-" /**/"
-"Hello World! "
+aa
