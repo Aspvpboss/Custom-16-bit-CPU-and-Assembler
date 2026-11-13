@@ -30,6 +30,20 @@ fn is_normal_char(c: char) -> bool {
     return c.is_ascii_graphic() || c == '_' || c == '#'
 }
 
+fn drop_token<'a>(
+    source_file: &'a str, start_index: usize, index: usize, 
+    char: char, token_line_location: &mut usize, inc_next_token: &mut bool) -> (&'a str, &'a str) {
+
+    if *inc_next_token {
+        *token_line_location += 1;
+        *inc_next_token = false;
+    }
+    if char == '\n' {
+        *inc_next_token = true;
+    }
+    return (&source_file[start_index..index], &source_file[index..])
+}
+
 
 pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc_next_token: &mut bool) -> Option<(&'a str, &'a str)>{
 
@@ -54,27 +68,20 @@ pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc
             continue;
         }
 
-        if *inc_next_token {
-            *token_line_location += 1;
-            *inc_next_token = false;
-        }
-        if char == '\n' {
-            *inc_next_token = true;
-        }
-
         if is_special_char(prev_char) && token_start_index.is_some() { // handles grabbing single characters
             if let Some(start_index) = token_start_index {
                 return Some((&source_file[start_index..index], &source_file[index..]))
+                return Some(drop_token(source_file, start_index, index, char, token_line_location, inc_next_token))
             }
         } else if is_special_char(char) && token_start_index.is_some() { // handles grabbing token if single character is present
             if let Some(start_index) = token_start_index {
-                return Some((&source_file[start_index..index], &source_file[index..]))
+                return Some(drop_token(source_file, start_index, index, char, token_line_location, inc_next_token))
             }
         } else if is_normal_char(char) && token_start_index.is_some(){ // iterates if in token
             // nothing
         } else if char.is_whitespace(){ // handles grabbing token if whitespace
             if let Some(start_index) = token_start_index {
-                return Some((&source_file[start_index..index], &source_file[index..]))
+                return Some(drop_token(source_file, start_index, index, char, token_line_location, inc_next_token))
             }
         } else if char == '\"' && token_start_index.is_none() { // handles start of strings
             token_start_index = Some(index);
@@ -83,6 +90,9 @@ pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc
         } else if (is_normal_char(char) || is_special_char(char)) && token_start_index.is_none() { // sets index for everything but strings
             token_start_index = Some(index);
         } 
+        if char == '\n' {
+            *token_line_location += 1;
+        }
         prev_char = char;
     }
 
