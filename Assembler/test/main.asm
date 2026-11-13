@@ -15,9 +15,10 @@
 label_A:
 
 
-
+/*
 @macro r1 r2
 @macro A B
+*/
 add r10, r1
 jmp LABEL_A, A
 

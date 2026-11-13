@@ -70,7 +70,6 @@ pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc
 
         if is_special_char(prev_char) && token_start_index.is_some() { // handles grabbing single characters
             if let Some(start_index) = token_start_index {
-                return Some((&source_file[start_index..index], &source_file[index..]))
                 return Some(drop_token(source_file, start_index, index, char, token_line_location, inc_next_token))
             }
         } else if is_special_char(char) && token_start_index.is_some() { // handles grabbing token if single character is present
