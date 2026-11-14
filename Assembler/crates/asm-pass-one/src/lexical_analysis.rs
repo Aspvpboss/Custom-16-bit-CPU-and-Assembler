@@ -27,9 +27,8 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
     let mut prev_token = "";
     let mut token_location_stack: Vec<TokenLocation> = Vec::new();
     let mut current_location = TokenLocation {line: 0, name: ""};
-    let mut inc_next_token = false;
 
-    while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.line, &mut inc_next_token) {
+    while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.line) {
 
         if token == "@start" || token == "@end" {
             prev_token = token;

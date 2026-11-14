@@ -4,10 +4,9 @@ use asm_pass_one::lexical_analysis::tokenizer::{self, next_token};
 fn collect_tokens(mut source: String) -> Vec<String> {
 
     let mut foo_two: usize = 0;
-    let mut foo: bool = false;
     let mut source = source.as_str();
     let mut tokens = Vec::new();
-    while let Some((token, remaining)) = next_token(source, &mut foo_two, &mut foo) {
+    while let Some((token, remaining)) = next_token(source, &mut foo_two) {
         tokens.push(token.to_string());
         source = remaining;
     }
@@ -18,15 +17,14 @@ fn collect_tokens(mut source: String) -> Vec<String> {
 fn basic_test() {
     let source = "Test Test Test";
     let mut foo_two: usize = 0;
-    let mut foo: bool = false;
 
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "Test");
     assert!(!source.is_empty());
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "Test");
     assert!(!source.is_empty());
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "Test");
     assert!(source.is_empty());
 }
@@ -36,35 +34,34 @@ fn basic_test() {
 fn special_characters() {
     let source = ";[r1];[r2];";
     let mut foo_two: usize = 0;
-    let mut foo: bool = false;
 
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, ";");
     assert!(!source.is_empty());
 
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "[");
     assert!(!source.is_empty());
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "r1");
     assert!(!source.is_empty());
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "]");
     
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, ";");  
     assert!(!source.is_empty());
   
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "[");
     assert!(!source.is_empty());
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "r2");
     assert!(!source.is_empty());
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, "]");
     
-    let (token, source) = next_token(source, &mut foo_two, &mut foo).unwrap();
+    let (token, source) = next_token(source, &mut foo_two).unwrap();
     assert_eq!(token, ";");
     assert!(source.is_empty());
 }
@@ -72,10 +69,9 @@ fn special_characters() {
 #[test]
 fn empty_and_whitespace_only() {
     let mut foo_two: usize = 0;
-    let mut foo: bool = false;
-    assert_eq!(next_token("", &mut foo_two, &mut foo), None);
+    assert_eq!(next_token("", &mut foo_two), None);
     // Whitespace-only input should return None (or no tokens)
-    assert_eq!(next_token("   \n\t  ", &mut foo_two, &mut foo), None);
+    assert_eq!(next_token("   \n\t  ", &mut foo_two), None);
 }
 
 #[test]

@@ -37,7 +37,7 @@ fn drop_token<'a>(
 }
 
 
-pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize, inc_next_token: &mut bool) -> Option<(&'a str, &'a str)>{
+pub fn next_token<'a>(source_file: &'a str, token_line_location: &mut usize) -> Option<(&'a str, &'a str)>{
 
     if source_file.is_empty() {
         return None
