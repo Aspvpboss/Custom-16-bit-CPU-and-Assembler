@@ -19,16 +19,15 @@ struct TokenLocation<'a> {
 
 
 pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec<AsmError>> {
+
+    let is_token_dump = user_args.user_flags.contains(&UserFlags::DumpPreprocessor);
     let mut preprocessed_src = preprocessed_src.as_str();
     let mut errors: Vec<AsmError> = Vec::new();
     let mut token_dump: Vec<String> = Vec::new();
-    let is_token_dump = user_args.user_flags.contains(&UserFlags::DumpPreprocessor);
     let mut prev_token = "";
     let mut token_location_stack: Vec<TokenLocation> = Vec::new();
     let mut current_location = TokenLocation {line: 0, name: ""};
     let mut inc_next_token = false;
-
-    println!("{:?}", preprocessed_src);
 
     while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.line, &mut inc_next_token) {
 
