@@ -9,16 +9,17 @@ pub enum AsmErrorType {
     PREPRO(String),
 }
 
-pub struct AsmErrorLocation {
+
+
+pub struct SrcLocation {
     pub src_file: String,
     pub row: u32,
-    pub col: u32,
 }
 
 
 pub struct AsmError {
     pub err_type : AsmErrorType,
-    pub src_location : Option<AsmErrorLocation>,
+    pub src_location : Option<SrcLocation>,
 }
 
 impl AsmError {
@@ -26,8 +27,8 @@ impl AsmError {
     pub fn new(error_type : AsmErrorType) -> Self {
         AsmError { err_type: error_type, src_location: None }
     }
-    pub fn add_location(&mut self, src_file: String, row: u32, col : u32) {
-        self.src_location = Some(AsmErrorLocation { src_file, row, col })
+    pub fn add_location(&mut self, location: SrcLocation) {
+        self.src_location = Some(location)
     }
 
 }
@@ -43,9 +44,9 @@ impl fmt::Display for AsmErrorType {
     }
 }
 
-impl fmt::Display for AsmErrorLocation {
+impl fmt::Display for SrcLocation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}:{}", self.src_file, self.row, self.col)
+        write!(f, "{}:{}", self.src_file, self.row)
     }
 }
 
