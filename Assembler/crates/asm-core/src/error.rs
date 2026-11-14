@@ -1,5 +1,5 @@
 use std::fmt;
-
+use std::rc::Rc;
 
 
 
@@ -11,18 +11,18 @@ pub enum AsmErrorType {
 
 
 
-pub struct SrcLocation {
-    pub src_file: String,
-    pub row: u32,
+pub struct SrcLocation<'a> {
+    pub src_file: Rc<&'a str>,
+    pub row: usize,
 }
 
 
-pub struct AsmError {
+pub struct AsmError<'a> {
     pub err_type : AsmErrorType,
-    pub src_location : Option<SrcLocation>,
+    pub src_location : Option< SrcLocation<'a>>,
 }
 
-impl AsmError {
+impl AsmError<'_> {
     
     pub fn new(error_type : AsmErrorType) -> Self {
         AsmError { err_type: error_type, src_location: None }
