@@ -1,3 +1,4 @@
+use std::{rc::Rc, thread::current};
 use asm_cli::user_args::{UserArgs, UserFlags};
 use asm_core::error::*;
 pub mod tokenizer;
@@ -12,9 +13,9 @@ pub mod lexer;
 */
 
 #[derive(Clone)]
-struct TokenLocation<'a> {
+struct TokenLocation {
     line: usize,
-    name: &'a str,
+    name: Rc<str>,
 }
 
 
@@ -26,7 +27,7 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
     let mut token_dump: Vec<String> = Vec::new();
     let mut prev_token = "";
     let mut token_location_stack: Vec<TokenLocation> = Vec::new();
-    let mut current_location = TokenLocation {line: 0, name: ""};
+    let mut current_location = TokenLocation {line: 0, name: Rc::from("")};
 
     while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.line) {
 
@@ -38,7 +39,7 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
 
         if prev_token == "@start" {
             token_location_stack.push(current_location.clone());
-            current_location = TokenLocation { line: 0, name: token };
+            current_location = TokenLocation { line: 0, name: Rc::from(token) };
             prev_token = token;
             preprocessed_src = remaining;
             continue;
@@ -56,6 +57,8 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
         if is_token_dump {
             token_dump.push(format!("{}: {}: {}", current_location.name, current_location.line, token.to_string()));
         }
+
+        lexer::lex_token(token, current_location.line, Rc::clone(&current_location.name));
 
         prev_token = token;
         preprocessed_src = remaining;

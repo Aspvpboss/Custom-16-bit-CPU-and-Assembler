@@ -2,15 +2,16 @@ use std::rc::Rc;
 use asm_core::error::*;
 
 
-enum Directives {
+pub enum Directives {
     GLOBAL,
 }
 
-enum TokenType {
+pub enum TokenType {
     DIR(Directives),
+    UNKNOWN(String),
 }
 
-struct Token {
+pub struct Token {
     r#type: TokenType,    
     location: SrcLocation,
 }
@@ -20,5 +21,5 @@ struct Token {
 pub fn lex_token(token: &str, line: usize, name: Rc<str>) -> Token {
 
     
-    Token { r#type: TokenType::DIR(Directives::GLOBAL), location: SrcLocation { src_file: name, row: line } }
+    Token { r#type: TokenType::UNKNOWN(token.to_string()), location: SrcLocation { src_file: name, row: line } }
 }
