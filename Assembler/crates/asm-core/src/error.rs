@@ -10,7 +10,7 @@ pub enum AsmErrorType {
 }
 
 
-
+#[derive(Clone)]
 pub struct SrcLocation {
     pub src_file: Rc<str>,
     pub row: usize,
