@@ -25,42 +25,42 @@ pub fn run(mut preprocessed_src: String, user_args: &UserArgs) -> Result<(), Vec
     let mut preprocessed_src = preprocessed_src.as_str();
     let mut errors: Vec<AsmError> = Vec::new();
     let mut token_dump: Vec<String> = Vec::new();
-    let mut prev_token = "";
+    let mut prev_raw_token = "";
     let mut token_location_stack: Vec<SrcLocation> = Vec::new();
     let mut current_location = SrcLocation {src_file: Rc::from(""), row: 0};
 
-    while let Some((token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.row) {
+    while let Some((raw_token, remaining)) = tokenizer::next_token(preprocessed_src, &mut current_location.row) {
 
-        if token == "@start" || token == "@end" {
-            prev_token = token;
+        if raw_token == "@start" || raw_token == "@end" {
+            prev_raw_token = raw_token;
             preprocessed_src = remaining;
             continue;
         }
 
-        if prev_token == "@start" {
+        if prev_raw_token == "@start" {
             token_location_stack.push(current_location.clone());
-            current_location = SrcLocation {src_file: Rc::from(token), row: 0};
-            prev_token = token;
+            current_location = SrcLocation {src_file: Rc::from(raw_token), row: 0};
+            prev_raw_token = raw_token;
             preprocessed_src = remaining;
             continue;
         }
 
-        if prev_token == "@end" {
+        if prev_raw_token == "@end" {
             if let Some(prev_location) = token_location_stack.pop() {
                 current_location = prev_location;
             };
-            prev_token = token;
+            prev_raw_token = raw_token;
             preprocessed_src = remaining;
             continue;
         }
 
         if is_token_dump {
-            token_dump.push(format!("{}: {}: {}", current_location.src_file, current_location.row, token.to_string()));
+            token_dump.push(format!("{}: {}: {}", current_location.src_file, current_location.row, raw_token.to_string()));
         }
 
-        lexer::lex_token(token, current_location.row, Rc::clone(&current_location.src_file));
+        let token = lexer::lex_token(raw_token, current_location.row, Rc::clone(&current_location.src_file));
 
-        prev_token = token;
+        prev_raw_token = raw_token;
         preprocessed_src = remaining;
         
     }
